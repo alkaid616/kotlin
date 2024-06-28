@@ -47,7 +47,7 @@ open class AbstractFirLightTreeBlackBoxCodegenTestForPowerAssert : AbstractFirLi
 
 fun TestConfigurationBuilder.configurePlugin() {
     // TODO there has got to be a better way?
-    val sourceRoots = File("plugins/power-assert/testData/")
+    val sourceRoots = File("plugins/power-assert/power-assert-compiler/testData/")
         .walkTopDown()
         .filter { it.isDirectory }
         .joinToString(",") { it.path }
@@ -92,9 +92,9 @@ class AdditionalSourceFilesProvider(testServices: TestServices) : AdditionalSour
 
     override fun produceAdditionalFiles(globalDirectives: RegisteredDirectives, module: TestModule): List<TestFile> {
         return buildList {
-            add(File("plugins/power-assert/testData/helpers/InfixDispatch.kt").toTestFile())
-            add(File("plugins/power-assert/testData/helpers/InfixExtension.kt").toTestFile())
-            add(File("plugins/power-assert/testData/helpers/utils.kt").toTestFile())
+            add(File("plugins/power-assert/power-assert-compiler/testData/helpers/InfixDispatch.kt").toTestFile())
+            add(File("plugins/power-assert/power-assert-compiler/testData/helpers/InfixExtension.kt").toTestFile())
+            add(File("plugins/power-assert/power-assert-compiler/testData/helpers/utils.kt").toTestFile())
         }
     }
 }
