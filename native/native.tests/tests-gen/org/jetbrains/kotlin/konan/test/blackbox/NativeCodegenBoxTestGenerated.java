@@ -17910,21 +17910,9 @@ public class NativeCodegenBoxTestGenerated extends AbstractNativeCodegenBoxTest 
       }
 
       @Test
-      @TestMetadata("equalsDouble.kt")
-      public void testEqualsDouble() {
-        runTest("compiler/testData/codegen/box/ieee754/equalsDouble.kt");
-      }
-
-      @Test
       @TestMetadata("equalsDouble_properIeeeComparisons.kt")
       public void testEqualsDouble_properIeeeComparisons() {
         runTest("compiler/testData/codegen/box/ieee754/equalsDouble_properIeeeComparisons.kt");
-      }
-
-      @Test
-      @TestMetadata("equalsFloat.kt")
-      public void testEqualsFloat() {
-        runTest("compiler/testData/codegen/box/ieee754/equalsFloat.kt");
       }
 
       @Test
@@ -17934,33 +17922,15 @@ public class NativeCodegenBoxTestGenerated extends AbstractNativeCodegenBoxTest 
       }
 
       @Test
-      @TestMetadata("equalsNaN.kt")
-      public void testEqualsNaN() {
-        runTest("compiler/testData/codegen/box/ieee754/equalsNaN.kt");
-      }
-
-      @Test
       @TestMetadata("equalsNaN_properIeeeComparisons.kt")
       public void testEqualsNaN_properIeeeComparisons() {
         runTest("compiler/testData/codegen/box/ieee754/equalsNaN_properIeeeComparisons.kt");
       }
 
       @Test
-      @TestMetadata("equalsNullableDouble.kt")
-      public void testEqualsNullableDouble() {
-        runTest("compiler/testData/codegen/box/ieee754/equalsNullableDouble.kt");
-      }
-
-      @Test
       @TestMetadata("equalsNullableDouble_properIeeeComparisons.kt")
       public void testEqualsNullableDouble_properIeeeComparisons() {
         runTest("compiler/testData/codegen/box/ieee754/equalsNullableDouble_properIeeeComparisons.kt");
-      }
-
-      @Test
-      @TestMetadata("equalsNullableFloat.kt")
-      public void testEqualsNullableFloat() {
-        runTest("compiler/testData/codegen/box/ieee754/equalsNullableFloat.kt");
       }
 
       @Test
@@ -17988,21 +17958,9 @@ public class NativeCodegenBoxTestGenerated extends AbstractNativeCodegenBoxTest 
       }
 
       @Test
-      @TestMetadata("greaterDouble.kt")
-      public void testGreaterDouble() {
-        runTest("compiler/testData/codegen/box/ieee754/greaterDouble.kt");
-      }
-
-      @Test
       @TestMetadata("greaterDouble_properIeeeComparisons.kt")
       public void testGreaterDouble_properIeeeComparisons() {
         runTest("compiler/testData/codegen/box/ieee754/greaterDouble_properIeeeComparisons.kt");
-      }
-
-      @Test
-      @TestMetadata("greaterFloat.kt")
-      public void testGreaterFloat() {
-        runTest("compiler/testData/codegen/box/ieee754/greaterFloat.kt");
       }
 
       @Test
@@ -18018,12 +17976,6 @@ public class NativeCodegenBoxTestGenerated extends AbstractNativeCodegenBoxTest 
       }
 
       @Test
-      @TestMetadata("lessDouble.kt")
-      public void testLessDouble() {
-        runTest("compiler/testData/codegen/box/ieee754/lessDouble.kt");
-      }
-
-      @Test
       @TestMetadata("lessDouble_properIeeeAndNewInference.kt")
       public void testLessDouble_properIeeeAndNewInference() {
         runTest("compiler/testData/codegen/box/ieee754/lessDouble_properIeeeAndNewInference.kt");
@@ -18033,12 +17985,6 @@ public class NativeCodegenBoxTestGenerated extends AbstractNativeCodegenBoxTest 
       @TestMetadata("lessDouble_properIeeeComparisons.kt")
       public void testLessDouble_properIeeeComparisons() {
         runTest("compiler/testData/codegen/box/ieee754/lessDouble_properIeeeComparisons.kt");
-      }
-
-      @Test
-      @TestMetadata("lessFloat.kt")
-      public void testLessFloat() {
-        runTest("compiler/testData/codegen/box/ieee754/lessFloat.kt");
       }
 
       @Test
@@ -18123,18 +18069,6 @@ public class NativeCodegenBoxTestGenerated extends AbstractNativeCodegenBoxTest 
       @TestMetadata("smartCastToInt.kt")
       public void testSmartCastToInt() {
         runTest("compiler/testData/codegen/box/ieee754/smartCastToInt.kt");
-      }
-
-      @Test
-      @TestMetadata("when.kt")
-      public void testWhen() {
-        runTest("compiler/testData/codegen/box/ieee754/when.kt");
-      }
-
-      @Test
-      @TestMetadata("whenNoSubject.kt")
-      public void testWhenNoSubject() {
-        runTest("compiler/testData/codegen/box/ieee754/whenNoSubject.kt");
       }
 
       @Test
@@ -18526,12 +18460,6 @@ public class NativeCodegenBoxTestGenerated extends AbstractNativeCodegenBoxTest 
       }
 
       @Test
-      @TestMetadata("specialCallsWithCallableReferences.kt")
-      public void testSpecialCallsWithCallableReferences() {
-        runTest("compiler/testData/codegen/box/inference/specialCallsWithCallableReferences.kt");
-      }
-
-      @Test
       @TestMetadata("sumOfOverloads.kt")
       public void testSumOfOverloads() {
         runTest("compiler/testData/codegen/box/inference/sumOfOverloads.kt");
@@ -18686,21 +18614,9 @@ public class NativeCodegenBoxTestGenerated extends AbstractNativeCodegenBoxTest 
         }
 
         @Test
-        @TestMetadata("specialCallsWithCallableReferences.kt")
-        public void testSpecialCallsWithCallableReferences() {
-          runTest("compiler/testData/codegen/box/inference/pcla/specialCallsWithCallableReferences.kt");
-        }
-
-        @Test
         @TestMetadata("specialCallsWithCallableReferencesDontRewriteAtSlice.kt")
         public void testSpecialCallsWithCallableReferencesDontRewriteAtSlice() {
           runTest("compiler/testData/codegen/box/inference/pcla/specialCallsWithCallableReferencesDontRewriteAtSlice.kt");
-        }
-
-        @Test
-        @TestMetadata("specialCallsWithCallableReferencesErrorType.kt")
-        public void testSpecialCallsWithCallableReferencesErrorType() {
-          runTest("compiler/testData/codegen/box/inference/pcla/specialCallsWithCallableReferencesErrorType.kt");
         }
 
         @Test
@@ -20556,8 +20472,6 @@ public class NativeCodegenBoxTestGenerated extends AbstractNativeCodegenBoxTest 
         register("compiler/testData/codegen/box/inlineClasses/nestedInlineClassGeneric.kt", TransformersFunctions.getRemoveOptionalJvmInlineAnnotation());
         register("compiler/testData/codegen/box/inlineClasses/noAssertionsOnInlineClassBasedOnNullableType.kt", TransformersFunctions.getRemoveOptionalJvmInlineAnnotation());
         register("compiler/testData/codegen/box/inlineClasses/noAssertionsOnInlineClassBasedOnNullableTypeGeneric.kt", TransformersFunctions.getRemoveOptionalJvmInlineAnnotation());
-        register("compiler/testData/codegen/box/inlineClasses/noReturnTypeMangling.kt", TransformersFunctions.getRemoveOptionalJvmInlineAnnotation());
-        register("compiler/testData/codegen/box/inlineClasses/noReturnTypeManglingGeneric.kt", TransformersFunctions.getRemoveOptionalJvmInlineAnnotation());
         register("compiler/testData/codegen/box/inlineClasses/nullableEqeqNonNull.kt", TransformersFunctions.getRemoveOptionalJvmInlineAnnotation());
         register("compiler/testData/codegen/box/inlineClasses/nullableEqeqNonNullGeneric.kt", TransformersFunctions.getRemoveOptionalJvmInlineAnnotation());
         register("compiler/testData/codegen/box/inlineClasses/nullableWrapperEquality.kt", TransformersFunctions.getRemoveOptionalJvmInlineAnnotation());
@@ -20636,6 +20550,8 @@ public class NativeCodegenBoxTestGenerated extends AbstractNativeCodegenBoxTest 
         register("compiler/testData/codegen/box/inlineClasses/useThisInsideInlineClassGeneric.kt", TransformersFunctions.getRemoveOptionalJvmInlineAnnotation());
         register("compiler/testData/codegen/box/inlineClasses/whenWithSubject.kt", TransformersFunctions.getRemoveOptionalJvmInlineAnnotation());
         register("compiler/testData/codegen/box/inlineClasses/whenWithSubjectGeneric.kt", TransformersFunctions.getRemoveOptionalJvmInlineAnnotation());
+        register("compiler/testData/codegen/box/inlineClasses/withReturnTypeMangling.kt", TransformersFunctions.getRemoveOptionalJvmInlineAnnotation());
+        register("compiler/testData/codegen/box/inlineClasses/withReturnTypeManglingGeneric.kt", TransformersFunctions.getRemoveOptionalJvmInlineAnnotation());
       }
 
       @Test
@@ -22508,20 +22424,6 @@ public class NativeCodegenBoxTestGenerated extends AbstractNativeCodegenBoxTest 
       }
 
       @Test
-      @TestMetadata("noReturnTypeMangling.kt")
-      public void testNoReturnTypeMangling() {
-        // There is a registered source transformer for the testcase: TransformersFunctions.getRemoveOptionalJvmInlineAnnotation()
-        runTest("compiler/testData/codegen/box/inlineClasses/noReturnTypeMangling.kt");
-      }
-
-      @Test
-      @TestMetadata("noReturnTypeManglingGeneric.kt")
-      public void testNoReturnTypeManglingGeneric() {
-        // There is a registered source transformer for the testcase: TransformersFunctions.getRemoveOptionalJvmInlineAnnotation()
-        runTest("compiler/testData/codegen/box/inlineClasses/noReturnTypeManglingGeneric.kt");
-      }
-
-      @Test
       @TestMetadata("nullableEqeqNonNull.kt")
       public void testNullableEqeqNonNull() {
         // There is a registered source transformer for the testcase: TransformersFunctions.getRemoveOptionalJvmInlineAnnotation()
@@ -23083,6 +22985,20 @@ public class NativeCodegenBoxTestGenerated extends AbstractNativeCodegenBoxTest 
       public void testWhenWithSubjectGeneric() {
         // There is a registered source transformer for the testcase: TransformersFunctions.getRemoveOptionalJvmInlineAnnotation()
         runTest("compiler/testData/codegen/box/inlineClasses/whenWithSubjectGeneric.kt");
+      }
+
+      @Test
+      @TestMetadata("withReturnTypeMangling.kt")
+      public void testWithReturnTypeMangling() {
+        // There is a registered source transformer for the testcase: TransformersFunctions.getRemoveOptionalJvmInlineAnnotation()
+        runTest("compiler/testData/codegen/box/inlineClasses/withReturnTypeMangling.kt");
+      }
+
+      @Test
+      @TestMetadata("withReturnTypeManglingGeneric.kt")
+      public void testWithReturnTypeManglingGeneric() {
+        // There is a registered source transformer for the testcase: TransformersFunctions.getRemoveOptionalJvmInlineAnnotation()
+        runTest("compiler/testData/codegen/box/inlineClasses/withReturnTypeManglingGeneric.kt");
       }
 
       @Nested
@@ -31417,21 +31333,9 @@ public class NativeCodegenBoxTestGenerated extends AbstractNativeCodegenBoxTest 
       }
 
       @Test
-      @TestMetadata("kt39880.kt")
-      public void testKt39880() {
-        runTest("compiler/testData/codegen/box/operatorConventions/kt39880.kt");
-      }
-
-      @Test
       @TestMetadata("kt4152.kt")
       public void testKt4152() {
         runTest("compiler/testData/codegen/box/operatorConventions/kt4152.kt");
-      }
-
-      @Test
-      @TestMetadata("kt42722.kt")
-      public void testKt42722() {
-        runTest("compiler/testData/codegen/box/operatorConventions/kt42722.kt");
       }
 
       @Test
@@ -43944,12 +43848,6 @@ public class NativeCodegenBoxTestGenerated extends AbstractNativeCodegenBoxTest 
       }
 
       @Test
-      @TestMetadata("singleAssignmentToVarargsInFunction.kt")
-      public void testSingleAssignmentToVarargsInFunction() {
-        runTest("compiler/testData/codegen/box/vararg/singleAssignmentToVarargsInFunction.kt");
-      }
-
-      @Test
       @TestMetadata("spreadCopiesArray.kt")
       public void testSpreadCopiesArray() {
         runTest("compiler/testData/codegen/box/vararg/spreadCopiesArray.kt");
@@ -44410,18 +44308,6 @@ public class NativeCodegenBoxTestGenerated extends AbstractNativeCodegenBoxTest 
         @TestMetadata("bigEnum.kt")
         public void testBigEnum() {
           runTest("compiler/testData/codegen/box/when/enumOptimization/bigEnum.kt");
-        }
-
-        @Test
-        @TestMetadata("differentEnumClasses.kt")
-        public void testDifferentEnumClasses() {
-          runTest("compiler/testData/codegen/box/when/enumOptimization/differentEnumClasses.kt");
-        }
-
-        @Test
-        @TestMetadata("differentEnumClasses2.kt")
-        public void testDifferentEnumClasses2() {
-          runTest("compiler/testData/codegen/box/when/enumOptimization/differentEnumClasses2.kt");
         }
 
         @Test
@@ -45469,12 +45355,6 @@ public class NativeCodegenBoxTestGenerated extends AbstractNativeCodegenBoxTest 
       }
 
       @Test
-      @TestMetadata("defaultParametersAndLastVararg.kt")
-      public void testDefaultParametersAndLastVararg() {
-        runTest("compiler/testData/codegen/boxInline/argumentOrder/defaultParametersAndLastVararg.kt");
-      }
-
-      @Test
       @TestMetadata("defaultParametersAndLastVarargWithCorrectOrder.kt")
       public void testDefaultParametersAndLastVarargWithCorrectOrder() {
         runTest("compiler/testData/codegen/boxInline/argumentOrder/defaultParametersAndLastVarargWithCorrectOrder.kt");
@@ -45514,12 +45394,6 @@ public class NativeCodegenBoxTestGenerated extends AbstractNativeCodegenBoxTest 
       @TestMetadata("simpleInClass.kt")
       public void testSimpleInClass() {
         runTest("compiler/testData/codegen/boxInline/argumentOrder/simpleInClass.kt");
-      }
-
-      @Test
-      @TestMetadata("varargAndDefaultParameters.kt")
-      public void testVarargAndDefaultParameters() {
-        runTest("compiler/testData/codegen/boxInline/argumentOrder/varargAndDefaultParameters.kt");
       }
 
       @Test
@@ -47124,18 +46998,6 @@ public class NativeCodegenBoxTestGenerated extends AbstractNativeCodegenBoxTest 
       @TestMetadata("kt62313.kt")
       public void testKt62313() {
         runTest("compiler/testData/codegen/boxInline/inlineClasses/kt62313.kt");
-      }
-
-      @Test
-      @TestMetadata("noReturnTypeManglingFun.kt")
-      public void testNoReturnTypeManglingFun() {
-        runTest("compiler/testData/codegen/boxInline/inlineClasses/noReturnTypeManglingFun.kt");
-      }
-
-      @Test
-      @TestMetadata("noReturnTypeManglingVal.kt")
-      public void testNoReturnTypeManglingVal() {
-        runTest("compiler/testData/codegen/boxInline/inlineClasses/noReturnTypeManglingVal.kt");
       }
 
       @Test
@@ -48956,12 +48818,6 @@ public class NativeCodegenBoxTestGenerated extends AbstractNativeCodegenBoxTest 
       }
 
       @Test
-      @TestMetadata("smapWithOldSyntax.kt")
-      public void testSmapWithOldSyntax() {
-        runTest("compiler/testData/codegen/boxInline/smap/smapWithOldSyntax.kt");
-      }
-
-      @Test
       @TestMetadata("tryFinally1.kt")
       public void testTryFinally1() {
         runTest("compiler/testData/codegen/boxInline/smap/tryFinally1.kt");
@@ -49919,18 +49775,6 @@ public class NativeCodegenBoxTestGenerated extends AbstractNativeCodegenBoxTest 
       }
 
       @Test
-      @TestMetadata("protectedMembers.kt")
-      public void testProtectedMembers() {
-        runTest("compiler/testData/codegen/boxInline/syntheticAccessors/protectedMembers.kt");
-      }
-
-      @Test
-      @TestMetadata("protectedMembersFromSuper.kt")
-      public void testProtectedMembersFromSuper() {
-        runTest("compiler/testData/codegen/boxInline/syntheticAccessors/protectedMembersFromSuper.kt");
-      }
-
-      @Test
       @TestMetadata("superCall.kt")
       public void testSuperCall() {
         runTest("compiler/testData/codegen/boxInline/syntheticAccessors/superCall.kt");
@@ -49992,12 +49836,6 @@ public class NativeCodegenBoxTestGenerated extends AbstractNativeCodegenBoxTest 
         @TestMetadata("protectedInCrossinline.kt")
         public void testProtectedInCrossinline() {
           runTest("compiler/testData/codegen/boxInline/syntheticAccessors/withinInlineLambda/protectedInCrossinline.kt");
-        }
-
-        @Test
-        @TestMetadata("protectedMembersFromSuper.kt")
-        public void testProtectedMembersFromSuper() {
-          runTest("compiler/testData/codegen/boxInline/syntheticAccessors/withinInlineLambda/protectedMembersFromSuper.kt");
         }
 
         @Test
