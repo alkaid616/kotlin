@@ -11,6 +11,8 @@ import org.gradle.api.file.Directory
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 import org.jetbrains.kotlin.gradle.plugin.PropertiesProvider
+import org.jetbrains.kotlin.gradle.plugin.findExtension
+import org.jetbrains.kotlin.gradle.plugin.getExtension
 import org.jetbrains.kotlin.gradle.targets.js.NpmVersions
 import org.jetbrains.kotlin.gradle.targets.js.npm.resolver.KotlinRootNpmResolver
 import org.jetbrains.kotlin.gradle.targets.js.npm.resolver.PACKAGE_JSON_UMBRELLA_TASK_NAME
@@ -52,56 +54,56 @@ open class NodeJsRootExtension(
         "Use installationDir from NodeJsExtension (not NodeJsRootExtension) instead." +
                 "You can find this extension after applying NodeJsPlugin"
     )
-    var installationDir: File by allProjectsDelegate(nodeJs::installationDir)
+    var installationDir: File by allProjectsDelegate(nodeJs) { it::installationDir }
 
     @Suppress("DEPRECATION")
     @Deprecated(
         "Use download from NodeJsExtension (not NodeJsRootExtension) instead" +
                 "You can find this extension after applying NodeJsPlugin"
     )
-    var download by allProjectsDelegate(nodeJs::download)
+    var download by allProjectsDelegate(nodeJs) { it::download }
 
     @Suppress("DEPRECATION")
     @Deprecated(
         "Use downloadBaseUrl from NodeJsExtension (not NodeJsRootExtension) instead" +
                 "You can find this extension after applying NodeJsPlugin"
     )
-    var nodeDownloadBaseUrl by allProjectsDelegate(nodeJs::downloadBaseUrl)
+    var nodeDownloadBaseUrl by allProjectsDelegate(nodeJs) { it::downloadBaseUrl }
 
     @Suppress("DEPRECATION")
 //    @Deprecated(
 //        "Use downloadBaseUrl from NodeJsExtension (not NodeJsRootExtension) instead" +
 //                "You can find this extension after applying NodeJsPlugin"
 //    )
-    var downloadBaseUrl: String? by allProjectsDelegate(nodeJs::downloadBaseUrl)
+    var downloadBaseUrl: String? by allProjectsDelegate(nodeJs) { it::downloadBaseUrl }
 
     @Suppress("DEPRECATION")
     @Deprecated(
         "Use version from NodeJsExtension (not NodeJsRootExtension) instead" +
                 "You can find this extension after applying NodeJsPlugin"
     )
-    var nodeVersion by allProjectsDelegate(nodeJs::version)
+    var nodeVersion by allProjectsDelegate(nodeJs) { it::version }
 
     @Suppress("DEPRECATION")
 //    @Deprecated(
 //        "Use downloadBaseUrl from NodeJsExtension (not NodeJsRootExtension) instead" +
 //                "You can find this extension after applying NodeJsPlugin"
 //    )
-    var version by allProjectsDelegate(nodeJs::version)
+    var version by allProjectsDelegate(nodeJs) { it::version }
 
     @Suppress("DEPRECATION")
     @Deprecated(
         "Use command from NodeJsExtension (not NodeJsRootExtension) instead" +
                 "You can find this extension after applying NodeJsPlugin"
     )
-    var command by allProjectsDelegate(nodeJs::command)
+    var command by allProjectsDelegate(nodeJs) { it::command }
 
     @Suppress("DEPRECATION")
     @Deprecated(
         "Use command from NodeJsExtension (not NodeJsRootExtension) instead" +
                 "You can find this extension after applying NodeJsPlugin"
     )
-    var nodeCommand by allProjectsDelegate(nodeJs::command)
+    var nodeCommand by allProjectsDelegate(nodeJs) { it::command }
 
     val rootProjectDir
         get() = project.rootDir
@@ -147,17 +149,18 @@ open class NodeJsRootExtension(
     }
 
     private fun <T> allProjectsDelegate(
-        prop: KMutableProperty<T>,
+        rootNodeJs: NodeJsExtension,
+        prop: (NodeJsExtension) -> KMutableProperty<T>,
     ): ReadWriteProperty<NodeJsRootExtension, T> {
         return object : ReadWriteProperty<NodeJsRootExtension, T> {
             override fun getValue(thisRef: NodeJsRootExtension, property: KProperty<*>): T {
-                return prop.getter.call()
+                return prop(rootNodeJs).getter.call()
             }
 
             override fun setValue(thisRef: NodeJsRootExtension, property: KProperty<*>, value: T) {
                 project.allprojects { project ->
-                    project.plugins.withType(NodeJsPlugin::class.java) {
-                        prop.setter.call(value)
+                    project.findExtension<NodeJsExtension>(NodeJsExtension.EXTENSION_NAME)?.let {
+                        prop(it).setter.call(value)
                     }
                 }
             }
