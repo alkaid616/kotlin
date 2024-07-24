@@ -22,7 +22,7 @@ open class NodeJsPlugin : Plugin<Project> {
             NodeJsExtension.EXTENSION_NAME,
             NodeJsExtension::class.java,
             project,
-            NodeJsRootPlugin.apply(project.rootProject)
+            { NodeJsRootPlugin.apply(project.rootProject) }
         )
 
         addPlatform(project, nodeJs)
