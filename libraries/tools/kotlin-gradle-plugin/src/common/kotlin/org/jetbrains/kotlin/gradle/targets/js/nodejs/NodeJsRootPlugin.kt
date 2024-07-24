@@ -40,13 +40,11 @@ open class NodeJsRootPlugin : Plugin<Project> {
 
         project.plugins.apply(BasePlugin::class.java)
 
-        val nodeJs = NodeJsPlugin.apply(project)
-
         val nodeJsRoot = project.extensions.create(
             NodeJsRootExtension.EXTENSION_NAME,
             NodeJsRootExtension::class.java,
             project,
-            nodeJs
+            { NodeJsPlugin.apply(project) }
         )
 
         val npm = project.extensions.create(
@@ -55,6 +53,8 @@ open class NodeJsRootPlugin : Plugin<Project> {
             project,
             nodeJsRoot
         )
+
+        val nodeJs = NodeJsPlugin.apply(project)
 
         npm.nodeJsEnvironment.value(
             project.provider {

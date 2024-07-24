@@ -21,7 +21,8 @@ open class NodeJsPlugin : Plugin<Project> {
         val nodeJs = project.extensions.create(
             NodeJsExtension.EXTENSION_NAME,
             NodeJsExtension::class.java,
-            project
+            project,
+            NodeJsRootPlugin.apply(project.rootProject)
         )
 
         addPlatform(project, nodeJs)

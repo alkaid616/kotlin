@@ -10,9 +10,9 @@ import org.gradle.api.Task
 import org.gradle.api.file.Directory
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
+import org.jetbrains.kotlin.gradle.logging.kotlinInfo
 import org.jetbrains.kotlin.gradle.plugin.PropertiesProvider
 import org.jetbrains.kotlin.gradle.plugin.findExtension
-import org.jetbrains.kotlin.gradle.plugin.getExtension
 import org.jetbrains.kotlin.gradle.targets.js.NpmVersions
 import org.jetbrains.kotlin.gradle.targets.js.npm.resolver.KotlinRootNpmResolver
 import org.jetbrains.kotlin.gradle.targets.js.npm.resolver.PACKAGE_JSON_UMBRELLA_TASK_NAME
@@ -27,7 +27,7 @@ import kotlin.reflect.KProperty
 
 open class NodeJsRootExtension(
     val project: Project,
-    private val nodeJs: NodeJsExtension,
+    private val nodeJs: () -> NodeJsExtension,
 ) {
 
     init {
@@ -49,61 +49,65 @@ open class NodeJsRootExtension(
         }
     }
 
+    private val gradleHome = project.gradle.gradleUserHomeDir.also {
+        project.logger.kotlinInfo("Storing cached files in $it")
+    }
+
     @Suppress("DEPRECATION")
     @Deprecated(
         "Use installationDir from NodeJsExtension (not NodeJsRootExtension) instead." +
                 "You can find this extension after applying NodeJsPlugin"
     )
-    var installationDir: File by allProjectsDelegate(nodeJs) { it::installationDir }
+    var installationDir: File = gradleHome.resolve("nodejs")
 
     @Suppress("DEPRECATION")
     @Deprecated(
         "Use download from NodeJsExtension (not NodeJsRootExtension) instead" +
                 "You can find this extension after applying NodeJsPlugin"
     )
-    var download by allProjectsDelegate(nodeJs) { it::download }
+    var download = true
 
     @Suppress("DEPRECATION")
     @Deprecated(
         "Use downloadBaseUrl from NodeJsExtension (not NodeJsRootExtension) instead" +
                 "You can find this extension after applying NodeJsPlugin"
     )
-    var nodeDownloadBaseUrl by allProjectsDelegate(nodeJs) { it::downloadBaseUrl }
+    var nodeDownloadBaseUrl by ::downloadBaseUrl
 
     @Suppress("DEPRECATION")
 //    @Deprecated(
 //        "Use downloadBaseUrl from NodeJsExtension (not NodeJsRootExtension) instead" +
 //                "You can find this extension after applying NodeJsPlugin"
 //    )
-    var downloadBaseUrl: String? by allProjectsDelegate(nodeJs) { it::downloadBaseUrl }
+    var downloadBaseUrl: String? = "https://nodejs.org/dist"
 
     @Suppress("DEPRECATION")
     @Deprecated(
         "Use version from NodeJsExtension (not NodeJsRootExtension) instead" +
                 "You can find this extension after applying NodeJsPlugin"
     )
-    var nodeVersion by allProjectsDelegate(nodeJs) { it::version }
+    var nodeVersion by ::version
 
     @Suppress("DEPRECATION")
 //    @Deprecated(
 //        "Use downloadBaseUrl from NodeJsExtension (not NodeJsRootExtension) instead" +
 //                "You can find this extension after applying NodeJsPlugin"
 //    )
-    var version by allProjectsDelegate(nodeJs) { it::version }
+    var version = "22.0.0"
 
     @Suppress("DEPRECATION")
     @Deprecated(
         "Use command from NodeJsExtension (not NodeJsRootExtension) instead" +
                 "You can find this extension after applying NodeJsPlugin"
     )
-    var command by allProjectsDelegate(nodeJs) { it::command }
+    var command = "node"
 
     @Suppress("DEPRECATION")
     @Deprecated(
         "Use command from NodeJsExtension (not NodeJsRootExtension) instead" +
                 "You can find this extension after applying NodeJsPlugin"
     )
-    var nodeCommand by allProjectsDelegate(nodeJs) { it::command }
+    var nodeCommand by ::command
 
     val rootProjectDir
         get() = project.rootDir
@@ -141,31 +145,12 @@ open class NodeJsRootExtension(
         "Use nodeJsSetupTaskProvider from NodeJsExtension (not NodeJsRootExtension) instead" +
                 "You can find this extension after applying NodeJsPlugin"
     )
-    val nodeJsSetupTaskProvider: TaskProvider<out NodeJsSetupTask> by nodeJs::nodeJsSetupTaskProvider
+    val nodeJsSetupTaskProvider: TaskProvider<out NodeJsSetupTask>
+        get() = nodeJs().nodeJsSetupTaskProvider
 
     @Deprecated("Use NodeJsExtension instead")
     fun requireConfigured(): NodeJsEnv {
-        return nodeJs.requireConfigured()
-    }
-
-    private fun <T> allProjectsDelegate(
-        rootNodeJs: NodeJsExtension,
-        prop: (NodeJsExtension) -> KMutableProperty<T>,
-    ): ReadWriteProperty<NodeJsRootExtension, T> {
-        return object : ReadWriteProperty<NodeJsRootExtension, T> {
-            override fun getValue(thisRef: NodeJsRootExtension, property: KProperty<*>): T {
-                return prop(rootNodeJs).getter.call()
-            }
-
-            override fun setValue(thisRef: NodeJsRootExtension, property: KProperty<*>, value: T) {
-                project.allprojects { project ->
-                    project.findExtension<NodeJsExtension>(NodeJsExtension.EXTENSION_NAME)?.let {
-                        prop(it).setter.call(value)
-                    }
-                }
-            }
-
-        }
+        return nodeJs().requireConfigured()
     }
 
     companion object {

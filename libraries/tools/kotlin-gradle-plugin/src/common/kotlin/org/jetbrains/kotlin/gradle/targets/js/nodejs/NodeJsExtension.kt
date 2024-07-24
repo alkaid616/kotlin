@@ -13,34 +13,39 @@ import org.jetbrains.kotlin.gradle.targets.js.AbstractSettings
 import org.jetbrains.kotlin.gradle.tasks.internal.CleanableStore
 import org.jetbrains.kotlin.gradle.utils.getFile
 import org.jetbrains.kotlin.gradle.utils.property
+import org.jetbrains.kotlin.gradle.utils.providerWithLazyConvention
 import java.io.File
 
+@Suppress("DEPRECATION")
 open class NodeJsExtension(
     val project: Project,
+    rootNodeJs: NodeJsRootExtension,
 ) : AbstractSettings<NodeJsEnv>() {
 
-    private val gradleHome = project.gradle.gradleUserHomeDir.also {
-        project.logger.kotlinInfo("Storing cached files in $it")
-    }
-
     override val installationDirectory: DirectoryProperty = project.objects.directoryProperty()
-        .fileValue(gradleHome.resolve("nodejs"))
+        .convention(
+            project.objects.directoryProperty().fileProvider(
+                project.objects.providerWithLazyConvention {
+                    rootNodeJs.installationDir
+                }
+            )
+        )
 
     override val downloadProperty: org.gradle.api.provider.Property<Boolean> = project.objects.property<Boolean>()
-        .convention(true)
+        .convention(project.objects.providerWithLazyConvention { rootNodeJs.download })
 
     // value not convention because this property can be nullable to not add repository
     override val downloadBaseUrlProperty: org.gradle.api.provider.Property<String> = project.objects.property<String>()
-        .value("https://nodejs.org/dist")
+        .convention(project.objects.providerWithLazyConvention { rootNodeJs.downloadBaseUrl })
 
     // Release schedule: https://github.com/nodejs/Release
     // Actual LTS and Current versions: https://nodejs.org/en/download/
     // Older versions and more information, e.g. V8 version inside: https://nodejs.org/en/download/releases/
     override val versionProperty: org.gradle.api.provider.Property<String> = project.objects.property<String>()
-        .convention("22.0.0")
+        .convention(project.objects.providerWithLazyConvention { rootNodeJs.version })
 
     override val commandProperty: org.gradle.api.provider.Property<String> = project.objects.property<String>()
-        .convention("node")
+        .convention(project.objects.providerWithLazyConvention { rootNodeJs.command })
 
     internal val platform: org.gradle.api.provider.Property<Platform> = project.objects.property<Platform>()
 
