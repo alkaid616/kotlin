@@ -12,7 +12,6 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 import org.jetbrains.kotlin.gradle.logging.kotlinInfo
 import org.jetbrains.kotlin.gradle.plugin.PropertiesProvider
-import org.jetbrains.kotlin.gradle.plugin.findExtension
 import org.jetbrains.kotlin.gradle.targets.js.NpmVersions
 import org.jetbrains.kotlin.gradle.targets.js.npm.resolver.KotlinRootNpmResolver
 import org.jetbrains.kotlin.gradle.targets.js.npm.resolver.PACKAGE_JSON_UMBRELLA_TASK_NAME
@@ -21,9 +20,6 @@ import org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask
 import org.jetbrains.kotlin.gradle.targets.js.npm.tasks.RootPackageJsonTask
 import org.jetbrains.kotlin.gradle.utils.property
 import java.io.File
-import kotlin.properties.ReadWriteProperty
-import kotlin.reflect.KMutableProperty
-import kotlin.reflect.KProperty
 
 open class NodeJsRootExtension(
     val project: Project,
@@ -56,56 +52,56 @@ open class NodeJsRootExtension(
     @Suppress("DEPRECATION")
     @Deprecated(
         "Use installationDir from NodeJsExtension (not NodeJsRootExtension) instead." +
-                "You can find this extension after applying NodeJsPlugin"
+                "You can find this extension after applying NodeJsPlugin. This will be removed in 2.2"
     )
     var installationDir: File = gradleHome.resolve("nodejs")
 
     @Suppress("DEPRECATION")
     @Deprecated(
         "Use download from NodeJsExtension (not NodeJsRootExtension) instead" +
-                "You can find this extension after applying NodeJsPlugin"
+                "You can find this extension after applying NodeJsPlugin. This will be removed in 2.2"
     )
     var download = true
 
     @Suppress("DEPRECATION")
     @Deprecated(
         "Use downloadBaseUrl from NodeJsExtension (not NodeJsRootExtension) instead" +
-                "You can find this extension after applying NodeJsPlugin"
+                "You can find this extension after applying NodeJsPlugin. This will be removed in 2.2"
     )
     var nodeDownloadBaseUrl by ::downloadBaseUrl
 
     @Suppress("DEPRECATION")
 //    @Deprecated(
 //        "Use downloadBaseUrl from NodeJsExtension (not NodeJsRootExtension) instead" +
-//                "You can find this extension after applying NodeJsPlugin"
+//                "You can find this extension after applying NodeJsPlugin. This will be removed in 2.2"
 //    )
     var downloadBaseUrl: String? = "https://nodejs.org/dist"
 
     @Suppress("DEPRECATION")
     @Deprecated(
         "Use version from NodeJsExtension (not NodeJsRootExtension) instead" +
-                "You can find this extension after applying NodeJsPlugin"
+                "You can find this extension after applying NodeJsPlugin. This will be removed in 2.2"
     )
     var nodeVersion by ::version
 
     @Suppress("DEPRECATION")
 //    @Deprecated(
 //        "Use downloadBaseUrl from NodeJsExtension (not NodeJsRootExtension) instead" +
-//                "You can find this extension after applying NodeJsPlugin"
+//                "You can find this extension after applying NodeJsPlugin. This will be removed in 2.2"
 //    )
     var version = "22.0.0"
 
     @Suppress("DEPRECATION")
     @Deprecated(
         "Use command from NodeJsExtension (not NodeJsRootExtension) instead" +
-                "You can find this extension after applying NodeJsPlugin"
+                "You can find this extension after applying NodeJsPlugin. This will be removed in 2.2"
     )
     var command = "node"
 
     @Suppress("DEPRECATION")
     @Deprecated(
         "Use command from NodeJsExtension (not NodeJsRootExtension) instead" +
-                "You can find this extension after applying NodeJsPlugin"
+                "You can find this extension after applying NodeJsPlugin. This will be removed in 2.2"
     )
     var nodeCommand by ::command
 
@@ -148,7 +144,7 @@ open class NodeJsRootExtension(
     val nodeJsSetupTaskProvider: TaskProvider<out NodeJsSetupTask>
         get() = nodeJs().nodeJsSetupTaskProvider
 
-    @Deprecated("Use NodeJsExtension instead")
+    @Deprecated("Use NodeJsExtension instead. This will be removed in 2.2")
     fun requireConfigured(): NodeJsEnv {
         return nodeJs().requireConfigured()
     }
