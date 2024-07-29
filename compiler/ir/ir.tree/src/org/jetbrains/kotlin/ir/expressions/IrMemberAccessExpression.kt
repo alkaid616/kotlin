@@ -32,6 +32,9 @@ abstract class IrMemberAccessExpression<S : IrSymbol> : IrDeclarationReference()
     val typeArgumentsCount: Int
         get() = typeArguments.size
 
+    val allArguments: NewIrFunctionAccessArgumentList
+        get() = TODO()
+
     fun getValueArgument(index: Int): IrExpression? {
         checkArgumentSlotAccess("value", index, valueArguments.size)
         return valueArguments[index]

@@ -29,9 +29,35 @@ sealed class IrFunction : IrDeclarationBase(), IrPossiblyExternalDeclaration, Ir
 
     abstract var returnType: IrType
 
-    abstract var dispatchReceiverParameter: IrValueParameter?
+    var dispatchReceiverParameter: IrValueParameter? = null
+        set(value) {
+            field?._kind = null
+            value?._kind = IrParameterKind.DispatchReceiver
+            field = value
+        }
 
-    abstract var extensionReceiverParameter: IrValueParameter?
+    var extensionReceiverParameter: IrValueParameter? = null
+        set(value) {
+            field?._kind = null
+            value?._kind = IrParameterKind.ExtensionReceiver
+            field = value
+        }
+
+    // The first `contextReceiverParametersCount` value parameters are context receivers.
+    var contextReceiverParametersCount: Int = 0
+        set(value) {
+            if (value < field) {
+                for (i in value..<field) {
+                    valueParameters.getOrNull(i)?._kind = IrParameterKind.RegularParameter
+                }
+            } else if (value > field) {
+                for (i in field..<value) {
+                    valueParameters.getOrNull(i)?._kind = IrParameterKind.ContextParameter
+                }
+            }
+
+            field = value
+        }
 
     @OptIn(DelicateIrParameterIndexSetter::class)
     var valueParameters: List<IrValueParameter> = emptyList()
@@ -42,10 +68,17 @@ sealed class IrFunction : IrDeclarationBase(), IrPossiblyExternalDeclaration, Ir
             for ((index, parameter) in value.withIndex()) {
                 parameter.index = index
             }
+            for (i in contextReceiverParametersCount..<field.size) {
+                value.getOrNull(i)?.let {
+                    it.index = i
+                    it._kind = IrParameterKind.RegularParameter
+                }
+            }
+
             field = value
         }
 
-    abstract var contextReceiverParametersCount: Int
+    val allParameters: MutableList<IrValueParameter> = NewIrFunctionParameterList(this)
 
     abstract var body: IrBody?
 
@@ -65,3 +98,4 @@ sealed class IrFunction : IrDeclarationBase(), IrPossiblyExternalDeclaration, Ir
         body = body?.transform(transformer, data)
     }
 }
+
