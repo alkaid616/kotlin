@@ -642,7 +642,8 @@ open class FunctionInlining(
                             // depending on whether T reified or not.
                             irType = it.parameter.type,
                             nameHint = callee.symbol.owner.name.asStringStripSpecialMarkers() + "_" + it.parameter.name.asStringStripSpecialMarkers(),
-                            isMutable = false
+                            isMutable = false,
+                            origin = IrDeclarationOrigin.IR_TEMPORARY_VARIABLE_FOR_INLINED_PARAMETER,
                         )
 
                     evaluationStatements.add(newVariable)
@@ -668,7 +669,8 @@ open class FunctionInlining(
                 endOffset = UNDEFINED_OFFSET,
                 irExpression = irExpression,
                 nameHint = callee.symbol.owner.name.asStringStripSpecialMarkers() + "_this",
-                isMutable = false
+                isMutable = false,
+                origin = IrDeclarationOrigin.IR_TEMPORARY_VARIABLE_FOR_INLINED_PARAMETER,
             )
 
             val newArgument = irGetValueWithoutLocation(newVariable.symbol)
