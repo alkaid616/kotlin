@@ -23,7 +23,66 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 import org.jetbrains.kotlin.tooling.core.HasMutableExtras
 
 /**
- * Represents the configuration of a Kotlin compilation in a Gradle project.
+ * # Kotlin Compilation
+ * Represents configuration of a Kotlin Compiler invocation.
+ * It is recommended to use [KotlinCompilation] API instead of getting
+ * tasks, configurations and other related domain objects via Gradle API directly.
+ * For Native targets, [KotlinCompilation] also provides API to configure CInterop
+ *
+ * [KotlinTarget] contains multiple [KotlinCompilation].
+ * By default [KotlinTarget] will contain two [KotlinCompilation] with names "main" and "test".
+ *
+ * Sample: Use [KotlinCompilation] to configure compilation tasks of JVM target.
+ * ```kotlin
+ * // build.gradle.kts
+ * kotlin {
+ *   jvm {
+ *     compilations.all {
+ *       compileTaskProvider {
+ *         // configure compile task here
+ *       }
+ *     }
+ *   }
+ * }
+ * ```
+ *
+ * ## Main Compilation
+ * [KotlinCompilation] with name "main" represents Kotlin Compiler invocation for main sources of [KotlinTarget].
+ * Results of Main Compilation are publishable and exposed via [KotlinTarget.apiElementsConfigurationName] consumable configuration.
+ *
+ * Sample: Consume outputs of Main JVM Compilation for custom processing
+ *
+ * ```kotlin
+ * // build.gradle.kts
+ * val jvmMainClasses = kotlin.jvm().compilations.getByName("main").output.classesDirs
+ * tasks.register<Jar>("customJar") {
+ *     from(jvmMainClasses)
+ * }
+ * ```
+ *
+ * ## Test Compilation
+ * [KotlinCompilation] with name "test" represents Kotlin Compiler invocation for test source sets.
+ * Test Compilation implicitly [KotlinCompilation.associateWith] Main Compilation (see [KotlinCompilation.associatedCompilations])
+ * i.e., it sees all dependencies, internal and public declarations of the Main Compilation.
+ *
+ * ## Custom Compilation
+ * It is possible to create additional compilation under [KotlinTarget].
+ *
+ * ```kotlin
+ * kotlin {
+ *   jvm {
+ *     compilations.create("customCompilation")
+ *   }
+ * }
+ * ```
+ *
+ * **NB: ** It is recommended to use a separate Gradle Project instead of creating custom compilation.
+ *
+ * ## Metadata Target Compilation
+ *
+ * Kotlin Metadata Target is a special [KotlinTarget] that manages compiler invocations to compile code of shared source sets.
+ * There are no "main" or "test" Kotlin Compilations for the Metadata Target, but a dedicated compilation for each shared source set.
+ *
  */
 @KotlinGradlePluginDsl
 interface KotlinCompilation<out T : KotlinCommonOptionsDeprecated> : Named,
