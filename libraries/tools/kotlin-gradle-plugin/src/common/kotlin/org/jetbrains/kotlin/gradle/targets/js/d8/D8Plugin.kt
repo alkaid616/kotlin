@@ -43,7 +43,8 @@ open class D8Plugin : Plugin<Project> {
     companion object {
         const val TASKS_GROUP_NAME: String = "d8"
 
-        @InternalKotlinGradlePluginApi
+        // uncomment after bootstrap and changes inside setupV8
+//        @InternalKotlinGradlePluginApi
         fun apply(project: Project): D8Extension {
             project.plugins.apply(D8Plugin::class.java)
             return project.extensions.getByName(EXTENSION_NAME) as D8Extension
