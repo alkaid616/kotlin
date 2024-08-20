@@ -4,7 +4,7 @@
  */
 
 fun main() {
-    println(process.version)
+    println("Hello with version: " + process.version)
 }
 
 external val process: dynamic

@@ -5,4 +5,6 @@
 
 package org.jetbrains.kotlin.gradle.targets.js.d8
 
+// To be compatible with previous KGP version, we need to keep D8RootExtension as deprecated.
+@Deprecated("This extension is deprecated. Use D8Extension instead.", ReplaceWith("D8Extension"))
 typealias D8RootExtension = D8Extension

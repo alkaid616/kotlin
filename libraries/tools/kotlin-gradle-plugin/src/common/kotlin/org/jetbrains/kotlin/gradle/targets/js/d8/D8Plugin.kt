@@ -8,6 +8,7 @@ package org.jetbrains.kotlin.gradle.targets.js.d8
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.BasePlugin
+import org.jetbrains.kotlin.gradle.InternalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.targets.js.MultiplePluginDeclarationDetector
 import org.jetbrains.kotlin.gradle.targets.js.d8.D8Extension.Companion.EXTENSION_NAME
 import org.jetbrains.kotlin.gradle.tasks.CleanDataTask
@@ -42,11 +43,13 @@ open class D8Plugin : Plugin<Project> {
     companion object {
         const val TASKS_GROUP_NAME: String = "d8"
 
+        @InternalKotlinGradlePluginApi
         fun apply(project: Project): D8Extension {
             project.plugins.apply(D8Plugin::class.java)
             return project.extensions.getByName(EXTENSION_NAME) as D8Extension
         }
 
+        @InternalKotlinGradlePluginApi
         val Project.kotlinD8Extension: D8Extension
             get() = extensions.getByName(EXTENSION_NAME).castIsolatedKotlinPluginClassLoaderAware()
     }

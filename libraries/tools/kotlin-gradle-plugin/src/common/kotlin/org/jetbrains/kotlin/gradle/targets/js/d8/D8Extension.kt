@@ -55,8 +55,13 @@ open class D8Extension(@Transient val project: Project) : AbstractSettings<D8Env
             editionProperty.set(value)
         }
 
+    /**
+     * Specify the edition of the D8.
+     *
+     * Valid options for bundled version are `rel` (release variant) and `dbg` (debug variant).
+     */
     val editionProperty: org.gradle.api.provider.Property<String> = project.objects.property<String>()
-        .convention("rel") // rel or dbg
+        .convention("rel")
 
     override val commandProperty: org.gradle.api.provider.Property<String> = project.objects.property<String>()
         .convention("d8")

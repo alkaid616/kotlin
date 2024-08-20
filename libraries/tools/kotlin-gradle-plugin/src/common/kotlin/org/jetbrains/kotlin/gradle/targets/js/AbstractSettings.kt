@@ -7,7 +7,7 @@ import java.io.File
 
 abstract class AbstractSettings<Env : AbstractEnv> : ConfigurationPhaseAware<Env>() {
 
-    @Deprecated("This property will be removed. Use downloadProperty instead. This will be removed in 2.2")
+    @Deprecated("This property has been migrated to support the Provider API. Use downloadProperty instead. This will be removed in version 2.2.")
     var download: Boolean
         get() = downloadProperty.get()
         set(value) {
@@ -16,7 +16,8 @@ abstract class AbstractSettings<Env : AbstractEnv> : ConfigurationPhaseAware<Env
 
     abstract val downloadProperty: org.gradle.api.provider.Property<Boolean>
 
-//    @Deprecated("This property will be removed. Use downloadBaseUrlProperty instead. This will be removed in 2.2")
+    // uncomment with bootstrap
+//    @Deprecated("This property has been migrated to support the Provider API. Use downloadBaseUrlProperty instead. This will be removed in version 2.2.")
     var downloadBaseUrl: String?
         get() = downloadBaseUrlProperty.getOrNull()
         set(value) {
@@ -25,7 +26,7 @@ abstract class AbstractSettings<Env : AbstractEnv> : ConfigurationPhaseAware<Env
 
     abstract val downloadBaseUrlProperty: org.gradle.api.provider.Property<String>
 
-    @Deprecated("This property will be removed. Use installationDirectory instead. This will be removed in 2.2")
+    @Deprecated("This property has been migrated to support the Provider API. Use installationDirectory instead. This will be removed in version 2.2.")
     var installationDir: File
         get() = installationDirectory.getFile()
         set(value) {
@@ -34,7 +35,8 @@ abstract class AbstractSettings<Env : AbstractEnv> : ConfigurationPhaseAware<Env
 
     abstract val installationDirectory: DirectoryProperty
 
-//    @Deprecated("This property will be removed. Use versionProperty instead. This will be removed in 2.2")
+    // uncomment with bootstrap
+//    @Deprecated("This property has been migrated to support the Provider API. Use versionProperty instead. This will be removed in version 2.2.")
     var version: String
         get() = versionProperty.get()
         set(value) {
@@ -43,7 +45,7 @@ abstract class AbstractSettings<Env : AbstractEnv> : ConfigurationPhaseAware<Env
 
     abstract val versionProperty: org.gradle.api.provider.Property<String>
 
-    @Deprecated("This property will be removed. Use commandProperty instead. This will be removed in 2.2")
+    @Deprecated("This property has been migrated to support the Provider API. Use commandProperty instead. This will be removed in version 2.2.")
     var command: String
         get() = commandProperty.get()
         set(value) {

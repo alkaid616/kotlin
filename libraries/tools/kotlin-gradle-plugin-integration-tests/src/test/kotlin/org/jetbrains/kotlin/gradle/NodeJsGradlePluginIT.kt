@@ -33,11 +33,11 @@ class NodeJsGradlePluginIT : KGPBaseTest() {
             gradleVersion
         ) {
             build(":app1:jsNodeDevelopmentRun") {
-                assertOutputContains("v22.2.0")
+                assertOutputContains("Hello with version: v22.2.0")
             }
 
             build(":app2:jsNodeDevelopmentRun") {
-                assertOutputContains("v22.1.0")
+                assertOutputContains("Hello with version: v22.1.0")
             }
         }
     }
