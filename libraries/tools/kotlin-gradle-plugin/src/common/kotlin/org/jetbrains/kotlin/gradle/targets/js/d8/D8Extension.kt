@@ -49,7 +49,7 @@ open class D8Extension(@Transient val project: Project) : AbstractSettings<D8Env
         .convention("11.9.85")
 
     @Deprecated("This property will be removed. Use editionProperty instead")
-    var edition // rel or dbg
+    var edition: String // rel or dbg
         get() = editionProperty.get()
         set(value) {
             editionProperty.set(value)
