@@ -48,7 +48,7 @@ abstract class KotlinNpmInstallTask :
     // -----
 
     private val nodsJsEnvironment by lazy {
-        asNodeJsEnvironment(nodeJsRoot, nodeJs.requireConfigured())
+        asNodeJsEnvironment(nodeJsRoot, nodeJs.produceEnv().get())
     }
 
     private val packageManagerEnv by lazy {

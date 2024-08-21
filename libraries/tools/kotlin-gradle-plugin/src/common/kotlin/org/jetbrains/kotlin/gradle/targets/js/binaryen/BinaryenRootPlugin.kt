@@ -29,13 +29,22 @@ open class BinaryenRootPlugin : Plugin<Project> {
 
         val settings = project.extensions.create(EXTENSION_NAME, BinaryenRootExtension::class.java, project)
 
+        val spec = project.extensions.create(
+            BinaryenRootEnvSpec.EXTENSION_NAME,
+            BinaryenRootEnvSpec::class.java,
+            project,
+            { settings }
+        )
+
+        settings.binaryenSpec = { spec }
+
         addPlatform(project, settings)
 
-        project.registerTask<BinaryenSetupTask>(BinaryenSetupTask.NAME) {
+        project.registerTask<BinaryenSetupTask>(BinaryenSetupTask.NAME, listOf(spec)) {
             it.group = TASKS_GROUP_NAME
             it.description = "Download and install a binaryen"
-            it.configuration = project.provider {
-                project.configurations.detachedConfiguration(project.dependencies.create(it.ivyDependency))
+            it.configuration = it.ivyDependencyProvider.map { ivyDependency ->
+                project.configurations.detachedConfiguration(project.dependencies.create(ivyDependency))
                     .also { conf -> conf.isTransitive = false }
             }
         }

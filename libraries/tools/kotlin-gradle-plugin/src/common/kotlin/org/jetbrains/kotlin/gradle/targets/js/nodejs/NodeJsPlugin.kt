@@ -27,11 +27,11 @@ open class NodeJsPlugin : Plugin<Project> {
 
         addPlatform(project, nodeJs)
 
-        project.registerTask<NodeJsSetupTask>(NodeJsSetupTask.NAME) {
+        project.registerTask<NodeJsSetupTask>(NodeJsSetupTask.NAME, listOf(nodeJs)) {
             it.group = TASKS_GROUP_NAME
             it.description = "Download and install a local node/npm version"
-            it.configuration = project.provider {
-                project.configurations.detachedConfiguration(project.dependencies.create(it.ivyDependency))
+            it.configuration = it.ivyDependencyProvider.map { ivyDependency ->
+                project.configurations.detachedConfiguration(project.dependencies.create(ivyDependency))
                     .also { conf -> conf.isTransitive = false }
             }
         }

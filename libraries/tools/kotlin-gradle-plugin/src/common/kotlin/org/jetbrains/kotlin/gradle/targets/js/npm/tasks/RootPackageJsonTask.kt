@@ -47,7 +47,7 @@ abstract class RootPackageJsonTask :
     // -----
 
     private val nodeJsEnvironment by lazy {
-        asNodeJsEnvironment(nodeJsRoot, nodeJs.requireConfigured())
+        asNodeJsEnvironment(nodeJsRoot, nodeJs.produceEnv().get())
     }
 
     private val packageManagerEnv by lazy {

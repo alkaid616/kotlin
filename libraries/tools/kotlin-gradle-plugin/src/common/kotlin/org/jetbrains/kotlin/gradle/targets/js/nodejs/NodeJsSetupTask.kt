@@ -5,16 +5,17 @@ import org.gradle.work.DisableCachingByDefault
 import org.jetbrains.kotlin.gradle.targets.js.AbstractSetupTask
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsPlugin.Companion.kotlinNodeJsExtension
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootPlugin.Companion.kotlinNodeJsRootExtension
+import org.jetbrains.kotlin.gradle.utils.getFile
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import javax.inject.Inject
 
 @DisableCachingByDefault
-abstract class NodeJsSetupTask : AbstractSetupTask<NodeJsEnv, NodeJsExtension>() {
-    @Transient
-    @get:Internal
-    override val settings = project.kotlinNodeJsExtension
+abstract class NodeJsSetupTask @Inject constructor(
+    settings: NodeJsExtension
+) : AbstractSetupTask<NodeJsEnv, NodeJsExtension>(settings) {
 
     @get:Internal
     override val artifactPattern: String
@@ -28,9 +29,14 @@ abstract class NodeJsSetupTask : AbstractSetupTask<NodeJsEnv, NodeJsExtension>()
     override val artifactName: String
         get() = "node"
 
+    private val isWindows = env.map { it.isWindows }
+
+    private val executable = env.map { it.executable }
+
     override fun extract(archive: File) {
         var fixBrokenSymLinks = false
 
+        val destination = destinationProvider.getFile()
         fs.copy {
             it.from(
                 when {
@@ -44,10 +50,10 @@ abstract class NodeJsSetupTask : AbstractSetupTask<NodeJsEnv, NodeJsExtension>()
             it.into(destination.parentFile)
         }
 
-        fixBrokenSymlinks(this.destination, env.isWindows, fixBrokenSymLinks)
+        fixBrokenSymlinks(destination, isWindows.get(), fixBrokenSymLinks)
 
-        if (!env.isWindows) {
-            File(env.executable).setExecutable(true)
+        if (!isWindows.get()) {
+            File(executable.get()).setExecutable(true)
         }
     }
 

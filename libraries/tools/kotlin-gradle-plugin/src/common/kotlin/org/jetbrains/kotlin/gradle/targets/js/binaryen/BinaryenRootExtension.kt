@@ -10,16 +10,16 @@ import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.tasks.TaskProvider
 import org.jetbrains.kotlin.gradle.logging.kotlinInfo
 import org.jetbrains.kotlin.gradle.targets.js.AbstractSettings
-import org.jetbrains.kotlin.gradle.tasks.internal.CleanableStore
-import org.jetbrains.kotlin.gradle.utils.getFile
 import org.jetbrains.kotlin.gradle.utils.property
 
 open class BinaryenRootExtension(
-    @Transient val rootProject: Project
+    @Transient val rootProject: Project,
 ) : AbstractSettings<BinaryenEnv>() {
     init {
         check(rootProject.rootProject == rootProject)
     }
+
+    internal lateinit var binaryenSpec: () -> BinaryenRootEnvSpec
 
     private val gradleHome = rootProject.gradle.gradleUserHomeDir.also {
         rootProject.logger.kotlinInfo("Storing cached files in $it")
@@ -47,34 +47,7 @@ open class BinaryenRootExtension(
     internal val platform: org.gradle.api.provider.Property<BinaryenPlatform> = rootProject.objects.property<BinaryenPlatform>()
 
     override fun finalizeConfiguration(): BinaryenEnv {
-        val platform = platform.get()
-        val version = versionProperty.get()
-        val requiredVersionName = "binaryen-version_$version"
-        val cleanableStore = CleanableStore[installationDirectory.getFile().absolutePath]
-        val targetPath = cleanableStore[requiredVersionName].use()
-        val isWindows = platform.isWindows()
-
-        val download = downloadProperty.get()
-        fun getExecutable(command: String, customCommand: String, windowsExtension: String): String {
-            val finalCommand = if (isWindows && customCommand == command) "$command.$windowsExtension" else customCommand
-            return if (download)
-                targetPath
-                    .resolve("bin")
-                    .resolve(finalCommand)
-                    .absolutePath
-            else
-                finalCommand
-        }
-
-        return BinaryenEnv(
-            download = download,
-            downloadBaseUrl = downloadBaseUrlProperty.orNull,
-            ivyDependency = "com.github.webassembly:binaryen:$version:${platform.platform}@tar.gz",
-            executable = getExecutable("wasm-opt", commandProperty.get(), "exe"),
-            dir = targetPath,
-            cleanableStore = cleanableStore,
-            isWindows = isWindows,
-        )
+        return binaryenSpec().produceEnv().get()
     }
 
     companion object {

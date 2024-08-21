@@ -43,14 +43,23 @@ open class YarnPlugin : Plugin<Project> {
             yarnRootExtension
         )
 
-        val setupTask = registerTask<YarnSetupTask>(YarnSetupTask.NAME) {
+        val yarnSpec = this.extensions.create(
+            YarnRootEnvSpec.YARN,
+            YarnRootEnvSpec::class.java,
+            this,
+            { yarnRootExtension }
+        )
+
+        yarnRootExtension.yarnSpec = { yarnSpec }
+
+        val setupTask = registerTask<YarnSetupTask>(YarnSetupTask.NAME, listOf(yarnSpec)) {
             it.dependsOn(nodeJs.nodeJsSetupTaskProvider)
 
             it.group = NodeJsRootPlugin.TASKS_GROUP_NAME
             it.description = "Download and install a local yarn version"
 
-            it.configuration = provider {
-                this.project.configurations.detachedResolvable(this.project.dependencies.create(it.ivyDependency))
+            it.configuration = it.ivyDependencyProvider.map { ivyDependency ->
+                this.project.configurations.detachedResolvable(this.project.dependencies.create(ivyDependency))
                     .also { conf -> conf.isTransitive = false }
             }
         }
@@ -62,9 +71,7 @@ open class YarnPlugin : Plugin<Project> {
         }
 
         yarnRootExtension.nodeJsEnvironment.value(
-            project.provider {
-                nodeJs.requireConfigured()
-            }
+            nodeJs.produceEnv()
         ).disallowChanges()
 
         tasks.register("yarn" + CleanDataTask.NAME_SUFFIX, CleanDataTask::class.java) {

@@ -16,14 +16,12 @@ import org.jetbrains.kotlin.gradle.internal.testing.TCServiceMessagesTestExecuti
 import org.jetbrains.kotlin.gradle.targets.js.RequiredKotlinJsDependency
 import org.jetbrains.kotlin.gradle.targets.js.ir.KotlinJsIrCompilation
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsPlugin.Companion.kotlinNodeJsExtension
-import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootPlugin.Companion.kotlinNodeJsRootExtension
 import org.jetbrains.kotlin.gradle.targets.js.npm.RequiresNpmDependencies
 import org.jetbrains.kotlin.gradle.targets.js.testing.karma.KotlinKarma
 import org.jetbrains.kotlin.gradle.targets.js.testing.mocha.KotlinMocha
 import org.jetbrains.kotlin.gradle.tasks.KotlinTest
 import org.jetbrains.kotlin.gradle.utils.domainObjectSet
 import org.jetbrains.kotlin.gradle.utils.getFile
-import org.jetbrains.kotlin.gradle.utils.getValue
 import org.jetbrains.kotlin.gradle.utils.newFileProperty
 import javax.inject.Inject
 
@@ -33,13 +31,13 @@ abstract class KotlinJsTest
 constructor(
     @Transient
     @Internal
-    override var compilation: KotlinJsIrCompilation
+    override var compilation: KotlinJsIrCompilation,
 ) : KotlinTest(),
     RequiresNpmDependencies {
     @Transient
     private val nodeJs = project.kotlinNodeJsExtension
 
-    private val nodeExecutable by project.provider { nodeJs.requireConfigured().executable }
+    private val nodeExecutable = nodeJs.produceEnv().map { it.executable }
 
     @Input
     var environment = mutableMapOf<String, String>()
@@ -156,7 +154,7 @@ constructor(
     override fun createTestExecutionSpec(): TCServiceMessagesTestExecutionSpec {
         val forkOptions = DefaultProcessForkOptions(fileResolver)
         forkOptions.workingDir = testFramework!!.workingDir.getFile()
-        forkOptions.executable = nodeExecutable
+        forkOptions.executable = nodeExecutable.get()
 
         environment.forEach { (key, value) ->
             forkOptions.environment(key, value)

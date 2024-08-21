@@ -57,9 +57,7 @@ open class NodeJsRootPlugin : Plugin<Project> {
         val nodeJs = NodeJsPlugin.apply(project)
 
         npm.nodeJsEnvironment.value(
-            project.provider {
-                nodeJs.requireConfigured()
-            }
+            nodeJs.produceEnv()
         ).disallowChanges()
 
         nodeJsRoot.packageManagerExtension.convention(
@@ -234,7 +232,7 @@ open class NodeJsRootPlugin : Plugin<Project> {
         }
 
         project.tasks.register("node" + CleanDataTask.NAME_SUFFIX, CleanDataTask::class.java) {
-            it.cleanableStoreProvider = project.provider { nodeJs.requireConfigured().cleanableStore }
+            it.cleanableStoreProvider = nodeJs.produceEnv().map { it.cleanableStore }
             it.group = TASKS_GROUP_NAME
             it.description = "Clean unused local node version"
         }

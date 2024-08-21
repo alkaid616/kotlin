@@ -24,17 +24,17 @@ open class D8Plugin : Plugin<Project> {
 
         val settings = project.extensions.create(EXTENSION_NAME, D8Extension::class.java, project)
 
-        project.registerTask<D8SetupTask>(D8SetupTask.NAME) {
+        project.registerTask<D8SetupTask>(D8SetupTask.NAME, listOf(settings)) {
             it.group = TASKS_GROUP_NAME
             it.description = "Download and install a D8"
-            it.configuration = project.provider {
-                project.configurations.detachedConfiguration(project.dependencies.create(it.ivyDependency))
+            it.configuration = it.ivyDependencyProvider.map { ivyDependency ->
+                project.configurations.detachedConfiguration(project.dependencies.create(ivyDependency))
                     .also { conf -> conf.isTransitive = false }
             }
         }
 
         project.registerTask<CleanDataTask>("d8" + CleanDataTask.NAME_SUFFIX) {
-            it.cleanableStoreProvider = project.provider { settings.requireConfigured().cleanableStore }
+            it.cleanableStoreProvider = settings.produceEnv().map { it.cleanableStore }
             it.group = TASKS_GROUP_NAME
             it.description = "Clean unused local d8 version"
         }

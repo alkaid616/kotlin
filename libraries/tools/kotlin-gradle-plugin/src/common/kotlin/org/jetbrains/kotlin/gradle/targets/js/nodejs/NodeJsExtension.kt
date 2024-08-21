@@ -7,11 +7,10 @@ package org.jetbrains.kotlin.gradle.targets.js.nodejs
 
 import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
-import org.jetbrains.kotlin.gradle.logging.kotlinInfo
-import org.jetbrains.kotlin.gradle.targets.js.AbstractSettings
+import org.jetbrains.kotlin.gradle.targets.js.EnvSpec
 import org.jetbrains.kotlin.gradle.tasks.internal.CleanableStore
-import org.jetbrains.kotlin.gradle.utils.getFile
 import org.jetbrains.kotlin.gradle.utils.property
 import org.jetbrains.kotlin.gradle.utils.providerWithLazyConvention
 import java.io.File
@@ -20,7 +19,7 @@ import java.io.File
 open class NodeJsExtension(
     val project: Project,
     rootNodeJs: () -> NodeJsRootExtension,
-) : AbstractSettings<NodeJsEnv>() {
+) : EnvSpec<NodeJsEnv> {
 
     override val installationDirectory: DirectoryProperty = project.objects.directoryProperty()
         .convention(
@@ -31,63 +30,72 @@ open class NodeJsExtension(
             )
         )
 
-    override val downloadProperty: org.gradle.api.provider.Property<Boolean> = project.objects.property<Boolean>()
+    override val download: org.gradle.api.provider.Property<Boolean> = project.objects.property<Boolean>()
         .convention(project.objects.providerWithLazyConvention { rootNodeJs().download })
 
     // value not convention because this property can be nullable to not add repository
-    override val downloadBaseUrlProperty: org.gradle.api.provider.Property<String> = project.objects.property<String>()
+    override val downloadBaseUrl: org.gradle.api.provider.Property<String> = project.objects.property<String>()
         .convention(project.objects.providerWithLazyConvention { rootNodeJs().downloadBaseUrl })
 
     // Release schedule: https://github.com/nodejs/Release
     // Actual LTS and Current versions: https://nodejs.org/en/download/
     // Older versions and more information, e.g. V8 version inside: https://nodejs.org/en/download/releases/
-    override val versionProperty: org.gradle.api.provider.Property<String> = project.objects.property<String>()
+    override val version: org.gradle.api.provider.Property<String> = project.objects.property<String>()
         .convention(project.objects.providerWithLazyConvention { rootNodeJs().version })
 
-    override val commandProperty: org.gradle.api.provider.Property<String> = project.objects.property<String>()
+    override val command: org.gradle.api.provider.Property<String> = project.objects.property<String>()
         .convention(project.objects.providerWithLazyConvention { rootNodeJs().command })
 
     internal val platform: org.gradle.api.provider.Property<Platform> = project.objects.property<Platform>()
 
-    override fun finalizeConfiguration(): NodeJsEnv {
-        val name = platform.get().name
-        val architecture = platform.get().arch
+    override fun produceEnv(): Provider<NodeJsEnv> {
+        return installationDirectory.flatMap { installationDirectoryValue ->
+            download.flatMap { downloadValue ->
+                version.flatMap { versionValue ->
+                    command.flatMap { commandValue ->
+                        platform.map { platformValue ->
+                            val name = platformValue.name
+                            val architecture = platformValue.arch
 
-        val version = versionProperty.get()
-        val nodeDirName = "node-v$version-$name-$architecture"
-        val cleanableStore = CleanableStore[installationDirectory.getFile().absolutePath]
-        val nodeDir = cleanableStore[nodeDirName].use()
-        val isWindows = platform.get().isWindows()
-        val nodeBinDir = if (isWindows) nodeDir else nodeDir.resolve("bin")
-        val downloadValue = downloadProperty.get()
+                            val nodeDirName = "node-v$versionValue-$name-$architecture"
+                            val cleanableStore = CleanableStore[installationDirectoryValue.asFile.absolutePath]
+                            val nodeDir = cleanableStore[nodeDirName].use()
+                            val isWindows = platformValue.isWindows()
+                            val nodeBinDir = if (isWindows) nodeDir else nodeDir.resolve("bin")
 
-        fun getExecutable(command: String, customCommand: String, windowsExtension: String): String {
-            val finalCommand = if (isWindows && customCommand == command) "$command.$windowsExtension" else customCommand
-            return if (downloadValue) File(nodeBinDir, finalCommand).absolutePath else finalCommand
+                            fun getExecutable(command: String, customCommand: String, windowsExtension: String): String {
+                                val finalCommand =
+                                    if (isWindows && customCommand == command) "$command.$windowsExtension" else customCommand
+                                return if (downloadValue) File(nodeBinDir, finalCommand).absolutePath else finalCommand
+                            }
+
+                            fun getIvyDependency(): String {
+                                val type = if (isWindows) "zip" else "tar.gz"
+                                return "org.nodejs:node:$versionValue:$name-$architecture@$type"
+                            }
+
+                            NodeJsEnv(
+                                download = downloadValue,
+                                cleanableStore = cleanableStore,
+                                dir = nodeDir,
+                                nodeBinDir = nodeBinDir,
+                                executable = getExecutable("node", commandValue, "exe"),
+                                platformName = name,
+                                architectureName = architecture,
+                                ivyDependency = getIvyDependency(),
+                                downloadBaseUrl = downloadBaseUrl.orNull,
+                            )
+                        }
+                    }
+                }
+            }
         }
-
-        fun getIvyDependency(): String {
-            val type = if (isWindows) "zip" else "tar.gz"
-            return "org.nodejs:node:$version:$name-$architecture@$type"
-        }
-
-        return NodeJsEnv(
-            download = downloadValue,
-            cleanableStore = cleanableStore,
-            dir = nodeDir,
-            nodeBinDir = nodeBinDir,
-            executable = getExecutable("node", commandProperty.get(), "exe"),
-            platformName = name,
-            architectureName = architecture,
-            ivyDependency = getIvyDependency(),
-            downloadBaseUrl = downloadBaseUrlProperty.orNull,
-        )
     }
 
     val nodeJsSetupTaskProvider: TaskProvider<out NodeJsSetupTask>
         get() = project.tasks.withType(NodeJsSetupTask::class.java).named(NodeJsSetupTask.NAME)
 
     companion object {
-        const val EXTENSION_NAME: String = "kotlinNodeJsLocal"
+        const val EXTENSION_NAME: String = "kotlinNodeJsSpec"
     }
 }

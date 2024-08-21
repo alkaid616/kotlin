@@ -106,7 +106,7 @@ constructor(
                 listOf(compilation)
             ) {
                 it.nodeJsRoot = nodeJsRoot
-                it.executable = nodeJs.requireConfigured().executable
+                it.executable = nodeJs.produceEnv().get().executable
                 if ((compilation.target as? KotlinJsIrTarget)?.wasmTargetType != KotlinWasmTargetType.WASI) {
                     it.workingDir(npmProject.dir)
                     it.dependsOn(

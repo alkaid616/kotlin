@@ -27,7 +27,7 @@ internal class KotlinWasmD8(kotlinJsTest: KotlinJsTest) : KotlinJsTestFramework 
     override val compilation: KotlinJsIrCompilation = kotlinJsTest.compilation
 
     private val d8 = D8Plugin.apply(kotlinJsTest.project)
-    private val d8Executable by kotlinJsTest.project.provider { d8.requireConfigured().executable }
+    private val d8Executable = d8.produceEnv().map { it.executable }
 
     override val workingDir: Provider<Directory> = compilation.npmProject.dir
 
@@ -40,7 +40,7 @@ internal class KotlinWasmD8(kotlinJsTest: KotlinJsTest) : KotlinJsTestFramework 
         val compiledFile = task.inputFileProperty.get().asFile
         val testRunnerFile = writeWasmUnitTestRunner(workingDir.get().asFile, compiledFile)
 
-        forkOptions.executable = d8Executable
+        forkOptions.executable = d8Executable.get()
         forkOptions.workingDir = compiledFile.parentFile
 
         val clientSettings = TCServiceMessagesClientSettings(

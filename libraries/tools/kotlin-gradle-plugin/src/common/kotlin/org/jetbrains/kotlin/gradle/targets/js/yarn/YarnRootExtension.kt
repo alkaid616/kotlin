@@ -13,15 +13,11 @@ import org.gradle.api.provider.ListProperty
 import org.gradle.api.tasks.TaskProvider
 import org.jetbrains.kotlin.gradle.logging.kotlinInfo
 import org.jetbrains.kotlin.gradle.targets.js.AbstractSettings
-import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsEnv
-import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension
-import org.jetbrains.kotlin.gradle.targets.js.nodejs.NpmApiExtension
+import org.jetbrains.kotlin.gradle.targets.js.nodejs.*
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.Platform
 import org.jetbrains.kotlin.gradle.targets.js.npm.LockCopyTask
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnPlugin.Companion.RESTORE_YARN_LOCK_NAME
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnPlugin.Companion.STORE_YARN_LOCK_NAME
-import org.jetbrains.kotlin.gradle.tasks.internal.CleanableStore
-import org.jetbrains.kotlin.gradle.utils.getFile
 import org.jetbrains.kotlin.gradle.utils.property
 import java.io.File
 
@@ -32,6 +28,8 @@ open class YarnRootExtension(
     init {
         check(project == project.rootProject)
     }
+
+    internal lateinit var yarnSpec: () -> YarnRootEnvSpec
 
     private val gradleHome = project.gradle.gradleUserHomeDir.also {
         project.logger.kotlinInfo("Storing cached files in $it")
@@ -105,34 +103,7 @@ open class YarnRootExtension(
     internal val nodeJsEnvironment: org.gradle.api.provider.Property<NodeJsEnv> = project.objects.property(NodeJsEnv::class.java)
 
     override fun finalizeConfiguration(): YarnEnv {
-        val cleanableStore = CleanableStore[installationDirectory.getFile().path]
-
-        val isWindows = platform.get().isWindows()
-
-        val home = cleanableStore["yarn-v${versionProperty.get()}"].use()
-
-        val download = downloadProperty.get()
-        fun getExecutable(command: String, customCommand: String, windowsExtension: String): String {
-            val finalCommand = if (isWindows && customCommand == command) "$command.$windowsExtension" else customCommand
-            return if (download)
-                home
-                    .resolve("bin/yarn.js").absolutePath
-            else
-                finalCommand
-        }
-        return YarnEnv(
-            download = download,
-            downloadBaseUrl = downloadBaseUrlProperty.orNull,
-            cleanableStore = cleanableStore,
-            dir = home,
-            executable = getExecutable("yarn", commandProperty.get(), "cmd"),
-            ivyDependency = "com.yarnpkg:yarn:${versionProperty.get()}@tar.gz",
-            ignoreScripts = ignoreScripts,
-            yarnLockMismatchReport = yarnLockMismatchReport,
-            reportNewYarnLock = reportNewYarnLock,
-            yarnLockAutoReplace = yarnLockAutoReplace,
-            yarnResolutions = resolutions
-        )
+        return yarnSpec().produceEnv().get()
     }
 
     val restoreYarnLockTaskProvider: TaskProvider<YarnLockCopyTask>
