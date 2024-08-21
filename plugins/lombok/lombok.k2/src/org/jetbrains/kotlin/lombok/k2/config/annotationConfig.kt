@@ -30,13 +30,16 @@ import org.jetbrains.kotlin.lombok.k2.config.LombokConfigNames.IGNORE_NULL_COLLE
 import org.jetbrains.kotlin.lombok.k2.config.LombokConfigNames.NO_IS_PREFIX_CONFIG
 import org.jetbrains.kotlin.lombok.k2.config.LombokConfigNames.PREFIX
 import org.jetbrains.kotlin.lombok.k2.config.LombokConfigNames.PREFIX_CONFIG
-import org.jetbrains.kotlin.lombok.k2.config.LombokConfigNames.SETTER_PREFIX
+import org.jetbrains.kotlin.lombok.k2.config.LombokConfigNames.BUILDER_SETTER_PREFIX
 import org.jetbrains.kotlin.lombok.k2.config.LombokConfigNames.STATIC_CONSTRUCTOR
 import org.jetbrains.kotlin.lombok.k2.config.LombokConfigNames.STATIC_NAME
+import org.jetbrains.kotlin.lombok.k2.config.LombokConfigNames.SUPER_BUILDER_CLASS_NAME
+import org.jetbrains.kotlin.lombok.k2.config.LombokConfigNames.SUPER_BUILDER_CLASS_NAME_CONFIG
 import org.jetbrains.kotlin.lombok.k2.config.LombokConfigNames.TO_BUILDER
 import org.jetbrains.kotlin.lombok.k2.config.LombokConfigNames.VALUE
 import org.jetbrains.kotlin.lombok.utils.LombokNames
 import org.jetbrains.kotlin.name.ClassId
+import org.jetbrains.kotlin.name.Name
 
 /*
  * Lombok has two ways of configuration - lombok.config file and directly in annotations. Annotations has priority.
@@ -205,31 +208,98 @@ object ConeLombokAnnotations {
         }
     }
 
-    class Builder(
-        val builderClassName: String,
+    sealed class BuilderBase(
+        val className: String,
         val buildMethodName: String,
         val builderMethodName: String,
         val requiresToBuilder: Boolean,
+        val setterPrefix: String?,
         val visibility: AccessLevel,
-        val setterPrefix: String?
     ) {
+        companion object {
+            const val DEFAULT_BUILD_METHOD_NAME = "build"
+            const val DEFAULT_BUILDER_METHOD_NAME = "builder"
+            const val DEFAULT_REQUIRES_TO_BUILDER = false
+
+            fun getClassName(
+                className: Name,
+                classNameConfig: String,
+                defaultClassName: String,
+                annotation: FirAnnotation?,
+                config: LombokConfig,
+                session: FirSession,
+            ): String {
+                return annotation?.getStringArgument(className, session)
+                    ?: config.getString(classNameConfig)
+                    ?: defaultClassName
+            }
+
+            fun getBuildMethodName(annotation: FirAnnotation?, session: FirSession): String {
+                return annotation?.getStringArgument(BUILD_METHOD_NAME, session) ?: DEFAULT_BUILD_METHOD_NAME
+            }
+
+            fun getBuilderMethodName(annotation: FirAnnotation?, session: FirSession): String {
+                return annotation?.getStringArgument(BUILDER_METHOD_NAME, session) ?: DEFAULT_BUILDER_METHOD_NAME
+            }
+
+            fun getRequiresToBuilder(annotation: FirAnnotation?, session: FirSession): Boolean {
+                return annotation?.getBooleanArgument(TO_BUILDER, session) ?: DEFAULT_REQUIRES_TO_BUILDER
+            }
+
+            fun getSetterPrefix(annotation: FirAnnotation?, session: FirSession): String? {
+                return annotation?.getStringArgument(BUILDER_SETTER_PREFIX, session)
+            }
+        }
+    }
+
+    class Builder(
+        builderClassName: String,
+        buildMethodName: String,
+        builderMethodName: String,
+        requiresToBuilder: Boolean,
+        setterPrefix: String?,
+        visibility: AccessLevel,
+    ) : BuilderBase(builderClassName, buildMethodName, builderMethodName, requiresToBuilder, setterPrefix, visibility) {
         companion object : ConeAnnotationAndConfigCompanion<Builder>(LombokNames.BUILDER_ID) {
             private const val DEFAULT_BUILDER_CLASS_NAME = "*Builder"
-            private const val DEFAULT_BUILD_METHOD_NAME = "build"
-            private const val DEFAULT_BUILDER_METHOD_NAME = "builder"
-            private const val DEFAULT_REQUIRES_TO_BUILDER = false
-
 
             override fun extract(annotation: FirAnnotation?, config: LombokConfig, session: FirSession): Builder {
                 return Builder(
-                    builderClassName = annotation?.getStringArgument(BUILDER_CLASS_NAME, session)
-                        ?: config.getString(BUILDER_CLASS_NAME_CONFIG)
-                        ?: DEFAULT_BUILDER_CLASS_NAME,
-                    buildMethodName = annotation?.getStringArgument(BUILD_METHOD_NAME, session) ?: DEFAULT_BUILD_METHOD_NAME,
-                    builderMethodName = annotation?.getStringArgument(BUILDER_METHOD_NAME, session) ?: DEFAULT_BUILDER_METHOD_NAME,
-                    requiresToBuilder = annotation?.getBooleanArgument(TO_BUILDER, session) ?: DEFAULT_REQUIRES_TO_BUILDER,
+                    builderClassName = getClassName(BUILDER_CLASS_NAME, BUILDER_CLASS_NAME_CONFIG, DEFAULT_BUILDER_CLASS_NAME, annotation, config, session),
+                    buildMethodName = getBuildMethodName(annotation, session),
+                    builderMethodName = getBuilderMethodName(annotation, session),
+                    requiresToBuilder = getRequiresToBuilder(annotation, session),
+                    setterPrefix = getSetterPrefix(annotation, session),
                     visibility = annotation?.getAccessLevel(ACCESS, session) ?: AccessLevel.PUBLIC,
-                    setterPrefix = annotation?.getStringArgument(SETTER_PREFIX, session)
+                )
+            }
+        }
+    }
+
+    class SuperBuilder(
+        superBuilderClassName: String,
+        buildMethodName: String,
+        builderMethodName: String,
+        requiresToBuilder: Boolean,
+        setterPrefix: String?
+    ) : BuilderBase(superBuilderClassName, buildMethodName, builderMethodName, requiresToBuilder, setterPrefix, AccessLevel.PUBLIC) {
+        companion object : ConeAnnotationAndConfigCompanion<SuperBuilder>(LombokNames.SUPER_BUILDER_ID) {
+            private const val DEFAULT_SUPER_BUILDER_CLASS_NAME = "*SuperBuilder"
+
+            override fun extract(annotation: FirAnnotation?, config: LombokConfig, session: FirSession): SuperBuilder {
+                return SuperBuilder(
+                    superBuilderClassName = getClassName(
+                        SUPER_BUILDER_CLASS_NAME,
+                        SUPER_BUILDER_CLASS_NAME_CONFIG,
+                        DEFAULT_SUPER_BUILDER_CLASS_NAME,
+                        annotation,
+                        config,
+                        session
+                    ),
+                    buildMethodName = getBuildMethodName(annotation, session),
+                    builderMethodName = getBuilderMethodName(annotation, session),
+                    requiresToBuilder = getRequiresToBuilder(annotation, session),
+                    setterPrefix = getSetterPrefix(annotation, session),
                 )
             }
         }

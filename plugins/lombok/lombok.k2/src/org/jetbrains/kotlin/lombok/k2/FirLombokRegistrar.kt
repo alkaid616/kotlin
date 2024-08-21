@@ -6,6 +6,7 @@
 package org.jetbrains.kotlin.lombok.k2
 
 import org.jetbrains.kotlin.fir.extensions.FirExtensionRegistrar
+import org.jetbrains.kotlin.lombok.k2.config.ConeLombokAnnotations.SuperBuilder
 import org.jetbrains.kotlin.lombok.k2.config.LombokService
 import org.jetbrains.kotlin.lombok.k2.generators.*
 import java.io.File
@@ -18,6 +19,7 @@ class FirLombokRegistrar(private val lombokConfigFile: File?) : FirExtensionRegi
         +::WithGenerator
         +::LombokConstructorsGenerator
         +::BuilderGenerator
+        +::SuperBuilderGenerator
         +::ValueFieldVisibilityTransformer
     }
 }

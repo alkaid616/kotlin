@@ -220,6 +220,33 @@ object LombokAnnotations {
         }
     }
 
+    class SuperBuilder(
+        val builderClassName: String,
+        val buildMethodName: String,
+        val builderMethodName: String,
+        val requiresToBuilder: Boolean,
+        val setterPrefix: String?
+    ) {
+        companion object : AnnotationAndConfigCompanion<SuperBuilder>(LombokNames.SUPER_BUILDER) {
+            private const val DEFAULT_SUPER_BUILDER_CLASS_NAME = "*SuperBuilder"
+            private const val DEFAULT_BUILD_METHOD_NAME = "build"
+            private const val DEFAULT_BUILDER_METHOD_NAME = "builder"
+            private const val DEFAULT_REQUIRES_TO_BUILDER = false
+
+            override fun extract(annotation: AnnotationDescriptor?, config: LombokConfig): SuperBuilder {
+                return SuperBuilder(
+                    builderClassName = annotation?.getStringArgument("builderClassName")
+                        ?: config.getString("lombok.superBuilder.className")
+                        ?: DEFAULT_SUPER_BUILDER_CLASS_NAME,
+                    buildMethodName = annotation?.getStringArgument("buildMethodName") ?: DEFAULT_BUILD_METHOD_NAME,
+                    builderMethodName = annotation?.getStringArgument("builderMethodName") ?: DEFAULT_BUILDER_METHOD_NAME,
+                    requiresToBuilder = annotation?.getBooleanArgument("toBuilder") ?: DEFAULT_REQUIRES_TO_BUILDER,
+                    setterPrefix = annotation?.getStringArgument("setterPrefix")
+                )
+            }
+        }
+    }
+
     class Singular(
         val singularName: String?,
         val allowNull: Boolean,

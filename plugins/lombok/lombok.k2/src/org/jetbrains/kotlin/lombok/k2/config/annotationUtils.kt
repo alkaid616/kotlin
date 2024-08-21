@@ -59,10 +59,11 @@ object LombokConfigNames {
     val STATIC_CONSTRUCTOR = Name.identifier("staticConstructor")
 
     val BUILDER_CLASS_NAME = Name.identifier("builderClassName")
+    val SUPER_BUILDER_CLASS_NAME = Name.identifier("superBuilderClassName")
     val BUILD_METHOD_NAME = Name.identifier("buildMethodName")
     val BUILDER_METHOD_NAME = Name.identifier("builderMethodName")
     val TO_BUILDER = Name.identifier("toBuilder")
-    val SETTER_PREFIX = Name.identifier("setterPrefix")
+    val BUILDER_SETTER_PREFIX = Name.identifier("setterPrefix")
     val IGNORE_NULL_COLLECTIONS = Name.identifier("ignoreNullCollections")
 
 
@@ -71,4 +72,5 @@ object LombokConfigNames {
     const val PREFIX_CONFIG = "lombok.accessors.prefix"
     const val NO_IS_PREFIX_CONFIG = "lombok.getter.noIsPrefix"
     const val BUILDER_CLASS_NAME_CONFIG = "lombok.builder.className"
+    const val SUPER_BUILDER_CLASS_NAME_CONFIG = "lombok.superBuilder.className"
 }
