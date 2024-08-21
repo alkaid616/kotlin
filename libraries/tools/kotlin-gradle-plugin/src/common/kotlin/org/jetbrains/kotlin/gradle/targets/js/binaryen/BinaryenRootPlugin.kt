@@ -33,7 +33,7 @@ open class BinaryenRootPlugin : Plugin<Project> {
             BinaryenRootEnvSpec.EXTENSION_NAME,
             BinaryenRootEnvSpec::class.java,
             project,
-            { settings }
+            settings
         )
 
         settings.binaryenSpec = { spec }

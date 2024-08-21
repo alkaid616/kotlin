@@ -19,41 +19,41 @@ import org.jetbrains.kotlin.gradle.utils.providerWithLazyConvention
 
 open class YarnRootEnvSpec(
     val project: Project,
-    rootYarn: () -> YarnRootExtension,
+    rootYarn: YarnRootExtension,
 ) : EnvSpec<YarnEnv> {
     init {
         check(project == project.rootProject)
     }
 
-    override val download: Property<Boolean> = rootYarn().downloadProperty
+    override val download: Property<Boolean> = rootYarn.downloadProperty
 
-    override val downloadBaseUrl: Property<String> = rootYarn().downloadBaseUrlProperty
+    override val downloadBaseUrl: Property<String> = rootYarn.downloadBaseUrlProperty
 
-    override val installationDirectory: DirectoryProperty = rootYarn().installationDirectory
+    override val installationDirectory: DirectoryProperty = rootYarn.installationDirectory
 
-    override val version: Property<String> = rootYarn().versionProperty
+    override val version: Property<String> = rootYarn.versionProperty
 
-    override val command: Property<String> = rootYarn().commandProperty
+    override val command: Property<String> = rootYarn.commandProperty
 
-    internal val platform: Property<Platform> = rootYarn().platform
+    internal val platform: Property<Platform> = rootYarn.platform
 
     val ignoreScripts: Property<Boolean> = project.objects.property<Boolean>()
-        .convention(project.objects.providerWithLazyConvention { rootYarn().ignoreScripts })
+        .convention(project.objects.providerWithLazyConvention { rootYarn.ignoreScripts })
 
     val yarnLockMismatchReport: Property<YarnLockMismatchReport> = project.objects.property<YarnLockMismatchReport>()
-        .convention(project.objects.providerWithLazyConvention { rootYarn().yarnLockMismatchReport })
+        .convention(project.objects.providerWithLazyConvention { rootYarn.yarnLockMismatchReport })
 
     val reportNewYarnLock: Property<Boolean> = project.objects.property<Boolean>()
-        .convention(project.objects.providerWithLazyConvention { rootYarn().reportNewYarnLock })
+        .convention(project.objects.providerWithLazyConvention { rootYarn.reportNewYarnLock })
 
     val yarnLockAutoReplace: Property<Boolean> = project.objects.property<Boolean>()
-        .convention(project.objects.providerWithLazyConvention { rootYarn().yarnLockAutoReplace })
+        .convention(project.objects.providerWithLazyConvention { rootYarn.yarnLockAutoReplace })
 
     val resolutions: ListProperty<YarnResolution> = project.objects.listProperty<YarnResolution>()
         .convention(
             project.objects.listProperty<YarnResolution>().value(
                 project.objects.providerWithLazyConvention {
-                    rootYarn().resolutions
+                    rootYarn.resolutions
                 }
             )
         )

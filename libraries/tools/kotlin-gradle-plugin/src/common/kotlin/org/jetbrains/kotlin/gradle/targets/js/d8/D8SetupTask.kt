@@ -15,8 +15,8 @@ import javax.inject.Inject
 
 @DisableCachingByDefault
 abstract class D8SetupTask @Inject constructor(
-    settings: D8Extension,
-) : AbstractSetupTask<D8Env, D8Extension>(settings) {
+    settings: D8Spec,
+) : AbstractSetupTask<D8Env, D8Spec>(settings) {
 
     @get:Internal
     override val artifactPattern: String

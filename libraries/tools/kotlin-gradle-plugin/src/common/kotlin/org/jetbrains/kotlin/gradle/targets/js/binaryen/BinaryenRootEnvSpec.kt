@@ -11,27 +11,26 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.jetbrains.kotlin.gradle.targets.js.EnvSpec
 import org.jetbrains.kotlin.gradle.tasks.internal.CleanableStore
-import org.jetbrains.kotlin.gradle.utils.getFile
 
 open class BinaryenRootEnvSpec(
     val project: Project,
-    rootBinaryen: () -> BinaryenRootExtension,
+    rootBinaryen: BinaryenRootExtension,
 ) : EnvSpec<BinaryenEnv> {
     init {
         check(project.rootProject == project)
     }
 
-    override val download: Property<Boolean> = rootBinaryen().downloadProperty
+    override val download: Property<Boolean> = rootBinaryen.downloadProperty
 
-    override val downloadBaseUrl: Property<String> = rootBinaryen().downloadBaseUrlProperty
+    override val downloadBaseUrl: Property<String> = rootBinaryen.downloadBaseUrlProperty
 
-    override val installationDirectory: DirectoryProperty = rootBinaryen().installationDirectory
+    override val installationDirectory: DirectoryProperty = rootBinaryen.installationDirectory
 
-    override val version: Property<String> = rootBinaryen().versionProperty
+    override val version: Property<String> = rootBinaryen.versionProperty
 
-    override val command: Property<String> = rootBinaryen().commandProperty
+    override val command: Property<String> = rootBinaryen.commandProperty
 
-    internal val platform: Property<BinaryenPlatform> = rootBinaryen().platform
+    internal val platform: Property<BinaryenPlatform> = rootBinaryen.platform
 
     override fun produceEnv(): Provider<BinaryenEnv> {
         return download.flatMap { downloadValue ->

@@ -24,7 +24,11 @@ open class D8Plugin : Plugin<Project> {
 
         val settings = project.extensions.create(EXTENSION_NAME, D8Extension::class.java, project)
 
-        project.registerTask<D8SetupTask>(D8SetupTask.NAME, listOf(settings)) {
+        val spec = project.extensions.create(D8Spec.EXTENSION_NAME, D8Spec::class.java, settings)
+
+        settings.d8Spec = { spec }
+
+        project.registerTask<D8SetupTask>(D8SetupTask.NAME, listOf(spec)) {
             it.group = TASKS_GROUP_NAME
             it.description = "Download and install a D8"
             it.configuration = it.ivyDependencyProvider.map { ivyDependency ->
@@ -34,7 +38,7 @@ open class D8Plugin : Plugin<Project> {
         }
 
         project.registerTask<CleanDataTask>("d8" + CleanDataTask.NAME_SUFFIX) {
-            it.cleanableStoreProvider = settings.produceEnv().map { it.cleanableStore }
+            it.cleanableStoreProvider = spec.produceEnv().map { it.cleanableStore }
             it.group = TASKS_GROUP_NAME
             it.description = "Clean unused local d8 version"
         }

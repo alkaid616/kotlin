@@ -27,7 +27,7 @@ internal class KotlinWasmD8(kotlinJsTest: KotlinJsTest) : KotlinJsTestFramework 
     override val compilation: KotlinJsIrCompilation = kotlinJsTest.compilation
 
     private val d8 = D8Plugin.apply(kotlinJsTest.project)
-    private val d8Executable = d8.produceEnv().map { it.executable }
+    private val d8Executable = d8.d8Spec().produceEnv().map { it.executable }
 
     override val workingDir: Provider<Directory> = compilation.npmProject.dir
 

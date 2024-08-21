@@ -47,7 +47,7 @@ open class YarnPlugin : Plugin<Project> {
             YarnRootEnvSpec.YARN,
             YarnRootEnvSpec::class.java,
             this,
-            { yarnRootExtension }
+            yarnRootExtension
         )
 
         yarnRootExtension.yarnSpec = { yarnSpec }

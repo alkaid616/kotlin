@@ -66,7 +66,7 @@ rootProject.plugins.withType<org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJ
         val webpackTask = tasks.named<org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack>("browserProductionWebpack")
         dependsOn(webpackTask)
 
-        executable(kotlinNodeJs.requireConfigured().executable)
+        executable(kotlinNodeJs.produceEnv().get().executable)
 
         workingDir(webpackTask.flatMap { it.outputDirectory.asFile })
         args("./${project.name}.js")
