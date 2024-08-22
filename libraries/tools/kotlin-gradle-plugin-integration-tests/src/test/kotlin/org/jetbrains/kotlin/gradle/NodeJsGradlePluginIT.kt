@@ -6,21 +6,8 @@
 package org.jetbrains.kotlin.gradle
 
 import org.gradle.util.GradleVersion
-import org.jetbrains.kotlin.gradle.targets.js.npm.LockCopyTask
-import org.jetbrains.kotlin.gradle.targets.js.npm.LockCopyTask.Companion.PACKAGE_LOCK_MISMATCH_MESSAGE
-import org.jetbrains.kotlin.gradle.targets.js.npm.LockCopyTask.Companion.RESTORE_PACKAGE_LOCK_NAME
-import org.jetbrains.kotlin.gradle.targets.js.npm.LockCopyTask.Companion.STORE_PACKAGE_LOCK_NAME
-import org.jetbrains.kotlin.gradle.targets.js.npm.LockCopyTask.Companion.UPGRADE_PACKAGE_LOCK
-import org.jetbrains.kotlin.gradle.targets.js.npm.fromSrcPackageJson
-import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnPlugin
 import org.jetbrains.kotlin.gradle.testbase.*
-import org.jetbrains.kotlin.gradle.testbase.TestVersions.Gradle.G_7_6
 import org.junit.jupiter.api.DisplayName
-import kotlin.io.path.deleteExisting
-import kotlin.io.path.deleteRecursively
-import kotlin.io.path.notExists
-import kotlin.io.path.readText
-import kotlin.test.assertEquals
 
 
 @MppGradlePluginTests
