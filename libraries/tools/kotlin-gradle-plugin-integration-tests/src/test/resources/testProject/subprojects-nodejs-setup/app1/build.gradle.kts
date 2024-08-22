@@ -10,5 +10,5 @@ kotlin {
 }
 
 plugins.withType<org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsPlugin> {
-    the<org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsExtension>().version = "22.2.0"
+    the<org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsExtension>().version.set("22.2.0")
 }
