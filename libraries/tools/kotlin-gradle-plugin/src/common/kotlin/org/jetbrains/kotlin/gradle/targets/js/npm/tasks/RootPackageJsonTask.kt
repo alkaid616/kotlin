@@ -12,7 +12,7 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.*
 import org.gradle.work.DisableCachingByDefault
 import org.gradle.work.NormalizeLineEndings
-import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsPlugin.Companion.kotlinNodeJsExtension
+import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsPlugin.Companion.kotlinNodeJsEnvSpec
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootPlugin.Companion.kotlinNodeJsRootExtension
 import org.jetbrains.kotlin.gradle.targets.js.npm.NpmProject
 import org.jetbrains.kotlin.gradle.targets.js.npm.UsesKotlinNpmResolutionManager
@@ -36,7 +36,7 @@ abstract class RootPackageJsonTask :
         get() = project.rootProject.kotlinNodeJsRootExtension
 
     private val nodeJs
-        get() = project.rootProject.kotlinNodeJsExtension
+        get() = project.rootProject.kotlinNodeJsEnvSpec
 
     private val rootResolver: KotlinRootNpmResolver
         get() = nodeJsRoot.resolver
@@ -47,7 +47,7 @@ abstract class RootPackageJsonTask :
     // -----
 
     private val nodeJsEnvironment by lazy {
-        asNodeJsEnvironment(nodeJsRoot, nodeJs.produceEnv().get())
+        asNodeJsEnvironment(nodeJsRoot, nodeJs.produceEnv(project.providers).get())
     }
 
     private val packageManagerEnv by lazy {

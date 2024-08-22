@@ -7,10 +7,14 @@ package org.jetbrains.kotlin.gradle.targets.js.d8
 
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Provider
+import org.gradle.api.provider.ProviderFactory
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.targets.js.EnvSpec
 import org.jetbrains.kotlin.gradle.tasks.internal.CleanableStore
+import org.jetbrains.kotlin.gradle.utils.getFile
 
-open class D8Spec(
+@ExperimentalWasmDsl
+open class D8EnvSpec(
     d8: D8Extension,
 ) : EnvSpec<D8Env> {
 
@@ -47,42 +51,35 @@ open class D8Spec(
 
     override val command: org.gradle.api.provider.Property<String> = d8.commandProperty
 
-    override fun produceEnv(): Provider<D8Env> {
-        return download.flatMap { downloadValue ->
-            installationDirectory.flatMap { installationDirectoryValue ->
-                version.flatMap { versionValue ->
-                    command.flatMap { commandValue ->
-                        edition.map { editionValue ->
-                            val requiredVersion = "${D8Platform.platform}-${editionValue}-${versionValue}"
-                            val requiredVersionName = "v8-$requiredVersion"
-                            val cleanableStore = CleanableStore[installationDirectoryValue.asFile.absolutePath]
-                            val targetPath = cleanableStore[requiredVersionName].use()
-                            val isWindows = D8Platform.name == D8Platform.WIN
+    override fun produceEnv(providerFactory: ProviderFactory): Provider<D8Env> {
+        return providerFactory.provider {
+            val requiredVersion = "${D8Platform.platform}-${edition.get()}-${version.get()}"
+            val requiredVersionName = "v8-$requiredVersion"
+            val cleanableStore = CleanableStore[installationDirectory.getFile().absolutePath]
+            val targetPath = cleanableStore[requiredVersionName].use()
+            val isWindows = D8Platform.name == D8Platform.WIN
 
-                            fun getExecutable(command: String, customCommand: String, windowsExtension: String): String {
-                                val finalCommand =
-                                    if (isWindows && customCommand == command) "$command.$windowsExtension" else customCommand
-                                return if (downloadValue)
-                                    targetPath
-                                        .resolve(finalCommand)
-                                        .absolutePath
-                                else
-                                    finalCommand
-                            }
-
-                            D8Env(
-                                download = downloadValue,
-                                downloadBaseUrl = downloadBaseUrl.orNull,
-                                ivyDependency = "google.d8:v8:$requiredVersion@zip",
-                                executable = getExecutable("d8", commandValue, "exe"),
-                                dir = targetPath,
-                                cleanableStore = cleanableStore,
-                                isWindows = isWindows,
-                            )
-                        }
-                    }
-                }
+            val downloadValue = download.get()
+            fun getExecutable(command: String, customCommand: String, windowsExtension: String): String {
+                val finalCommand =
+                    if (isWindows && customCommand == command) "$command.$windowsExtension" else customCommand
+                return if (downloadValue)
+                    targetPath
+                        .resolve(finalCommand)
+                        .absolutePath
+                else
+                    finalCommand
             }
+
+            D8Env(
+                download = downloadValue,
+                downloadBaseUrl = downloadBaseUrl.orNull,
+                ivyDependency = "google.d8:v8:$requiredVersion@zip",
+                executable = getExecutable("d8", command.get(), "exe"),
+                dir = targetPath,
+                cleanableStore = cleanableStore,
+                isWindows = isWindows,
+            )
         }
     }
 

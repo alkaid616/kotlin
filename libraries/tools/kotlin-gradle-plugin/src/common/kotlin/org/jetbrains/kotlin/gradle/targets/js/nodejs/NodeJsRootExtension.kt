@@ -23,7 +23,7 @@ import java.io.File
 
 open class NodeJsRootExtension(
     val project: Project,
-    private val nodeJs: () -> NodeJsExtension,
+    private val nodeJs: () -> NodeJsEnvSpec,
 ) {
 
     init {
@@ -146,7 +146,7 @@ open class NodeJsRootExtension(
 
     @Deprecated("Use NodeJsExtension instead. This will be removed in 2.2")
     fun requireConfigured(): NodeJsEnv {
-        return nodeJs().produceEnv().get()
+        return nodeJs().produceEnv(project.providers).get()
     }
 
     companion object {

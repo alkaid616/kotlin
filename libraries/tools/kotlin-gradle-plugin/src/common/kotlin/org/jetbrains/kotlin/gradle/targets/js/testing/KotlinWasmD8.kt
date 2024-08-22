@@ -8,6 +8,7 @@ package org.jetbrains.kotlin.gradle.targets.js.testing
 import org.gradle.api.file.Directory
 import org.gradle.api.provider.Provider
 import org.gradle.process.ProcessForkOptions
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.internal.testing.TCServiceMessagesClientSettings
 import org.jetbrains.kotlin.gradle.internal.testing.TCServiceMessagesTestExecutionSpec
 import org.jetbrains.kotlin.gradle.targets.js.RequiredKotlinJsDependency
@@ -16,8 +17,8 @@ import org.jetbrains.kotlin.gradle.targets.js.internal.parseNodeJsStackTraceAsJv
 import org.jetbrains.kotlin.gradle.targets.js.ir.KotlinJsIrCompilation
 import org.jetbrains.kotlin.gradle.targets.js.npm.npmProject
 import org.jetbrains.kotlin.gradle.targets.js.writeWasmUnitTestRunner
-import org.jetbrains.kotlin.gradle.utils.getValue
 
+@ExperimentalWasmDsl
 internal class KotlinWasmD8(kotlinJsTest: KotlinJsTest) : KotlinJsTestFramework {
     override val settingsState: String = "KotlinWasmD8"
 
@@ -27,7 +28,7 @@ internal class KotlinWasmD8(kotlinJsTest: KotlinJsTest) : KotlinJsTestFramework 
     override val compilation: KotlinJsIrCompilation = kotlinJsTest.compilation
 
     private val d8 = D8Plugin.apply(kotlinJsTest.project)
-    private val d8Executable = d8.d8Spec().produceEnv().map { it.executable }
+    private val d8Executable = d8.d8EnvSpec().produceEnv(compilation.project.providers).map { it.executable }
 
     override val workingDir: Provider<Directory> = compilation.npmProject.dir
 

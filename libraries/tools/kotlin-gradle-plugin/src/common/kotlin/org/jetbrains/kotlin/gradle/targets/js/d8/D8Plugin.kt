@@ -8,6 +8,7 @@ package org.jetbrains.kotlin.gradle.targets.js.d8
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.BasePlugin
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.InternalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.targets.js.MultiplePluginDeclarationDetector
 import org.jetbrains.kotlin.gradle.targets.js.d8.D8Extension.Companion.EXTENSION_NAME
@@ -15,7 +16,7 @@ import org.jetbrains.kotlin.gradle.tasks.CleanDataTask
 import org.jetbrains.kotlin.gradle.tasks.registerTask
 import org.jetbrains.kotlin.gradle.utils.castIsolatedKotlinPluginClassLoaderAware
 
-
+@ExperimentalWasmDsl
 open class D8Plugin : Plugin<Project> {
     override fun apply(project: Project) {
         MultiplePluginDeclarationDetector.detect(project)
@@ -24,9 +25,9 @@ open class D8Plugin : Plugin<Project> {
 
         val settings = project.extensions.create(EXTENSION_NAME, D8Extension::class.java, project)
 
-        val spec = project.extensions.create(D8Spec.EXTENSION_NAME, D8Spec::class.java, settings)
+        val spec = project.extensions.create(D8EnvSpec.EXTENSION_NAME, D8EnvSpec::class.java, settings)
 
-        settings.d8Spec = { spec }
+        settings.d8EnvSpec = { spec }
 
         project.registerTask<D8SetupTask>(D8SetupTask.NAME, listOf(spec)) {
             it.group = TASKS_GROUP_NAME
@@ -38,7 +39,7 @@ open class D8Plugin : Plugin<Project> {
         }
 
         project.registerTask<CleanDataTask>("d8" + CleanDataTask.NAME_SUFFIX) {
-            it.cleanableStoreProvider = spec.produceEnv().map { it.cleanableStore }
+            it.cleanableStoreProvider = spec.produceEnv(project.providers).map { it.cleanableStore }
             it.group = TASKS_GROUP_NAME
             it.description = "Clean unused local d8 version"
         }

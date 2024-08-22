@@ -8,10 +8,12 @@ package org.jetbrains.kotlin.gradle.targets.js.binaryen
 import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.tasks.TaskProvider
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.logging.kotlinInfo
 import org.jetbrains.kotlin.gradle.targets.js.AbstractSettings
 import org.jetbrains.kotlin.gradle.utils.property
 
+@ExperimentalWasmDsl
 open class BinaryenRootExtension(
     @Transient val rootProject: Project,
 ) : AbstractSettings<BinaryenEnv>() {
@@ -47,7 +49,7 @@ open class BinaryenRootExtension(
     internal val platform: org.gradle.api.provider.Property<BinaryenPlatform> = rootProject.objects.property<BinaryenPlatform>()
 
     override fun finalizeConfiguration(): BinaryenEnv {
-        return binaryenSpec().produceEnv().get()
+        return binaryenSpec().produceEnv(rootProject.providers).get()
     }
 
     companion object {

@@ -19,8 +19,8 @@ open class NodeJsPlugin : Plugin<Project> {
         MultiplePluginDeclarationDetector.detect(project)
 
         val nodeJs = project.extensions.create(
-            NodeJsExtension.EXTENSION_NAME,
-            NodeJsExtension::class.java,
+            NodeJsEnvSpec.EXTENSION_NAME,
+            NodeJsEnvSpec::class.java,
             project,
             { NodeJsRootPlugin.apply(project.rootProject) }
         )
@@ -37,7 +37,7 @@ open class NodeJsPlugin : Plugin<Project> {
         }
     }
 
-    private fun addPlatform(project: Project, extension: NodeJsExtension) {
+    private fun addPlatform(project: Project, extension: NodeJsEnvSpec) {
         val uname = project.variantImplementationFactory<UnameExecutor.UnameExecutorVariantFactory>()
             .getInstance(project)
             .unameExecResult
@@ -57,12 +57,12 @@ open class NodeJsPlugin : Plugin<Project> {
     companion object {
         const val TASKS_GROUP_NAME: String = "nodeJs"
 
-        fun apply(project: Project): NodeJsExtension {
+        fun apply(project: Project): NodeJsEnvSpec {
             project.plugins.apply(NodeJsPlugin::class.java)
-            return project.extensions.getByName(NodeJsExtension.EXTENSION_NAME) as NodeJsExtension
+            return project.extensions.getByName(NodeJsEnvSpec.EXTENSION_NAME) as NodeJsEnvSpec
         }
 
-        val Project.kotlinNodeJsExtension: NodeJsExtension
-            get() = extensions.getByName(NodeJsExtension.EXTENSION_NAME).castIsolatedKotlinPluginClassLoaderAware()
+        val Project.kotlinNodeJsEnvSpec: NodeJsEnvSpec
+            get() = extensions.getByName(NodeJsEnvSpec.EXTENSION_NAME).castIsolatedKotlinPluginClassLoaderAware()
     }
 }

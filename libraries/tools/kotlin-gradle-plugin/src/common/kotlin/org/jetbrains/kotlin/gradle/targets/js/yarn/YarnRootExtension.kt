@@ -103,7 +103,7 @@ open class YarnRootExtension(
     internal val nodeJsEnvironment: org.gradle.api.provider.Property<NodeJsEnv> = project.objects.property(NodeJsEnv::class.java)
 
     override fun finalizeConfiguration(): YarnEnv {
-        return yarnSpec().produceEnv().get()
+        return yarnSpec().produceEnv(project.providers).get()
     }
 
     val restoreYarnLockTaskProvider: TaskProvider<YarnLockCopyTask>

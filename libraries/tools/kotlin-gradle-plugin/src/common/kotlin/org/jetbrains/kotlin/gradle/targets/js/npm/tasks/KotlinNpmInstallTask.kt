@@ -13,8 +13,8 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.*
 import org.gradle.work.DisableCachingByDefault
 import org.gradle.work.NormalizeLineEndings
-import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsExtension
-import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsPlugin.Companion.kotlinNodeJsExtension
+import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsEnvSpec
+import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsPlugin.Companion.kotlinNodeJsEnvSpec
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootPlugin.Companion.kotlinNodeJsRootExtension
 import org.jetbrains.kotlin.gradle.targets.js.npm.KotlinNpmResolutionManager
@@ -39,8 +39,8 @@ abstract class KotlinNpmInstallTask :
     private val nodeJsRoot: NodeJsRootExtension
         get() = project.rootProject.kotlinNodeJsRootExtension
 
-    private val nodeJs: NodeJsExtension
-        get() = project.rootProject.kotlinNodeJsExtension
+    private val nodeJs: NodeJsEnvSpec
+        get() = project.rootProject.kotlinNodeJsEnvSpec
 
     private val rootResolver: KotlinRootNpmResolver
         get() = nodeJsRoot.resolver
@@ -48,7 +48,7 @@ abstract class KotlinNpmInstallTask :
     // -----
 
     private val nodsJsEnvironment by lazy {
-        asNodeJsEnvironment(nodeJsRoot, nodeJs.produceEnv().get())
+        asNodeJsEnvironment(nodeJsRoot, nodeJs.produceEnv(project.providers).get())
     }
 
     private val packageManagerEnv by lazy {

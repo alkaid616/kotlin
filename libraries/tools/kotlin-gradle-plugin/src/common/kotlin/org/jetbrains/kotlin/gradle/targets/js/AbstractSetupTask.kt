@@ -20,8 +20,8 @@ import java.net.URI
 import javax.inject.Inject
 
 @DisableCachingByDefault
-abstract class AbstractSetupTask<Env : AbstractEnv, Settings : EnvSpec<Env>>(
-    settings: Settings,
+abstract class AbstractSetupTask<Env : AbstractEnv, Spec : EnvSpec<Env>>(
+    spec: Spec,
 ) : DefaultTask(), UsesBuildFusService {
 
     @get:Internal
@@ -34,7 +34,7 @@ abstract class AbstractSetupTask<Env : AbstractEnv, Settings : EnvSpec<Env>>(
     protected abstract val artifactName: String
 
     @get:Internal
-    protected val env: Provider<Env> = settings.produceEnv()
+    protected val env: Provider<Env> = spec.produceEnv(project.providers)
 
     private val shouldDownload: Provider<Boolean> = env.map { it.download }
 

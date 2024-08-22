@@ -8,7 +8,7 @@ package org.jetbrains.kotlin.gradle.targets.js.yarn
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.jetbrains.kotlin.gradle.targets.js.MultiplePluginDeclarationDetector
-import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsPlugin.Companion.kotlinNodeJsExtension
+import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsPlugin.Companion.kotlinNodeJsEnvSpec
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootPlugin
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootPlugin.Companion.kotlinNodeJsRootExtension
 import org.jetbrains.kotlin.gradle.targets.js.npm.LockCopyTask
@@ -27,7 +27,7 @@ open class YarnPlugin : Plugin<Project> {
 
         NodeJsRootPlugin.apply(project)
         val nodeJsRoot = this.kotlinNodeJsRootExtension
-        val nodeJs = this.kotlinNodeJsExtension
+        val nodeJs = this.kotlinNodeJsEnvSpec
 
         val yarnRootExtension = this.extensions.create(
             YarnRootExtension.YARN,
@@ -71,7 +71,7 @@ open class YarnPlugin : Plugin<Project> {
         }
 
         yarnRootExtension.nodeJsEnvironment.value(
-            nodeJs.produceEnv()
+            nodeJs.produceEnv(project.providers)
         ).disallowChanges()
 
         tasks.register("yarn" + CleanDataTask.NAME_SUFFIX, CleanDataTask::class.java) {

@@ -2,6 +2,7 @@ package org.jetbrains.kotlin.gradle.targets.js
 
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Provider
+import org.gradle.api.provider.ProviderFactory
 
 interface EnvSpec<T> {
 
@@ -15,5 +16,5 @@ interface EnvSpec<T> {
 
     val command: org.gradle.api.provider.Property<String>
 
-    fun produceEnv(): Provider<T>
+    fun produceEnv(providerFactory: ProviderFactory): Provider<T>
 }

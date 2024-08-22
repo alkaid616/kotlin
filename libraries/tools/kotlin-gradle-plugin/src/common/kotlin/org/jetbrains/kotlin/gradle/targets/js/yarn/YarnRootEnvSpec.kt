@@ -10,9 +10,11 @@ import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
+import org.gradle.api.provider.ProviderFactory
 import org.jetbrains.kotlin.gradle.targets.js.EnvSpec
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.Platform
 import org.jetbrains.kotlin.gradle.tasks.internal.CleanableStore
+import org.jetbrains.kotlin.gradle.utils.getFile
 import org.jetbrains.kotlin.gradle.utils.listProperty
 import org.jetbrains.kotlin.gradle.utils.property
 import org.jetbrains.kotlin.gradle.utils.providerWithLazyConvention
@@ -58,59 +60,42 @@ open class YarnRootEnvSpec(
             )
         )
 
-    override fun produceEnv(): Provider<YarnEnv> {
-        return download.flatMap { downloadValue ->
-            installationDirectory.flatMap { installationDirectoryValue ->
-                version.flatMap { versionValue ->
-                    command.flatMap { commandValue ->
-                        platform.flatMap { platformValue ->
-                            ignoreScripts.flatMap { ignoreScriptsValue ->
-                                yarnLockMismatchReport.flatMap { yarnLockMismatchReportValue ->
-                                    reportNewYarnLock.flatMap { reportNewYarnLockValue ->
-                                        yarnLockAutoReplace.flatMap { yarnLockAutoReplaceValue ->
-                                            resolutions.map { resolutionsValue ->
-                                                val cleanableStore = CleanableStore[installationDirectoryValue.asFile.path]
+    override fun produceEnv(providerFactory: ProviderFactory): Provider<YarnEnv> {
+        return providerFactory.provider {
+            val cleanableStore = CleanableStore[installationDirectory.getFile().path]
 
-                                                val isWindows = platformValue.isWindows()
+            val isWindows = platform.get().isWindows()
 
-                                                val home = cleanableStore["yarn-v${versionValue}"].use()
+            val home = cleanableStore["yarn-v${version.get()}"].use()
 
-                                                fun getExecutable(
-                                                    command: String,
-                                                    customCommand: String,
-                                                    windowsExtension: String,
-                                                ): String {
-                                                    val finalCommand =
-                                                        if (isWindows && customCommand == command) "$command.$windowsExtension" else customCommand
-                                                    return if (downloadValue)
-                                                        home
-                                                            .resolve("bin/yarn.js").absolutePath
-                                                    else
-                                                        finalCommand
-                                                }
-
-                                                YarnEnv(
-                                                    download = downloadValue,
-                                                    downloadBaseUrl = downloadBaseUrl.orNull,
-                                                    cleanableStore = cleanableStore,
-                                                    dir = home,
-                                                    executable = getExecutable("yarn", commandValue, "cmd"),
-                                                    ivyDependency = "com.yarnpkg:yarn:${versionValue}@tar.gz",
-                                                    ignoreScripts = ignoreScriptsValue,
-                                                    yarnLockMismatchReport = yarnLockMismatchReportValue,
-                                                    reportNewYarnLock = reportNewYarnLockValue,
-                                                    yarnLockAutoReplace = yarnLockAutoReplaceValue,
-                                                    yarnResolutions = resolutionsValue
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+            val downloadValue = download.get()
+            fun getExecutable(
+                command: String,
+                customCommand: String,
+                windowsExtension: String,
+            ): String {
+                val finalCommand =
+                    if (isWindows && customCommand == command) "$command.$windowsExtension" else customCommand
+                return if (downloadValue)
+                    home
+                        .resolve("bin/yarn.js").absolutePath
+                else
+                    finalCommand
             }
+
+            YarnEnv(
+                download = downloadValue,
+                downloadBaseUrl = downloadBaseUrl.orNull,
+                cleanableStore = cleanableStore,
+                dir = home,
+                executable = getExecutable("yarn", command.get(), "cmd"),
+                ivyDependency = "com.yarnpkg:yarn:${version.get()}@tar.gz",
+                ignoreScripts = ignoreScripts.get(),
+                yarnLockMismatchReport = yarnLockMismatchReport.get(),
+                reportNewYarnLock = reportNewYarnLock.get(),
+                yarnLockAutoReplace = yarnLockAutoReplace.get(),
+                yarnResolutions = resolutions.get()
+            )
         }
     }
 

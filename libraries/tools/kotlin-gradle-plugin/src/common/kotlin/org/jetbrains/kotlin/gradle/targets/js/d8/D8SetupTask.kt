@@ -8,15 +8,14 @@ package org.jetbrains.kotlin.gradle.targets.js.d8
 import org.gradle.api.tasks.Internal
 import org.gradle.work.DisableCachingByDefault
 import org.jetbrains.kotlin.gradle.targets.js.AbstractSetupTask
-import org.jetbrains.kotlin.gradle.targets.js.d8.D8Plugin.Companion.kotlinD8Extension
 import org.jetbrains.kotlin.gradle.utils.getFile
 import java.io.File
 import javax.inject.Inject
 
 @DisableCachingByDefault
 abstract class D8SetupTask @Inject constructor(
-    settings: D8Spec,
-) : AbstractSetupTask<D8Env, D8Spec>(settings) {
+    settings: D8EnvSpec,
+) : AbstractSetupTask<D8Env, D8EnvSpec>(settings) {
 
     @get:Internal
     override val artifactPattern: String

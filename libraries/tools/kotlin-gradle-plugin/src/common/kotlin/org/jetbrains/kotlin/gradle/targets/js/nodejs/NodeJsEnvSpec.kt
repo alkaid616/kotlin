@@ -8,15 +8,17 @@ package org.jetbrains.kotlin.gradle.targets.js.nodejs
 import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Provider
+import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.TaskProvider
 import org.jetbrains.kotlin.gradle.targets.js.EnvSpec
 import org.jetbrains.kotlin.gradle.tasks.internal.CleanableStore
+import org.jetbrains.kotlin.gradle.utils.getFile
 import org.jetbrains.kotlin.gradle.utils.property
 import org.jetbrains.kotlin.gradle.utils.providerWithLazyConvention
 import java.io.File
 
 @Suppress("DEPRECATION")
-open class NodeJsExtension(
+open class NodeJsEnvSpec(
     val project: Project,
     rootNodeJs: () -> NodeJsRootExtension,
 ) : EnvSpec<NodeJsEnv> {
@@ -48,47 +50,42 @@ open class NodeJsExtension(
 
     internal val platform: org.gradle.api.provider.Property<Platform> = project.objects.property<Platform>()
 
-    override fun produceEnv(): Provider<NodeJsEnv> {
-        return installationDirectory.flatMap { installationDirectoryValue ->
-            download.flatMap { downloadValue ->
-                version.flatMap { versionValue ->
-                    command.flatMap { commandValue ->
-                        platform.map { platformValue ->
-                            val name = platformValue.name
-                            val architecture = platformValue.arch
+    override fun produceEnv(providerFactory: ProviderFactory): Provider<NodeJsEnv> {
+        return providerFactory.provider {
+            val platformValue = platform.get()
+            val name = platformValue.name
+            val architecture = platformValue.arch
 
-                            val nodeDirName = "node-v$versionValue-$name-$architecture"
-                            val cleanableStore = CleanableStore[installationDirectoryValue.asFile.absolutePath]
-                            val nodeDir = cleanableStore[nodeDirName].use()
-                            val isWindows = platformValue.isWindows()
-                            val nodeBinDir = if (isWindows) nodeDir else nodeDir.resolve("bin")
+            val versionValue = version.get()
+            val nodeDirName = "node-v$versionValue-$name-$architecture"
+            val cleanableStore = CleanableStore[installationDirectory.getFile().absolutePath]
+            val nodeDir = cleanableStore[nodeDirName].use()
+            val isWindows = platformValue.isWindows()
+            val nodeBinDir = if (isWindows) nodeDir else nodeDir.resolve("bin")
 
-                            fun getExecutable(command: String, customCommand: String, windowsExtension: String): String {
-                                val finalCommand =
-                                    if (isWindows && customCommand == command) "$command.$windowsExtension" else customCommand
-                                return if (downloadValue) File(nodeBinDir, finalCommand).absolutePath else finalCommand
-                            }
-
-                            fun getIvyDependency(): String {
-                                val type = if (isWindows) "zip" else "tar.gz"
-                                return "org.nodejs:node:$versionValue:$name-$architecture@$type"
-                            }
-
-                            NodeJsEnv(
-                                download = downloadValue,
-                                cleanableStore = cleanableStore,
-                                dir = nodeDir,
-                                nodeBinDir = nodeBinDir,
-                                executable = getExecutable("node", commandValue, "exe"),
-                                platformName = name,
-                                architectureName = architecture,
-                                ivyDependency = getIvyDependency(),
-                                downloadBaseUrl = downloadBaseUrl.orNull,
-                            )
-                        }
-                    }
-                }
+            val downloadValue = download.get()
+            fun getExecutable(command: String, customCommand: String, windowsExtension: String): String {
+                val finalCommand =
+                    if (isWindows && customCommand == command) "$command.$windowsExtension" else customCommand
+                return if (downloadValue) File(nodeBinDir, finalCommand).absolutePath else finalCommand
             }
+
+            fun getIvyDependency(): String {
+                val type = if (isWindows) "zip" else "tar.gz"
+                return "org.nodejs:node:$versionValue:$name-$architecture@$type"
+            }
+
+            NodeJsEnv(
+                download = downloadValue,
+                cleanableStore = cleanableStore,
+                dir = nodeDir,
+                nodeBinDir = nodeBinDir,
+                executable = getExecutable("node", command.get(), "exe"),
+                platformName = name,
+                architectureName = architecture,
+                ivyDependency = getIvyDependency(),
+                downloadBaseUrl = downloadBaseUrl.orNull,
+            )
         }
     }
 

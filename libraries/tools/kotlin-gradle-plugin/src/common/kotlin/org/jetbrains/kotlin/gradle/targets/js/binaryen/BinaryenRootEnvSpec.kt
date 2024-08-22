@@ -5,20 +5,19 @@
 
 package org.jetbrains.kotlin.gradle.targets.js.binaryen
 
-import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
+import org.gradle.api.provider.ProviderFactory
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.targets.js.EnvSpec
 import org.jetbrains.kotlin.gradle.tasks.internal.CleanableStore
+import org.jetbrains.kotlin.gradle.utils.getFile
 
+@ExperimentalWasmDsl
 open class BinaryenRootEnvSpec(
-    val project: Project,
     rootBinaryen: BinaryenRootExtension,
 ) : EnvSpec<BinaryenEnv> {
-    init {
-        check(project.rootProject == project)
-    }
 
     override val download: Property<Boolean> = rootBinaryen.downloadProperty
 
@@ -32,42 +31,37 @@ open class BinaryenRootEnvSpec(
 
     internal val platform: Property<BinaryenPlatform> = rootBinaryen.platform
 
-    override fun produceEnv(): Provider<BinaryenEnv> {
-        return download.flatMap { downloadValue ->
-            installationDirectory.flatMap { installationDirectoryValue ->
-                version.flatMap { versionValue ->
-                    command.flatMap { commandValue ->
-                        platform.map { platformValue ->
-                            val requiredVersionName = "binaryen-version_$versionValue"
-                            val cleanableStore = CleanableStore[installationDirectoryValue.asFile.absolutePath]
-                            val targetPath = cleanableStore[requiredVersionName].use()
-                            val isWindows = platformValue.isWindows()
+    override fun produceEnv(providerFactory: ProviderFactory): Provider<BinaryenEnv> {
+        return providerFactory.provider {
+            val versionValue = version.get()
+            val requiredVersionName = "binaryen-version_$versionValue"
+            val cleanableStore = CleanableStore[installationDirectory.getFile().absolutePath]
+            val targetPath = cleanableStore[requiredVersionName].use()
+            val platformValue = platform.get()
+            val isWindows = platformValue.isWindows()
 
-                            fun getExecutable(command: String, customCommand: String, windowsExtension: String): String {
-                                val finalCommand =
-                                    if (isWindows && customCommand == command) "$command.$windowsExtension" else customCommand
-                                return if (downloadValue)
-                                    targetPath
-                                        .resolve("bin")
-                                        .resolve(finalCommand)
-                                        .absolutePath
-                                else
-                                    finalCommand
-                            }
-
-                            BinaryenEnv(
-                                download = downloadValue,
-                                downloadBaseUrl = downloadBaseUrl.orNull,
-                                ivyDependency = "com.github.webassembly:binaryen:$versionValue:${platformValue.platform}@tar.gz",
-                                executable = getExecutable("wasm-opt", commandValue, "exe"),
-                                dir = targetPath,
-                                cleanableStore = cleanableStore,
-                                isWindows = isWindows,
-                            )
-                        }
-                    }
-                }
+            val downloadValue = download.get()
+            fun getExecutable(command: String, customCommand: String, windowsExtension: String): String {
+                val finalCommand =
+                    if (isWindows && customCommand == command) "$command.$windowsExtension" else customCommand
+                return if (downloadValue)
+                    targetPath
+                        .resolve("bin")
+                        .resolve(finalCommand)
+                        .absolutePath
+                else
+                    finalCommand
             }
+
+            BinaryenEnv(
+                download = downloadValue,
+                downloadBaseUrl = downloadBaseUrl.orNull,
+                ivyDependency = "com.github.webassembly:binaryen:$versionValue:${platformValue.platform}@tar.gz",
+                executable = getExecutable("wasm-opt", command.get(), "exe"),
+                dir = targetPath,
+                cleanableStore = cleanableStore,
+                isWindows = isWindows,
+            )
         }
     }
 
