@@ -77,7 +77,9 @@ open class NodeJsRootPlugin : Plugin<Project> {
         }
 
         val npmInstall = project.registerTask<KotlinNpmInstallTask>(KotlinNpmInstallTask.NAME) { npmInstall ->
-            npmInstall.dependsOn(nodeJs.nodeJsSetupTaskProvider)
+            with(nodeJs) {
+                npmInstall.dependsOn(project.nodeJsSetupTaskProvider)
+            }
             npmInstall.dependsOn(setupFileHasherTask)
             npmInstall.group = TASKS_GROUP_NAME
             npmInstall.description = "Find, download and link NPM dependencies and projects"

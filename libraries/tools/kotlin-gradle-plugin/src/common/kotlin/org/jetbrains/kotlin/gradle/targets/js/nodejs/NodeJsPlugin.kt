@@ -13,19 +13,15 @@ import org.jetbrains.kotlin.gradle.plugin.variantImplementationFactory
 import org.jetbrains.kotlin.gradle.targets.js.MultiplePluginDeclarationDetector
 import org.jetbrains.kotlin.gradle.tasks.registerTask
 import org.jetbrains.kotlin.gradle.utils.castIsolatedKotlinPluginClassLoaderAware
+import org.jetbrains.kotlin.gradle.utils.providerWithLazyConvention
 
 open class NodeJsPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         MultiplePluginDeclarationDetector.detect(project)
 
-        val nodeJs = project.extensions.create(
-            NodeJsEnvSpec.EXTENSION_NAME,
-            NodeJsEnvSpec::class.java,
-            project,
-            { NodeJsRootPlugin.apply(project.rootProject) }
-        )
-
-        addPlatform(project, nodeJs)
+        val nodeJs = project.createNodeJsEnvSpec {
+            NodeJsRootPlugin.apply(project.rootProject)
+        }
 
         project.registerTask<NodeJsSetupTask>(NodeJsSetupTask.NAME, listOf(nodeJs)) {
             it.group = TASKS_GROUP_NAME
@@ -34,6 +30,33 @@ open class NodeJsPlugin : Plugin<Project> {
                 project.configurations.detachedConfiguration(project.dependencies.create(ivyDependency))
                     .also { conf -> conf.isTransitive = false }
             }
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    private fun Project.createNodeJsEnvSpec(
+        nodeJsConstructor: () -> NodeJsRootExtension,
+    ): NodeJsEnvSpec {
+        val extensions = extensions
+        val objects = objects
+
+        return extensions.create(
+            NodeJsEnvSpec.EXTENSION_NAME,
+            NodeJsEnvSpec::class.java
+        ).apply {
+            installationDirectory.convention(
+                objects.directoryProperty().fileProvider(
+                    objects.providerWithLazyConvention {
+                        nodeJsConstructor().installationDir
+                    }
+                )
+            )
+            download.convention(objects.providerWithLazyConvention { nodeJsConstructor().download })
+            downloadBaseUrl.convention(objects.providerWithLazyConvention { nodeJsConstructor().downloadBaseUrl })
+            version.convention(objects.providerWithLazyConvention { nodeJsConstructor().version })
+            command.convention(objects.providerWithLazyConvention { nodeJsConstructor().command })
+
+            addPlatform(this@createNodeJsEnvSpec, this)
         }
     }
 

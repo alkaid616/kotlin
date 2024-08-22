@@ -5,7 +5,6 @@
 
 package org.jetbrains.kotlin.gradle.targets.js.d8
 
-import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
@@ -14,16 +13,10 @@ import org.jetbrains.kotlin.gradle.tasks.internal.CleanableStore
 import org.jetbrains.kotlin.gradle.utils.getFile
 
 @ExperimentalWasmDsl
-open class D8EnvSpec(
-    d8: D8Extension,
-) : EnvSpec<D8Env> {
-
-    override val download: org.gradle.api.provider.Property<Boolean> = d8.downloadProperty
+abstract class D8EnvSpec : EnvSpec<D8Env>() {
 
     // value not convention because this property can be nullable to not add repository
-    override val downloadBaseUrl: org.gradle.api.provider.Property<String> = d8.downloadBaseUrlProperty
-
-    override val installationDirectory: DirectoryProperty = d8.installationDirectory
+    abstract override val downloadBaseUrl: org.gradle.api.provider.Property<String>
 
     // Latest version number could be found here https://storage.googleapis.com/chromium-v8/official/canary/v8-linux64-rel-latest.json
     // Bash script/command to check that version specified in `VER` is available for all platforms, just copy-paste and run it in terminal:
@@ -40,16 +33,14 @@ open class D8EnvSpec(
         fi;
     done;
     */
-    override val version: org.gradle.api.provider.Property<String> = d8.versionProperty
+    abstract override val version: org.gradle.api.provider.Property<String>
 
     /**
      * Specify the edition of the D8.
      *
      * Valid options for bundled version are `rel` (release variant) and `dbg` (debug variant).
      */
-    val edition: org.gradle.api.provider.Property<String> = d8.edition
-
-    override val command: org.gradle.api.provider.Property<String> = d8.commandProperty
+    abstract val edition: org.gradle.api.provider.Property<String>
 
     override fun produceEnv(providerFactory: ProviderFactory): Provider<D8Env> {
         return providerFactory.provider {

@@ -5,8 +5,6 @@
 
 package org.jetbrains.kotlin.gradle.targets.js.yarn
 
-import org.gradle.api.Project
-import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
@@ -15,50 +13,20 @@ import org.jetbrains.kotlin.gradle.targets.js.EnvSpec
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.Platform
 import org.jetbrains.kotlin.gradle.tasks.internal.CleanableStore
 import org.jetbrains.kotlin.gradle.utils.getFile
-import org.jetbrains.kotlin.gradle.utils.listProperty
-import org.jetbrains.kotlin.gradle.utils.property
-import org.jetbrains.kotlin.gradle.utils.providerWithLazyConvention
 
-open class YarnRootEnvSpec(
-    val project: Project,
-    rootYarn: YarnRootExtension,
-) : EnvSpec<YarnEnv> {
-    init {
-        check(project == project.rootProject)
-    }
+abstract class YarnRootEnvSpec : EnvSpec<YarnEnv>() {
 
-    override val download: Property<Boolean> = rootYarn.downloadProperty
+    internal abstract val platform: Property<Platform>
 
-    override val downloadBaseUrl: Property<String> = rootYarn.downloadBaseUrlProperty
+    abstract val ignoreScripts: Property<Boolean>
 
-    override val installationDirectory: DirectoryProperty = rootYarn.installationDirectory
+    abstract val yarnLockMismatchReport: Property<YarnLockMismatchReport>
 
-    override val version: Property<String> = rootYarn.versionProperty
+    abstract val reportNewYarnLock: Property<Boolean>
 
-    override val command: Property<String> = rootYarn.commandProperty
+    abstract val yarnLockAutoReplace: Property<Boolean>
 
-    internal val platform: Property<Platform> = rootYarn.platform
-
-    val ignoreScripts: Property<Boolean> = project.objects.property<Boolean>()
-        .convention(project.objects.providerWithLazyConvention { rootYarn.ignoreScripts })
-
-    val yarnLockMismatchReport: Property<YarnLockMismatchReport> = project.objects.property<YarnLockMismatchReport>()
-        .convention(project.objects.providerWithLazyConvention { rootYarn.yarnLockMismatchReport })
-
-    val reportNewYarnLock: Property<Boolean> = project.objects.property<Boolean>()
-        .convention(project.objects.providerWithLazyConvention { rootYarn.reportNewYarnLock })
-
-    val yarnLockAutoReplace: Property<Boolean> = project.objects.property<Boolean>()
-        .convention(project.objects.providerWithLazyConvention { rootYarn.yarnLockAutoReplace })
-
-    val resolutions: ListProperty<YarnResolution> = project.objects.listProperty<YarnResolution>()
-        .convention(
-            project.objects.listProperty<YarnResolution>().value(
-                project.objects.providerWithLazyConvention {
-                    rootYarn.resolutions
-                }
-            )
-        )
+    abstract val resolutions: ListProperty<YarnResolution>
 
     override fun produceEnv(providerFactory: ProviderFactory): Provider<YarnEnv> {
         return providerFactory.provider {

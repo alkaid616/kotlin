@@ -6,49 +6,17 @@
 package org.jetbrains.kotlin.gradle.targets.js.nodejs
 
 import org.gradle.api.Project
-import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.TaskProvider
 import org.jetbrains.kotlin.gradle.targets.js.EnvSpec
 import org.jetbrains.kotlin.gradle.tasks.internal.CleanableStore
 import org.jetbrains.kotlin.gradle.utils.getFile
-import org.jetbrains.kotlin.gradle.utils.property
-import org.jetbrains.kotlin.gradle.utils.providerWithLazyConvention
 import java.io.File
 
-@Suppress("DEPRECATION")
-open class NodeJsEnvSpec(
-    val project: Project,
-    rootNodeJs: () -> NodeJsRootExtension,
-) : EnvSpec<NodeJsEnv> {
+abstract class NodeJsEnvSpec : EnvSpec<NodeJsEnv>() {
 
-    override val installationDirectory: DirectoryProperty = project.objects.directoryProperty()
-        .convention(
-            project.objects.directoryProperty().fileProvider(
-                project.objects.providerWithLazyConvention {
-                    rootNodeJs().installationDir
-                }
-            )
-        )
-
-    override val download: org.gradle.api.provider.Property<Boolean> = project.objects.property<Boolean>()
-        .convention(project.objects.providerWithLazyConvention { rootNodeJs().download })
-
-    // value not convention because this property can be nullable to not add repository
-    override val downloadBaseUrl: org.gradle.api.provider.Property<String> = project.objects.property<String>()
-        .convention(project.objects.providerWithLazyConvention { rootNodeJs().downloadBaseUrl })
-
-    // Release schedule: https://github.com/nodejs/Release
-    // Actual LTS and Current versions: https://nodejs.org/en/download/
-    // Older versions and more information, e.g. V8 version inside: https://nodejs.org/en/download/releases/
-    override val version: org.gradle.api.provider.Property<String> = project.objects.property<String>()
-        .convention(project.objects.providerWithLazyConvention { rootNodeJs().version })
-
-    override val command: org.gradle.api.provider.Property<String> = project.objects.property<String>()
-        .convention(project.objects.providerWithLazyConvention { rootNodeJs().command })
-
-    internal val platform: org.gradle.api.provider.Property<Platform> = project.objects.property<Platform>()
+    internal abstract val platform: org.gradle.api.provider.Property<Platform>
 
     override fun produceEnv(providerFactory: ProviderFactory): Provider<NodeJsEnv> {
         return providerFactory.provider {
@@ -89,7 +57,7 @@ open class NodeJsEnvSpec(
         }
     }
 
-    val nodeJsSetupTaskProvider: TaskProvider<out NodeJsSetupTask>
+    val Project.nodeJsSetupTaskProvider: TaskProvider<out NodeJsSetupTask>
         get() = project.tasks.withType(NodeJsSetupTask::class.java).named(NodeJsSetupTask.NAME)
 
     companion object {

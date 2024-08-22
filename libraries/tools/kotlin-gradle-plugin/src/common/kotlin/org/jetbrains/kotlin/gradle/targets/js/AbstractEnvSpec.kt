@@ -4,17 +4,17 @@ import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
 
-interface EnvSpec<T> {
+abstract class EnvSpec<T> {
 
-    val download: org.gradle.api.provider.Property<Boolean>
+    abstract val download: org.gradle.api.provider.Property<Boolean>
 
-    val downloadBaseUrl: org.gradle.api.provider.Property<String>
+    abstract val downloadBaseUrl: org.gradle.api.provider.Property<String>
 
-    val installationDirectory: DirectoryProperty
+    abstract val installationDirectory: DirectoryProperty
 
-    val version: org.gradle.api.provider.Property<String>
+    abstract val version: org.gradle.api.provider.Property<String>
 
-    val command: org.gradle.api.provider.Property<String>
+    abstract val command: org.gradle.api.provider.Property<String>
 
-    fun produceEnv(providerFactory: ProviderFactory): Provider<T>
+    internal abstract fun produceEnv(providerFactory: ProviderFactory): Provider<T>
 }

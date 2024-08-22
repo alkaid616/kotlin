@@ -15,21 +15,9 @@ import org.jetbrains.kotlin.gradle.tasks.internal.CleanableStore
 import org.jetbrains.kotlin.gradle.utils.getFile
 
 @ExperimentalWasmDsl
-open class BinaryenRootEnvSpec(
-    rootBinaryen: BinaryenRootExtension,
-) : EnvSpec<BinaryenEnv> {
+abstract class BinaryenRootEnvSpec : EnvSpec<BinaryenEnv>() {
 
-    override val download: Property<Boolean> = rootBinaryen.downloadProperty
-
-    override val downloadBaseUrl: Property<String> = rootBinaryen.downloadBaseUrlProperty
-
-    override val installationDirectory: DirectoryProperty = rootBinaryen.installationDirectory
-
-    override val version: Property<String> = rootBinaryen.versionProperty
-
-    override val command: Property<String> = rootBinaryen.commandProperty
-
-    internal val platform: Property<BinaryenPlatform> = rootBinaryen.platform
+    internal abstract val platform: Property<BinaryenPlatform>
 
     override fun produceEnv(providerFactory: ProviderFactory): Provider<BinaryenEnv> {
         return providerFactory.provider {

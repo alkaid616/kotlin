@@ -13,7 +13,7 @@ import org.jetbrains.kotlin.gradle.logging.kotlinInfo
 import org.jetbrains.kotlin.gradle.targets.js.AbstractSettings
 import org.jetbrains.kotlin.gradle.utils.property
 
-@ExperimentalWasmDsl
+@OptIn(ExperimentalWasmDsl::class)
 open class D8Extension(
     @Transient val project: Project,
 ) : AbstractSettings<D8Env>() {

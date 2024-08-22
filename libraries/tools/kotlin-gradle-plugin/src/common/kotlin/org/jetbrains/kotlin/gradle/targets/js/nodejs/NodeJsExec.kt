@@ -114,7 +114,9 @@ constructor(
                     )
                     it.dependsOn(nodeJsRoot.packageManagerExtension.map { it.postInstallTasks })
                 }
-                it.dependsOn(nodeJs.nodeJsSetupTaskProvider)
+                with(nodeJs) {
+                    it.dependsOn(project.nodeJsSetupTaskProvider)
+                }
                 it.dependsOn(compilation.compileTaskProvider)
                 it.configuration()
             }

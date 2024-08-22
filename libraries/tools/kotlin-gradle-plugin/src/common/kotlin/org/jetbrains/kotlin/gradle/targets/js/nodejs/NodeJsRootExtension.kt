@@ -142,7 +142,9 @@ open class NodeJsRootExtension(
                 "You can find this extension after applying NodeJsPlugin"
     )
     val nodeJsSetupTaskProvider: TaskProvider<out NodeJsSetupTask>
-        get() = nodeJs().nodeJsSetupTaskProvider
+        get() = with(nodeJs()) {
+            project.nodeJsSetupTaskProvider
+        }
 
     @Deprecated("Use NodeJsExtension instead. This will be removed in 2.2")
     fun requireConfigured(): NodeJsEnv {

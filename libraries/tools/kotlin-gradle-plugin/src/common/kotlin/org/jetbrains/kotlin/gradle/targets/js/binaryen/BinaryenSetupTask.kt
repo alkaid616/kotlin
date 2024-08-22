@@ -7,11 +7,13 @@ package org.jetbrains.kotlin.gradle.targets.js.binaryen
 
 import org.gradle.api.tasks.Internal
 import org.gradle.work.DisableCachingByDefault
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.targets.js.AbstractSetupTask
 import org.jetbrains.kotlin.gradle.utils.getFile
 import java.io.File
 import javax.inject.Inject
 
+@OptIn(ExperimentalWasmDsl::class)
 @DisableCachingByDefault
 abstract class BinaryenSetupTask @Inject constructor(
     settings: BinaryenRootEnvSpec,

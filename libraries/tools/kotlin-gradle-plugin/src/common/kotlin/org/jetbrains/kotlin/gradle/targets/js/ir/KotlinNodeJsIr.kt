@@ -66,7 +66,9 @@ abstract class KotlinNodeJsIr @Inject constructor(target: KotlinJsIrTarget) :
     }
 
     override fun configureTestDependencies(test: KotlinJsTest) {
-        test.dependsOn(nodeJs.nodeJsSetupTaskProvider)
+        with(nodeJs) {
+            test.dependsOn(project.nodeJsSetupTaskProvider)
+        }
         if (target.wasmTargetType != KotlinWasmTargetType.WASI) {
             val nodeJsRoot = project.rootProject.kotlinNodeJsRootExtension
             test.dependsOn(

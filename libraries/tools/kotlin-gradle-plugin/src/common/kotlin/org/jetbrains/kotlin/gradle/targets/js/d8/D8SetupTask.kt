@@ -3,10 +3,13 @@
  * that can be found in the license/LICENSE.txt file.
  */
 
+@file:OptIn(ExperimentalWasmDsl::class)
+
 package org.jetbrains.kotlin.gradle.targets.js.d8
 
 import org.gradle.api.tasks.Internal
 import org.gradle.work.DisableCachingByDefault
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.targets.js.AbstractSetupTask
 import org.jetbrains.kotlin.gradle.utils.getFile
 import java.io.File

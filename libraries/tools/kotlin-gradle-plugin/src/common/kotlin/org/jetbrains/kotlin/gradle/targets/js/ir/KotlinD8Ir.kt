@@ -5,6 +5,7 @@
 
 package org.jetbrains.kotlin.gradle.targets.js.ir
 
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.targets.js.d8.D8Exec
 import org.jetbrains.kotlin.gradle.targets.js.d8.D8Plugin
 import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinWasmD8Dsl
@@ -15,6 +16,7 @@ import org.jetbrains.kotlin.gradle.tasks.locateTask
 import org.jetbrains.kotlin.gradle.tasks.withType
 import javax.inject.Inject
 
+@OptIn(ExperimentalWasmDsl::class)
 abstract class KotlinD8Ir @Inject constructor(target: KotlinJsIrTarget) :
     KotlinJsIrSubTargetBase(target, "d8"),
     KotlinWasmD8Dsl {

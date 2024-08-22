@@ -56,8 +56,10 @@ abstract class KotlinBrowserJsIr @Inject constructor(target: KotlinJsIrTarget) :
     override fun configureTestDependencies(test: KotlinJsTest) {
         test.dependsOn(
             nodeJsRoot.npmInstallTaskProvider,
-            nodeJs.nodeJsSetupTaskProvider
         )
+        with(nodeJs) {
+            test.dependsOn(project.nodeJsSetupTaskProvider)
+        }
         test.dependsOn(nodeJsRoot.packageManagerExtension.map { it.postInstallTasks })
     }
 

@@ -7,6 +7,8 @@ package org.jetbrains.kotlin.gradle.targets.js.yarn
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.model.ObjectFactory
+import org.gradle.api.plugins.ExtensionContainer
 import org.jetbrains.kotlin.gradle.targets.js.MultiplePluginDeclarationDetector
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsPlugin.Companion.kotlinNodeJsEnvSpec
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootPlugin
@@ -16,6 +18,8 @@ import org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask
 import org.jetbrains.kotlin.gradle.tasks.CleanDataTask
 import org.jetbrains.kotlin.gradle.tasks.registerTask
 import org.jetbrains.kotlin.gradle.utils.detachedResolvable
+import org.jetbrains.kotlin.gradle.utils.listProperty
+import org.jetbrains.kotlin.gradle.utils.providerWithLazyConvention
 
 open class YarnPlugin : Plugin<Project> {
     override fun apply(project: Project): Unit = project.run {
@@ -43,17 +47,14 @@ open class YarnPlugin : Plugin<Project> {
             yarnRootExtension
         )
 
-        val yarnSpec = this.extensions.create(
-            YarnRootEnvSpec.YARN,
-            YarnRootEnvSpec::class.java,
-            this,
-            yarnRootExtension
-        )
+        val yarnSpec = project.extensions.createYarnEnvSpec(objects, yarnRootExtension)
 
         yarnRootExtension.yarnSpec = { yarnSpec }
 
         val setupTask = registerTask<YarnSetupTask>(YarnSetupTask.NAME, listOf(yarnSpec)) {
-            it.dependsOn(nodeJs.nodeJsSetupTaskProvider)
+            with(nodeJs) {
+                it.dependsOn(project.nodeJsSetupTaskProvider)
+            }
 
             it.group = NodeJsRootPlugin.TASKS_GROUP_NAME
             it.description = "Download and install a local yarn version"
@@ -120,6 +121,34 @@ open class YarnPlugin : Plugin<Project> {
         yarnRootExtension.postInstallTasks.value(
             listOf(yarnRootExtension.storeYarnLockTaskProvider)
         ).disallowChanges()
+    }
+
+    private fun ExtensionContainer.createYarnEnvSpec(
+        objectFactory: ObjectFactory,
+        yarnRootExtension: YarnRootExtension,
+    ): YarnRootEnvSpec {
+        return create(
+            YarnRootEnvSpec.YARN,
+            YarnRootEnvSpec::class.java
+        ).apply {
+            download.convention(yarnRootExtension.downloadProperty)
+            downloadBaseUrl.convention(yarnRootExtension.downloadBaseUrlProperty)
+            installationDirectory.convention(yarnRootExtension.installationDirectory)
+            version.convention(yarnRootExtension.versionProperty)
+            command.convention(yarnRootExtension.commandProperty)
+            platform.convention(yarnRootExtension.platform)
+            ignoreScripts.convention(objectFactory.providerWithLazyConvention { yarnRootExtension.ignoreScripts })
+            yarnLockMismatchReport.convention(objectFactory.providerWithLazyConvention { yarnRootExtension.yarnLockMismatchReport })
+            reportNewYarnLock.convention(objectFactory.providerWithLazyConvention { yarnRootExtension.reportNewYarnLock })
+            yarnLockAutoReplace.convention(objectFactory.providerWithLazyConvention { yarnRootExtension.yarnLockAutoReplace })
+            resolutions.convention(
+                objectFactory.listProperty<YarnResolution>().value(
+                    objectFactory.providerWithLazyConvention {
+                        yarnRootExtension.resolutions
+                    }
+                )
+            )
+        }
     }
 
     companion object {
