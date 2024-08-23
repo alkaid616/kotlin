@@ -102,6 +102,10 @@ internal class SirClassFromKtSymbol(
             SirParameter(
                 argumentName = "__externalRCRef",
                 type = SirNominalType(SirSwiftModule.uint)
+            ),
+            SirParameter(
+                argumentName = "mode",
+                type = SirNominalType(SirSwiftModule.int32)
             )
         )
     }.also { it.parent = this }

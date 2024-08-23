@@ -21,6 +21,17 @@
 #import "Runtime.h"
 #import "concurrent/Mutex.hpp"
 #import "Exceptions.h"
+#include "swiftExportRuntime/SwiftExport.hpp"
+
+namespace {
+
+enum InitWithExternalRCRefMode : int {
+    kDoNotReplaceSelf = 0,
+    kReplaceSelf = 1,
+    kMoveRefFromImpreciseSelf = 2,
+};
+
+} // namespace
 
 @interface NSObject (NSObjectPrivateMethods)
 // Implemented for NSObject in libobjc/NSObject.mm
@@ -169,12 +180,73 @@ extern "C" OBJ_GETTER(Kotlin_toString, KRef obj);
   return [self retain];
 }
 
-// TODO: KT-69636 - obtain the most appropriate wrapper type and replace self with the instance of it
-- (instancetype)initWithExternalRCRef:(uintptr_t)ref {
-
+// Try to set `self` as the associated object of the object in `refHolder`.
+// Returns already set associated object or `nil`.
+- (id)_trySetAsAssociatedObject {
+    // TODO: Make it okay to get/replace associated objects w/o runnable state.
     kotlin::CalledFromNativeGuard guard;
+    // `ref` holds a strong reference to obj, no need to place obj onto a stack.
+    KRef obj = refHolder.ref();
+    return AtomicCompareAndSwapAssociatedObject(obj, nullptr, self);
+}
 
+- (instancetype)_initWithUnattachedObject {
+    id old = [self _trySetAsAssociatedObject];
+    RuntimeAssert(old == nil, "Ref %p had associated object %p of type %s; cannot attach %p of type %s\n", refHolder.externalRCRef(false), old, class_getName([old class]), self, class_getName([self class]));
+    return self;
+}
+
+- (instancetype)_initWithPossiblyAttachedObject {
+    id replacingSelf = [self _trySetAsAssociatedObject];
+    if (replacingSelf == nil) {
+        // No previous associated object was set, `self` is the associated object.
+        return self;
+    }
+
+    RuntimeAssert(
+            [[replacingSelf class] isSubclassOfClass:[self class]],
+            "During initialization of %p (%s) for Kotlin object %p trying to replace self with %p (%s) that is not a subclass", self,
+            class_getName([self class]), refHolder.ref(), replacingSelf, class_getName([replacingSelf class]));
+
+    KotlinBase* retiredSelf = self; // old `self`
+    self = replacingSelf; // new `self`
+
+    // Retain new `self`.
+    [self retain];
+
+    // And release old `self`.
+    [retiredSelf release];
+    [retiredSelf releaseAsAssociatedObject];
+
+    // Return new `self`.
+    return self;
+}
+
+- (instancetype)_initWithBestFittingClass:(Class)bestFittingClass {
+    auto* ref = refHolder.externalRCRef(false);
+    RuntimeAssert(
+            [bestFittingClass isSubclassOfClass:[self class]],
+            "Best-fitting class for ref %p is %s, but we were trying to initialize with %s, which is not its ancestor", ref,
+            class_getName(bestFittingClass), class_getName([self class]));
+
+    // Detach `self` from `ref`, `ref` will be attached to a new instance below.
+    refHolder.detach();
+    KotlinBase* retiredSelf = self;
+
+    // Construct the instance from scratch using `bestFittingClass`, and replace `self` with it.
+    self = [[bestFittingClass alloc] initWithExternalRCRef:reinterpret_cast<uintptr_t>(ref)
+                                                      mode:InitWithExternalRCRefMode::kMoveRefFromImpreciseSelf];
+
+    // And now release the old `self`.
+    [retiredSelf releaseAsAssociatedObject];
+
+    return self;
+}
+
+- (instancetype)initWithExternalRCRef:(uintptr_t)ref
+                                 mode:(int)mode {
     RuntimeAssert(kotlin::compiler::swiftExport(), "Must be used in Swift Export only");
+    kotlin::AssertThreadState(kotlin::ThreadState::kNative);
 
     permanent = refHolder.initWithExternalRCRef(reinterpret_cast<void*>(ref));
     if (permanent) {
@@ -182,32 +254,26 @@ extern "C" OBJ_GETTER(Kotlin_toString, KRef obj);
         return self;
     }
 
-    // ref holds a strong reference to obj, no need to place obj onto a stack.
-    auto obj = refHolder.ref();
+    RuntimeAssert(mode >= 0 && mode <= 2, "Invalid mode %d; expecting 0-2", mode);
+    switch (static_cast<InitWithExternalRCRefMode>(mode)) {
+        case InitWithExternalRCRefMode::kDoNotReplaceSelf:
+            return [self _initWithUnattachedObject];
+        case InitWithExternalRCRefMode::kMoveRefFromImpreciseSelf:
+            return [self _initWithPossiblyAttachedObject];
+        case InitWithExternalRCRefMode::kReplaceSelf: {
+            auto typeInfo = refHolder.typeInfo(false);
 
-    id old = AtomicCompareAndSwapAssociatedObject(obj, nullptr, self);
-    if (old == nil) {
-        // Kotlin object did not have an associated object attached.
-        return self;
+            // Find the best-fitting class for initialization.
+            Class bestFittingClass = kotlin::swiftExportRuntime::bestFittingObjCClassFor(typeInfo);
+
+            if (bestFittingClass == [self class]) {
+                // If the best-fitting class is our class, try to use `self`.
+                return [self _initWithPossiblyAttachedObject];
+            }
+
+            return [self _initWithBestFittingClass:bestFittingClass];
+        }
     }
-
-    // Kotlin object did have an associated object attached.
-    RuntimeAssert(
-        [[old class] isSubclassOfClass:[self class]],
-        "Object %p had associated object of type %s but we try to init with %s",
-        obj, class_getName([old class]), class_getName([self class])
-    );
-
-    // Make self point to that object.
-    KotlinBase* retiredSelf = self;
-    self = objc_retain(old);
-
-    retiredSelf->refHolder.releaseRef();
-    kotlin::CallsCheckerIgnoreGuard callsCheckerGuard;
-    // retiredSelf is safe to dealloc right in the Runnable state as it cannot not lead to any long-running or blocking calls.
-    [retiredSelf releaseAsAssociatedObject];
-
-    return self;
 }
 
 - (uintptr_t)externalRCRef {

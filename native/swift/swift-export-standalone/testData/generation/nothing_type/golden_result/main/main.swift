@@ -9,15 +9,16 @@ public final class Bar : KotlinRuntime.KotlinBase {
             return Bar_p_get(self.__externalRCRef())
         }
     }
-    public override init(
-        __externalRCRef: Swift.UInt
-    ) {
-        super.init(__externalRCRef: __externalRCRef)
-    }
     public init(
         p: Swift.Never
     ) {
         fatalError()
+    }
+    public override init(
+        __externalRCRef: Swift.UInt,
+        mode: Swift.Int32
+    ) {
+        super.init(__externalRCRef: __externalRCRef, mode: mode)
     }
 }
 public var value: Swift.Never {

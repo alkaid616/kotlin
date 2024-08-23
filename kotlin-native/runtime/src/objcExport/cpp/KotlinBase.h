@@ -16,9 +16,18 @@ struct ObjHeader;
 
 // Initialize this class with kotlin.native.ref.ExternalRCRef
 // Does not retain `ref` itself.
-// If `ref` already points to another `KotlinBase` instance,
-// this returns that instance.
-- (instancetype)initWithExternalRCRef:(uintptr_t)ref NS_REFINED_FOR_SWIFT;
+// `mode` is one of the following:
+// * 0: `ref` must not already point to another `KotlinBase` instance, `self` type is
+//   considered precise. `self` will remain the same after initialization completes.
+//   This mode can be used from Swift subclass `init()`.
+// * 1: `ref` may already point to another `KotlinBase` instance, and `self` type may
+//   be imprecise. In this mode `self` may be replaced during initialization with
+//   a more appropriate instance, older `self` will be automatically destroyed.
+//   This mode can be used in Swift return value transformation.
+// * 2: `ref` may already point to another `KotlinBase` instance, but `self` is precise,
+//   This mode is used internally.
+- (instancetype)initWithExternalRCRef:(uintptr_t)ref
+                                 mode:(int)mode NS_REFINED_FOR_SWIFT;
 
 // Return kotlin.native.ref.ExternalRCRef stored in this class
 - (uintptr_t)externalRCRef NS_REFINED_FOR_SWIFT;

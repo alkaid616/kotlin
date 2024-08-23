@@ -74,7 +74,7 @@ public var baz: Swift.Int32 {
 }
 public var foo: KotlinRuntime.KotlinBase {
     get {
-        return KotlinRuntime.KotlinBase(__externalRCRef: __root___foo_get())
+        return KotlinRuntime.KotlinBase(__externalRCRef: __root___foo_get(), mode: 1)
     }
     set {
         return __root___foo_set__TypesOfArguments__KotlinRuntime_KotlinBase__(newValue.__externalRCRef())
@@ -82,7 +82,7 @@ public var foo: KotlinRuntime.KotlinBase {
 }
 public var lateinit_foo: KotlinRuntime.KotlinBase {
     get {
-        return KotlinRuntime.KotlinBase(__externalRCRef: __root___lateinit_foo_get())
+        return KotlinRuntime.KotlinBase(__externalRCRef: __root___lateinit_foo_get(), mode: 1)
     }
     set {
         return __root___lateinit_foo_set__TypesOfArguments__KotlinRuntime_KotlinBase__(newValue.__externalRCRef())

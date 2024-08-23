@@ -281,7 +281,7 @@ func openClassesAdhereToLSP() throws {
     let child: Base = Child()
     try assertTrue(type(of: child) == Child.self)
 
-    try assertTrue(type(of: polymorphicObject) == Base.self)
+    try assertTrue(type(of: polymorphicObject) == Derived.self)
     try assertTrue(polymorphicObject !== base)
     polymorphicObject = base
     try assertSame(actual: polymorphicObject, expected: base)

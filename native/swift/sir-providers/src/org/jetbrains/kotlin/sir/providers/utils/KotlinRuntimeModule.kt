@@ -48,6 +48,10 @@ public object KotlinRuntimeModule : SirModule() {
                     SirParameter(
                         argumentName = "__externalRCRef",
                         type = SirNominalType(SirSwiftModule.uint)
+                    ),
+                    SirParameter(
+                        argumentName = "mode",
+                        type = SirNominalType(SirSwiftModule.int32)
                     )
                 )
             }

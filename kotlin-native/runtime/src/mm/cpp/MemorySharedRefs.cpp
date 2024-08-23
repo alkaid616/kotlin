@@ -63,6 +63,11 @@ bool BackRefFromAssociatedObject::initWithExternalRCRef(void* ref) noexcept {
     return false;
 }
 
+void BackRefFromAssociatedObject::detach() noexcept {
+    ref_ = nullptr;
+    deallocMutex_.destroy();
+}
+
 void BackRefFromAssociatedObject::addRef() {
     mm::ObjCBackRef::reinterpret(ref_).retain();
 }
@@ -84,6 +89,10 @@ void BackRefFromAssociatedObject::releaseRef() {
 }
 
 void BackRefFromAssociatedObject::dealloc() {
+    // `detach` may have nulled it out.
+    if (!ref_) {
+        return;
+    }
     // This will wait for all `tryAddRef` to finish.
     std::unique_lock guard(*deallocMutex_);
     std::move(mm::ObjCBackRef::reinterpret(ref_)).dispose();
@@ -102,4 +111,12 @@ void* BackRefFromAssociatedObject::externalRCRef(bool permanent) const noexcept 
         return mm::permanentObjectAsExternalRCRef(permanentObj_);
     }
     return ref_;
+}
+
+const TypeInfo* BackRefFromAssociatedObject::typeInfo(bool permanent) const noexcept {
+    if (permanent) {
+        return permanentObj_->type_info();
+    } else {
+        return mm::ObjCBackRef::reinterpret(ref_).typeInfo();
+    }
 }

@@ -40,6 +40,11 @@ class BackRefFromAssociatedObject {
   // Returns true if initialized as permanent.
   bool initWithExternalRCRef(void* ref) noexcept;
 
+  // Detach from external RC ref without cleaning it up.
+  // Effectively undo `initWithExternalRCRef`.
+  // Only valid for non-permanent objects.
+  void detach() noexcept;
+
   void addRef();
 
   bool tryAddRef();
@@ -53,6 +58,9 @@ class BackRefFromAssociatedObject {
   ObjHeader* refPermanent() const;
 
   void* externalRCRef(bool permanent) const noexcept;
+
+  // Get `TypeInfo` of stored reference.
+  const TypeInfo* typeInfo(bool permanent) const noexcept;
 
  private:
   union {

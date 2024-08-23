@@ -68,7 +68,9 @@ internal class BridgeGeneratorImpl(private val typeNamer: SirTypeNamer) : Bridge
             }
             is SirInit -> {
                 add("let ${obj.name} = ${request.allocationDescriptor(typeNamer).swiftCall(typeNamer)}")
-                add("super.init(__externalRCRef: ${obj.name})")
+                // We've just allocated kotlin instance, we've not called its constructor, there's no way
+                // it could get attached to anything else: no need to replace `self`.
+                add("super.init(__externalRCRef: ${obj.name}, mode: 0)")
                 add(request.initializationDescriptor(typeNamer).swiftCall(typeNamer))
             }
         }
@@ -347,7 +349,7 @@ private sealed class Bridge(
             override fun swiftToKotlin(typeNamer: SirTypeNamer, valueExpression: String) = "${valueExpression}.__externalRCRef()"
 
             override fun kotlinToSwift(typeNamer: SirTypeNamer, valueExpression: String) =
-                "${typeNamer.swiftFqName(swiftType)}(__externalRCRef: $valueExpression)"
+                "${typeNamer.swiftFqName(swiftType)}(__externalRCRef: $valueExpression, mode: 1)"
 
         }
     }
