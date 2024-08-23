@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.targets.js.npm.npmProject
+
 plugins {
     kotlin("js")
 }
@@ -52,20 +54,25 @@ kotlin {
                 customField("customField5", "@as/${nameOfModule}")
             }
         }
-    }
-}
 
-rootProject.plugins.withType<org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootPlugin> {
-    val kotlinNodeJs = rootProject.extensions.getByType<org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsEnvSpec>()
+        val mainCompilation = compilations["main"]
+        rootProject.plugins.withType<org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootPlugin> {
+            tasks.register<Exec>("runWebpackResult") {
+                val webpackTask = tasks.named<org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack>("browserProductionWebpack")
+                dependsOn(webpackTask)
 
-    tasks.register<Exec>("runWebpackResult") {
-        val webpackTask = tasks.named<org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack>("browserProductionWebpack")
-        dependsOn(webpackTask)
+                val workDir = webpackTask.flatMap { it.outputDirectory.asFile }
 
-        executable(kotlinNodeJs.produceEnv().get().executable)
-
-        workingDir(webpackTask.flatMap { it.outputDirectory.asFile })
-        args("./${project.name}.js")
+                val npmProject = mainCompilation.npmProject
+                val projectName = project.name
+                doFirst {
+                    this as Exec
+                    npmProject.useTool(this, "webpack/bin/webpack", args = listOf())
+                    this.args = listOf("./$projectName.js")
+                    workingDir(workDir)
+                }
+            }
+        }
     }
 }
 
