@@ -58,6 +58,11 @@ class CallDiagramFactory(
         irPluginContext.referenceFunctions(callableId).single { it.owner.valueParameters.firstOrNull()?.isVararg == true }
     }
 
+    private val toDefaultMessageSymbol by lazy {
+        val callableId = CallableId(packageFqName, Name.identifier("toDefaultMessage"))
+        irPluginContext.referenceFunctions(callableId).single()
+    }
+
     private fun IrBuilderWithScope.irPair(first: IrExpression, second: IrExpression): IrExpression {
         return irCall(pairConstructorSymbol).apply {
             putValueArgument(0, first)
@@ -154,6 +159,8 @@ class CallDiagramFactory(
     }
 
     fun IrBuilderWithScope.irDefaultMessage(callDiagram: IrExpression): IrCall {
-        TODO("Not yet implemented")
+        return irCall(toDefaultMessageSymbol).apply {
+            extensionReceiver = callDiagram
+        }
     }
 }

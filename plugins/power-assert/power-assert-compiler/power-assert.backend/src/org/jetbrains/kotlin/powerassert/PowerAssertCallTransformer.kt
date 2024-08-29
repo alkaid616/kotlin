@@ -113,7 +113,7 @@ class PowerAssertCallTransformer(
             function.valueParameters.size -> originalCall.getValueArgument(originalCall.valueArgumentsCount - 1)
             else -> null
         }
-        val diagramBuilder = StringDiagramBuilder(sourceFile, originalCall, function, messageArgument)
+        val diagramBuilder = StringDiagramBuilder(CallDiagramFactory(context), sourceFile, originalCall, function, messageArgument)
 
         return buildPowerAssertCall(originalCall, function, callBuilder, diagramBuilder)
     }
