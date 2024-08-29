@@ -1,0 +1,38 @@
+fun describe$powerassert(value: Any, $diagram: CallDiagram): String? {
+  return { // BLOCK
+    val tmp_0: CallDiagram? = $diagram
+    when {
+      EQEQ(arg0 = tmp_0, arg1 = null) -> null
+      else -> tmp_0.toDefaultMessage()
+    }
+  }
+}
+
+fun box(): String {
+  val reallyLongList: List<String> = listOf<String>(elements = ["a", "b"])
+  return { // BLOCK
+    val tmp_1: String? = { // BLOCK
+      val tmp_2: List<String> = reallyLongList
+      val tmp_3: List<String> = tmp_2.reversed<String>()
+      val tmp_4: List<String> = emptyList<String>()
+      val tmp_5: Boolean = EQEQ(arg0 = tmp_3, arg1 = tmp_4)
+      describe$powerassert(value = tmp_5, $diagram = CallDiagram(source = "describe(reallyLongList.reversed() == emptyList<String>())", dispatchReceiver = Receiver(implicit = false, expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(implicit = false, expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "value", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 170, endOffset = 184, displayOffset = 9, value = tmp_2), Expression(startOffset = 185, endOffset = 195, displayOffset = 24, value = tmp_3), Expression(startOffset = 199, endOffset = 218, displayOffset = 38, value = tmp_4), EqualityExpression(startOffset = 170, endOffset = 218, displayOffset = 35, value = tmp_5, lhs = tmp_3, rhs = tmp_4)])))])))
+    }
+    when {
+      EQEQ(arg0 = tmp_1, arg1 = null) -> "FAIL"
+      else -> tmp_1
+    }
+  }
+}
+
+@PowerAssert
+fun describe(value: Any): String? {
+  return { // BLOCK
+    val tmp_6: CallDiagram? = null
+    when {
+      EQEQ(arg0 = tmp_6, arg1 = null) -> null
+      else -> tmp_6.toDefaultMessage()
+    }
+  }
+}
+

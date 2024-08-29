@@ -31,23 +31,21 @@ import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 fun IrBuilderWithScope.buildDiagramNesting(
     sourceFile: SourceFile,
     root: Node,
-    variables: List<IrTemporaryVariable> = emptyList(),
     call: IrBuilderWithScope.(IrExpression, List<IrTemporaryVariable>) -> IrExpression,
 ): IrExpression {
     return irBlock {
-        +buildExpression(sourceFile, root, variables) { argument, subStack ->
+        +buildExpression(sourceFile, root, emptyList()) { argument, subStack ->
             call(argument, subStack)
         }
     }
 }
 
-fun IrBuilderWithScope.buildDiagramNestingNullable(
+fun IrBuilderWithScope.buildReceiverDiagram(
     sourceFile: SourceFile,
     root: Node?,
-    variables: List<IrTemporaryVariable> = emptyList(),
     call: IrBuilderWithScope.(IrExpression?, List<IrTemporaryVariable>) -> IrExpression,
 ): IrExpression {
-    return if (root != null) buildDiagramNesting(sourceFile, root, variables, call) else call(null, variables)
+    return if (root != null) buildDiagramNesting(sourceFile, root, call) else call(null, emptyList())
 }
 
 private fun IrBlockBuilder.buildExpression(
@@ -61,7 +59,7 @@ private fun IrBlockBuilder.buildExpression(
     is ChainNode -> nest(sourceFile, node, 0, variables, call)
     is WhenNode -> nest(sourceFile, node, 0, variables, call)
     is ElvisNode -> nest(sourceFile, node, 0, variables, call)
-    else -> TODO("Unknown node type=$node")
+    is RootNode -> error("internal power-assert error")
 }
 
 /**

@@ -31,9 +31,13 @@ class PowerAssertIrGenerationExtension(
     private val functions: Set<FqName>,
 ) : IrGenerationExtension {
     override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
+        val functionTransformer = PowerAssertFunctionTransformer(pluginContext)
+        moduleFragment.files.forEach(functionTransformer::lower)
+
         for (file in moduleFragment.files) {
-            PowerAssertCallTransformer(SourceFile(file), pluginContext, messageCollector, functions)
-                .visitFile(file)
+            val callTransformer =
+                PowerAssertCallTransformer(SourceFile(file), pluginContext, messageCollector, functions, functionTransformer.transformed)
+            callTransformer.visitFile(file)
         }
     }
 }

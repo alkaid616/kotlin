@@ -56,12 +56,6 @@ public class IrBlackBoxCodegenTestForPowerAssertGenerated extends AbstractIrBlac
   }
 
   @Test
-  @TestMetadata("Multiline.kt")
-  public void testMultiline() {
-    runTest("plugins/power-assert/power-assert-compiler/testData/codegen/Multiline.kt");
-  }
-
-  @Test
   @TestMetadata("RequireCustomMessage.kt")
   public void testRequireCustomMessage() {
     runTest("plugins/power-assert/power-assert-compiler/testData/codegen/RequireCustomMessage.kt");
@@ -71,6 +65,22 @@ public class IrBlackBoxCodegenTestForPowerAssertGenerated extends AbstractIrBlac
   @TestMetadata("Transformations.kt")
   public void testTransformations() {
     runTest("plugins/power-assert/power-assert-compiler/testData/codegen/Transformations.kt");
+  }
+
+  @Nested
+  @TestMetadata("plugins/power-assert/power-assert-compiler/testData/codegen/annotated")
+  @TestDataPath("$PROJECT_ROOT")
+  public class Annotated {
+    @Test
+    public void testAllFilesPresentInAnnotated() {
+      KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("plugins/power-assert/power-assert-compiler/testData/codegen/annotated"), Pattern.compile("^(.+)\\.kt$"), Pattern.compile("^(.+)\\.fir\\.kts?$"), TargetBackend.JVM_IR, true);
+    }
+
+    @Test
+    @TestMetadata("describe.kt")
+    public void testDescribe() {
+      runTest("plugins/power-assert/power-assert-compiler/testData/codegen/annotated/describe.kt");
+    }
   }
 
   @Nested
@@ -282,6 +292,46 @@ public class IrBlackBoxCodegenTestForPowerAssertGenerated extends AbstractIrBlac
     @TestMetadata("IfExpression.kt")
     public void testIfExpression() {
       runTest("plugins/power-assert/power-assert-compiler/testData/codegen/expressions/IfExpression.kt");
+    }
+  }
+
+  @Nested
+  @TestMetadata("plugins/power-assert/power-assert-compiler/testData/codegen/format")
+  @TestDataPath("$PROJECT_ROOT")
+  public class Format {
+    @Test
+    public void testAllFilesPresentInFormat() {
+      KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("plugins/power-assert/power-assert-compiler/testData/codegen/format"), Pattern.compile("^(.+)\\.kt$"), Pattern.compile("^(.+)\\.fir\\.kts?$"), TargetBackend.JVM_IR, true);
+    }
+
+    @Test
+    @TestMetadata("ChainedMultiline.kt")
+    public void testChainedMultiline() {
+      runTest("plugins/power-assert/power-assert-compiler/testData/codegen/format/ChainedMultiline.kt");
+    }
+
+    @Test
+    @TestMetadata("Multiline.kt")
+    public void testMultiline() {
+      runTest("plugins/power-assert/power-assert-compiler/testData/codegen/format/Multiline.kt");
+    }
+
+    @Test
+    @TestMetadata("ReverseIndent.kt")
+    public void testReverseIndent() {
+      runTest("plugins/power-assert/power-assert-compiler/testData/codegen/format/ReverseIndent.kt");
+    }
+
+    @Test
+    @TestMetadata("Tabs.kt")
+    public void testTabs() {
+      runTest("plugins/power-assert/power-assert-compiler/testData/codegen/format/Tabs.kt");
+    }
+
+    @Test
+    @TestMetadata("Whitespace.kt")
+    public void testWhitespace() {
+      runTest("plugins/power-assert/power-assert-compiler/testData/codegen/format/Whitespace.kt");
     }
   }
 
@@ -624,6 +674,12 @@ public class IrBlackBoxCodegenTestForPowerAssertGenerated extends AbstractIrBlac
     @TestMetadata("ExcleqeqOperator.kt")
     public void testExcleqeqOperator() {
       runTest("plugins/power-assert/power-assert-compiler/testData/codegen/operator/ExcleqeqOperator.kt");
+    }
+
+    @Test
+    @TestMetadata("GetOperator.kt")
+    public void testGetOperator() {
+      runTest("plugins/power-assert/power-assert-compiler/testData/codegen/operator/GetOperator.kt");
     }
 
     @Test

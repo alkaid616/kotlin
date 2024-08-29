@@ -7,21 +7,12 @@ plugins {
 
 kotlin {
     jvm()
-    js {
-        binaries.executable()
-    }
 
-    @Suppress("UNUSED_VARIABLE")
     sourceSets {
-        val commonMain by getting {
+        commonMain {
             dependencies {
                 implementation(kotlinStdlib())
             }
-        }
-        val jvmMain by getting {
-        }
-
-        val jsMain by getting {
         }
     }
 }

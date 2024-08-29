@@ -21,30 +21,29 @@ package org.jetbrains.kotlin.powerassert.diagram
 
 import org.jetbrains.kotlin.ir.BuiltInOperatorNames
 import org.jetbrains.kotlin.ir.IrElement
+import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.expressions.*
 import org.jetbrains.kotlin.ir.util.dump
 import org.jetbrains.kotlin.ir.util.dumpKotlinLike
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitor
 
-abstract class Node {
+sealed class Node {
     private val _children = mutableListOf<Node>()
     val children: List<Node> get() = _children
 
     fun addChild(node: Node) {
         _children.add(node)
     }
+}
 
-    fun dump(): String = buildString {
-        dump(this, 0)
-    }
+class RootNode(
+    val parameter: IrValueParameter,
+) : Node() {
+    override fun toString() = "RootNode"
 
-    private fun dump(builder: StringBuilder, indent: Int) {
-        builder.append("  ".repeat(indent)).append(this).appendLine()
-        for (child in children) {
-            child.dump(builder, indent + 1)
-        }
-    }
+    val child: Node?
+        get() = children.singleOrNull()
 }
 
 class ConstantNode(
@@ -76,13 +75,10 @@ class ElvisNode(
     override fun toString() = "ElvisNode(${expression.dumpKotlinLike()})"
 }
 
-fun buildTree(expression: IrExpression): Node? {
-    class RootNode : Node() {
-        override fun toString() = "RootNode"
-    }
+fun buildTree(parameter: IrValueParameter, expression: IrExpression?): RootNode {
+    val tree = RootNode(parameter)
 
-    val tree = RootNode()
-    expression.accept(
+    expression?.accept(
         object : IrElementVisitor<Unit, Node> {
             private var currentCall: IrCall? = null
 
@@ -100,7 +96,7 @@ fun buildTree(expression: IrExpression): Node? {
                 // but the implicit receiver may start at the beginning of an explicit receiver,
                 // while the call starts at a later offset.
                 //
-                // The following is a generalization all of these conditions into a single check.
+                // The following is a generalization of all these conditions into a single check.
                 return startOffset == endOffset ||
                         endOffset == irCall.endOffset && (startOffset == irCall.startOffset || otherReceiver?.startOffset == startOffset)
             }
@@ -244,5 +240,5 @@ fun buildTree(expression: IrExpression): Node? {
         tree,
     )
 
-    return tree.children.singleOrNull()
+    return tree
 }

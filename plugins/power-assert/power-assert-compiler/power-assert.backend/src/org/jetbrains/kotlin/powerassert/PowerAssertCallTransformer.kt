@@ -26,22 +26,25 @@ import org.jetbrains.kotlin.backend.jvm.ir.parentClassId
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.ir.IrElement
-import org.jetbrains.kotlin.ir.builders.irCall
-import org.jetbrains.kotlin.ir.builders.parent
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrFunction
-import org.jetbrains.kotlin.ir.declarations.IrValueParameter
-import org.jetbrains.kotlin.ir.expressions.*
+import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
+import org.jetbrains.kotlin.ir.expressions.IrCall
+import org.jetbrains.kotlin.ir.expressions.IrExpression
+import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
 import org.jetbrains.kotlin.ir.symbols.IrTypeParameterSymbol
 import org.jetbrains.kotlin.ir.types.*
 import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
-import org.jetbrains.kotlin.powerassert.delegate.FunctionDelegate
-import org.jetbrains.kotlin.powerassert.delegate.LambdaFunctionDelegate
-import org.jetbrains.kotlin.powerassert.delegate.SamConversionLambdaFunctionDelegate
-import org.jetbrains.kotlin.powerassert.delegate.SimpleFunctionDelegate
+import org.jetbrains.kotlin.powerassert.builder.call.CallBuilder
+import org.jetbrains.kotlin.powerassert.builder.call.LambdaCallBuilder
+import org.jetbrains.kotlin.powerassert.builder.call.SamConversionLambdaCallBuilder
+import org.jetbrains.kotlin.powerassert.builder.call.SimpleCallBuilder
+import org.jetbrains.kotlin.powerassert.builder.diagram.CallDiagramDiagramBuilder
+import org.jetbrains.kotlin.powerassert.builder.diagram.DiagramBuilder
+import org.jetbrains.kotlin.powerassert.builder.diagram.StringDiagramBuilder
 import org.jetbrains.kotlin.powerassert.diagram.*
 
 class PowerAssertCallTransformer(
@@ -49,143 +52,166 @@ class PowerAssertCallTransformer(
     private val context: IrPluginContext,
     private val messageCollector: MessageCollector,
     private val functions: Set<FqName>,
+    private val transformed: Map<IrSimpleFunctionSymbol, IrSimpleFunctionSymbol>,
 ) : IrElementTransformerVoidWithContext() {
     private val irTypeSystemContext = IrTypeSystemContextImpl(context.irBuiltIns)
 
     override fun visitCall(expression: IrCall): IrExpression {
         val function = expression.symbol.owner
         val fqName = function.kotlinFqName
-        if (function.valueParameters.isEmpty() || functions.none { fqName == it }) {
-            return super.visitCall(expression)
+        return when {
+            function.valueParameters.isEmpty() -> super.visitCall(expression)
+            function.hasAnnotation(PowerAssertAnnotation) -> buildForAnnotated(expression, function)
+            fqName in functions -> buildForOverride(expression, function)
+            else -> super.visitCall(expression)
+        }
+    }
+
+    private fun buildForAnnotated(
+        originalCall: IrCall,
+        function: IrSimpleFunction,
+    ): IrExpression {
+        val synthetic = transformed[function.symbol]
+            ?: context.referenceFunctions(function.callableId).singleOrNull { it.isSyntheticFor(function) }
+        if (synthetic == null) {
+            messageCollector.warn(
+                expression = originalCall,
+                message = "Called function '$function' was not compiled with the power-assert compiler-plugin.",
+            )
+            return super.visitCall(originalCall)
         }
 
+        val callBuilder = SimpleCallBuilder(synthetic, originalCall)
+        val diagramBuilder = CallDiagramDiagramBuilder(CallDiagramFactory(context), sourceFile, originalCall)
+        return buildPowerAssertCall(originalCall, function, callBuilder, diagramBuilder)
+    }
+
+    private fun buildForOverride(originalCall: IrCall, function: IrSimpleFunction): IrExpression {
         // Find a valid delegate function or do not translate
         // TODO better way to determine which delegate to actually use
-        val delegates = findDelegates(function)
-        val delegate = delegates.maxByOrNull { it.function.valueParameters.size }
-        if (delegate == null) {
+        val callBuilders = findCallBuilders(function, originalCall)
+        val callBuilder = callBuilders.maxByOrNull { it.function.valueParameters.size }
+        if (callBuilder == null) {
+            val fqName = function.kotlinFqName
             val valueTypesTruncated = function.valueParameters.subList(0, function.valueParameters.size - 1)
                 .joinToString("") { it.type.render() + ", " }
             val valueTypesAll = function.valueParameters.joinToString("") { it.type.render() + ", " }
             messageCollector.warn(
-                expression = expression,
+                expression = originalCall,
                 message = """
-          |Unable to find overload of function $fqName for power-assert transformation callable as:
-          | - $fqName(${valueTypesTruncated}String)
-          | - $fqName($valueTypesTruncated() -> String)
-          | - $fqName(${valueTypesAll}String)
-          | - $fqName($valueTypesAll() -> String)
-        """.trimMargin(),
+              |Unable to find overload of function $fqName for power-assert transformation callable as:
+              | - $fqName(${valueTypesTruncated}String)
+              | - $fqName($valueTypesTruncated() -> String)
+              | - $fqName(${valueTypesAll}String)
+              | - $fqName($valueTypesAll() -> String)
+            """.trimMargin(),
             )
-            return super.visitCall(expression)
+            return super.visitCall(originalCall)
         }
 
-        val dispatchRoot =
-            if (expression.symbol.owner.isInfix) expression.dispatchReceiver?.let { buildTree(it) } else null
-        val extensionRoot =
-            if (expression.symbol.owner.isInfix) expression.extensionReceiver?.let { buildTree(it) } else null
-        val messageArgument: IrExpression?
-        val roots: List<Node?>
-        if (delegate.function.valueParameters.size == function.valueParameters.size) {
-            messageArgument = expression.getValueArgument(expression.valueArgumentsCount - 1)
-            roots = (0 until expression.valueArgumentsCount - 1)
-                .map { index -> expression.getValueArgument(index) }
-                .map { arg -> arg?.let { buildTree(it) } }
-        } else {
-            messageArgument = null
-            roots = (0 until expression.valueArgumentsCount)
-                .map { index -> expression.getValueArgument(index) }
-                .map { arg -> arg?.let { buildTree(it) } }
+        val messageArgument = when (callBuilder.function.valueParameters.size) {
+            function.valueParameters.size -> originalCall.getValueArgument(originalCall.valueArgumentsCount - 1)
+            else -> null
+        }
+        val diagramBuilder = StringDiagramBuilder(sourceFile, originalCall, function, messageArgument)
+
+        return buildPowerAssertCall(originalCall, function, callBuilder, diagramBuilder)
+    }
+
+    private fun buildPowerAssertCall(
+        originalCall: IrCall,
+        function: IrSimpleFunction,
+        callBuilder: CallBuilder,
+        diagramBuilder: DiagramBuilder,
+    ): IrExpression {
+        val dispatchRoot = when {
+            originalCall.symbol.owner.isInfix -> originalCall.dispatchReceiver?.let { argument ->
+                function.dispatchReceiverParameter?.let { parameter ->
+                    buildTree(parameter, argument)
+                }
+            }
+            else -> null
+        }
+        val extensionRoot = when {
+            originalCall.symbol.owner.isInfix -> originalCall.extensionReceiver?.let { argument ->
+                function.extensionReceiverParameter?.let { parameter ->
+                    buildTree(parameter, argument)
+                }
+            }
+            else -> null
+        }
+        val argumentRoots = when (callBuilder.function.valueParameters.size) {
+            function.valueParameters.size -> {
+                (0 until originalCall.valueArgumentsCount - 1)
+                    .map { buildTree(function.valueParameters[it], originalCall.getValueArgument(it)) }
+            }
+            else -> {
+                (0 until originalCall.valueArgumentsCount)
+                    .map { buildTree(function.valueParameters[it], originalCall.getValueArgument(it)) }
+            }
         }
 
         // If all roots are null, there are no transformable parameters
-        if (dispatchRoot == null && extensionRoot == null && roots.all { it == null }) {
-            messageCollector.info(expression, "Expression is constant and will not be power-assert transformed")
-            return super.visitCall(expression)
+        if (dispatchRoot?.child == null && extensionRoot?.child == null && argumentRoots.all { it.child == null }) {
+            messageCollector.info(originalCall, "Expression is constant and will not be power-assert transformed")
+            return super.visitCall(originalCall)
         }
 
         val symbol = currentScope!!.scope.scopeOwnerSymbol
-        val builder = DeclarationIrBuilder(context, symbol, expression.startOffset, expression.endOffset)
+        val builder = DeclarationIrBuilder(context, symbol, originalCall.startOffset, originalCall.endOffset)
         return builder.diagram(
-            call = expression,
-            delegate = delegate,
-            messageArgument = messageArgument,
-            roots = roots,
+            originalCall = originalCall,
+            callBuilder = callBuilder,
+            diagramBuilder = diagramBuilder,
             dispatchRoot = dispatchRoot,
             extensionRoot = extensionRoot,
+            argumentRoots = argumentRoots,
         )
     }
 
     private fun DeclarationIrBuilder.diagram(
-        call: IrCall,
-        delegate: FunctionDelegate,
-        messageArgument: IrExpression?,
-        roots: List<Node?>,
-        dispatchRoot: Node? = null,
-        extensionRoot: Node? = null,
+        originalCall: IrCall,
+        callBuilder: CallBuilder,
+        diagramBuilder: DiagramBuilder,
+        dispatchRoot: RootNode? = null,
+        extensionRoot: RootNode? = null,
+        argumentRoots: List<RootNode>,
     ): IrExpression {
-        fun recursive(
-            index: Int,
-            dispatch: IrExpression?,
-            extension: IrExpression?,
-            arguments: List<IrExpression?>,
-            variables: List<IrTemporaryVariable>,
-        ): IrExpression {
-            if (index >= roots.size) {
-                val prefix = buildMessagePrefix(messageArgument, delegate.messageParameter)
-                    ?.deepCopyWithSymbols(parent)
-                val diagram = irDiagramString(sourceFile, prefix, call, variables)
-                return delegate.buildCall(this, call, dispatch, extension, arguments, diagram)
-            } else {
-                val root = roots[index]
-                if (root == null) {
-                    val newArguments = arguments + call.getValueArgument(index)
-                    return recursive(index + 1, dispatch, extension, newArguments, variables)
-                } else {
-                    return buildDiagramNesting(sourceFile, root, variables) { argument, newVariables ->
-                        val newArguments = arguments + argument
-                        recursive(index + 1, dispatch, extension, newArguments, newVariables)
+        return buildReceiverDiagram(sourceFile, dispatchRoot?.child) { dispatch, dispatchVariables ->
+            buildReceiverDiagram(sourceFile, extensionRoot?.child) { extension, extensionVariables ->
+
+                fun recursive(
+                    index: Int,
+                    arguments: List<IrExpression?>,
+                    argumentVariables: Map<String, List<IrTemporaryVariable>>,
+                ): IrExpression {
+                    if (index >= argumentRoots.size) {
+                        val diagram = diagramBuilder.build(this, dispatchVariables, extensionVariables, argumentVariables)
+                        return callBuilder.buildCall(this, dispatch, extension, arguments, diagram)
+                    } else {
+                        val root = argumentRoots[index]
+                        val child = root.child
+                        val name = root.parameter.name.toString()
+                        if (child == null) {
+                            val newArguments = arguments + originalCall.getValueArgument(index)
+                            val newArgumentVariables = argumentVariables + (name to emptyList())
+                            return recursive(index + 1, newArguments, newArgumentVariables)
+                        } else {
+                            return buildDiagramNesting(sourceFile, child) { argument, newVariables ->
+                                val newArguments = arguments + argument
+                                val newArgumentVariables = argumentVariables + (name to newVariables)
+                                recursive(index + 1, newArguments, newArgumentVariables)
+                            }
+                        }
                     }
                 }
-            }
-        }
 
-        return buildDiagramNestingNullable(sourceFile, dispatchRoot) { dispatch, dispatchNewVariables ->
-            buildDiagramNestingNullable(sourceFile, extensionRoot, dispatchNewVariables) { extension, extensionNewVariables ->
-                recursive(0, dispatch, extension, emptyList(), extensionNewVariables)
+                recursive(0, emptyList(), emptyMap())
             }
         }
     }
 
-    private fun DeclarationIrBuilder.buildMessagePrefix(
-        messageArgument: IrExpression?,
-        messageParameter: IrValueParameter,
-    ): IrExpression? {
-        return when (messageArgument) {
-            is IrConst -> messageArgument
-            is IrStringConcatenation -> messageArgument
-            is IrGetValue -> {
-                if (messageArgument.type.isAssignableTo(context.irBuiltIns.stringType)) {
-                    return messageArgument
-                } else {
-                    val invoke = messageParameter.type.classOrNull!!.functions
-                        .filter { !it.owner.isFakeOverride } // TODO best way to find single access method?
-                        .single()
-                    irCall(invoke).apply { dispatchReceiver = messageArgument }
-                }
-            }
-            // Kotlin Lambda or SAMs conversion lambda
-            is IrFunctionExpression, is IrTypeOperatorCall -> {
-                val invoke = messageParameter.type.classOrNull!!.functions
-                    .filter { !it.owner.isFakeOverride } // TODO best way to find single access method?
-                    .single()
-                irCall(invoke).apply { dispatchReceiver = messageArgument }
-            }
-            else -> null
-        }
-    }
-
-    private fun findDelegates(function: IrFunction): List<FunctionDelegate> {
+    private fun findCallBuilders(function: IrFunction, original: IrCall): List<CallBuilder> {
         val values = function.valueParameters
         if (values.isEmpty()) return emptyList()
 
@@ -217,15 +243,27 @@ class PowerAssertCallTransformer(
                 return@mapNotNull null
             }
 
-            val messageParameter = parameters.last()
+            val messageType = parameters.last().type
             return@mapNotNull when {
-                isStringSupertype(messageParameter.type) -> SimpleFunctionDelegate(overload, messageParameter)
-                isStringFunction(messageParameter.type) -> LambdaFunctionDelegate(overload, messageParameter)
-                isStringJavaSupplierFunction(messageParameter.type) ->
-                    SamConversionLambdaFunctionDelegate(overload, messageParameter)
+                isStringSupertype(messageType) -> SimpleCallBuilder(overload, original)
+                isStringFunction(messageType) -> LambdaCallBuilder(overload, original, messageType)
+                isStringJavaSupplierFunction(messageType) -> SamConversionLambdaCallBuilder(overload, original, messageType)
                 else -> null
             }
         }
+    }
+
+    private fun IrSimpleFunctionSymbol.isSyntheticFor(function: IrSimpleFunction): Boolean {
+        val owner = owner
+        if (function.dispatchReceiverParameter?.type != owner.dispatchReceiverParameter?.type) return false
+        if (function.extensionReceiverParameter?.type != owner.extensionReceiverParameter?.type) return false
+
+        if (function.valueParameters.size != owner.valueParameters.size - 1) return false
+        for (index in function.valueParameters.indices) {
+            if (function.valueParameters[index].type != owner.valueParameters[index].type) return false
+        }
+
+        return owner.valueParameters.last().type.classFqName == CallDiagramFactory.classIdCallDiagram.asSingleFqName()
     }
 
     private fun isStringFunction(type: IrType): Boolean =

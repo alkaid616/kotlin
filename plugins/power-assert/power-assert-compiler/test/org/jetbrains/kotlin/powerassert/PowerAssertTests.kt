@@ -53,7 +53,6 @@ fun TestConfigurationBuilder.configurePlugin() {
         .joinToString(",") { it.path }
     System.setProperty("KOTLIN_POWER_ASSERT_ADD_SRC_ROOTS", sourceRoots)
 
-
     defaultDirectives {
         +FULL_JDK
         +WITH_STDLIB
@@ -66,6 +65,7 @@ fun TestConfigurationBuilder.configurePlugin() {
         ::AdditionalSourceFilesProvider,
     )
 
+    enableRuntime()
     enableJunit()
 
     irHandlersStep {
