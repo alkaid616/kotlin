@@ -17,6 +17,7 @@
 package org.jetbrains.kotlin.psi.psiUtil
 
 import com.intellij.lang.ASTNode
+import com.intellij.lang.LighterASTNode
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.*
 import com.intellij.psi.impl.source.tree.LazyParseablePsiElement
@@ -24,10 +25,15 @@ import com.intellij.psi.impl.source.tree.TreeUtil
 import com.intellij.psi.search.PsiSearchScopeUtil
 import com.intellij.psi.search.SearchScope
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.util.elementType
+import com.intellij.util.diff.FlyweightCapableTreeStructure
 import org.jetbrains.kotlin.KtNodeTypes
+import org.jetbrains.kotlin.KtSourceElement
 import org.jetbrains.kotlin.diagnostics.PsiDiagnosticUtils
 import org.jetbrains.kotlin.lexer.KtTokens
+import org.jetbrains.kotlin.psi
 import org.jetbrains.kotlin.psi.*
+import org.jetbrains.kotlin.utils.addToStdlib.findLastABeforeB
 import java.util.*
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
@@ -214,6 +220,31 @@ fun PsiChildRange.trimWhiteSpaces(): PsiChildRange {
     return PsiChildRange(
         first.siblings().firstOrNull { it !is PsiWhiteSpace },
         last!!.siblings(forward = false).firstOrNull { it !is PsiWhiteSpace })
+}
+
+fun PsiElement.getOutermostParenthesizedAsAssignmentLhs(): PsiElement? =
+    findLastABeforeB(
+        this, { it.parent },
+        checkA = { it.elementType == KtNodeTypes.PARENTHESIZED },
+        checkB = { it.elementType == KtNodeTypes.BINARY_EXPRESSION },
+    )
+
+fun LighterASTNode.getOutermostParenthesizedAsAssignmentLhs(tree: FlyweightCapableTreeStructure<LighterASTNode>): LighterASTNode? =
+    findLastABeforeB(
+        this, { tree.getParent(it) },
+        checkA = { it.tokenType == KtNodeTypes.PARENTHESIZED },
+        checkB = { it.tokenType == KtNodeTypes.BINARY_EXPRESSION },
+    )
+
+fun KtSourceElement?.hasOutermostParenthesizedAsAssignmentLhs(): Boolean {
+    if (this == null) {
+        return false
+    }
+
+    val node = psi?.getOutermostParenthesizedAsAssignmentLhs()
+        ?: lighterASTNode.getOutermostParenthesizedAsAssignmentLhs(treeStructure)
+
+    return node != null
 }
 
 // -------------------- Recursive tree visiting --------------------------------------------------------------------------------------------

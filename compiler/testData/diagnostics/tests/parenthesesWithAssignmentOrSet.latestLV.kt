@@ -9,16 +9,16 @@ class A {
 
 fun foo(a: Array<A>) {
     a[0] = a[0] + ""
-    a<!NO_SET_METHOD!>[0]<!> += ""
-    (a<!NO_SET_METHOD!>[0]<!>) += ""
-    (a[0]) = a[0]
+    a[0] += ""
+    (a[0]) <!UNRESOLVED_REFERENCE!>+=<!> ""
+    <!PARENTHESIZED_LHS_ERROR!>(a[0])<!> = a[0]
 }
 
 fun bar() {
     var x = ""
 
-    (x) = ""
-    (x) += ""
+    (<!PARENTHESIZED_LHS_ERROR!>x<!>) = ""
+    (x) <!UNRESOLVED_REFERENCE!>+=<!> ""
 }
 
 fun baz() {

@@ -2927,6 +2927,7 @@ open class PsiRawFirBuilder(
                         firOperation,
                         leftArgument.annotations,
                         expression.right,
+                        expression.left?.getOutermostParenthesizedAsAssignmentLhs() != null,
                     ) {
                         (this as KtExpression).toFirExpression(
                             sourceWhenInvalidExpression = expression,

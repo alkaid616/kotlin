@@ -395,3 +395,23 @@ inline fun <V : Any> KMutableProperty0<V?>.getOrSetIfNull(compute: () -> V): V =
     this.get() ?: compute().also {
         this.set(it)
     }
+
+inline fun <T> findLastABeforeB(
+    start: T,
+    getNext: (T) -> T?,
+    checkA: (T) -> Boolean,
+    checkB: (T) -> Boolean,
+): T? {
+    var result: T? = null
+    var next: T? = start
+
+    while (next != null && !checkB(next)) {
+        if (checkA(next)) {
+            result = next
+        }
+
+        next = getNext(next)
+    }
+
+    return result
+}

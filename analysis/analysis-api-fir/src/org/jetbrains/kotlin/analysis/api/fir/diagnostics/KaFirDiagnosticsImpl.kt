@@ -290,6 +290,16 @@ internal class RedundantInterpolationPrefixImpl(
     token: KaLifetimeToken,
 ) : KaAbstractFirDiagnostic<PsiElement>(firDiagnostic, token), KaFirDiagnostic.RedundantInterpolationPrefix
 
+internal class ParenthesizedLhsErrorImpl(
+    firDiagnostic: KtPsiDiagnostic,
+    token: KaLifetimeToken,
+) : KaAbstractFirDiagnostic<PsiElement>(firDiagnostic, token), KaFirDiagnostic.ParenthesizedLhsError
+
+internal class ParenthesizedLhsWarningImpl(
+    firDiagnostic: KtPsiDiagnostic,
+    token: KaLifetimeToken,
+) : KaAbstractFirDiagnostic<PsiElement>(firDiagnostic, token), KaFirDiagnostic.ParenthesizedLhsWarning
+
 internal class InvisibleReferenceImpl(
     override val reference: KaSymbol,
     override val visible: Visibility,

@@ -47,6 +47,7 @@ import org.jetbrains.kotlin.fir.types.builder.buildErrorTypeRef
 import org.jetbrains.kotlin.lexer.KtTokens.*
 import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.name.SpecialNames
+import org.jetbrains.kotlin.psi.psiUtil.getOutermostParenthesizedAsAssignmentLhs
 import org.jetbrains.kotlin.psi.stubs.elements.KtConstantExpressionElementType
 import org.jetbrains.kotlin.psi.stubs.elements.KtNameReferenceExpressionElementType
 import org.jetbrains.kotlin.types.expressions.OperatorConventions
@@ -344,6 +345,7 @@ class LightTreeRawFirExpressionBuilder(
                     firOperation,
                     leftArgAsFir.annotations,
                     rightArg,
+                    leftArgNode?.getOutermostParenthesizedAsAssignmentLhs(tree) != null,
                 ) {
                     getAsFirExpression<FirExpression>(
                         this,

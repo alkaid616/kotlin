@@ -1,3 +1,5 @@
+// LATEST_LV_DIFFERENCE
+
 fun foo(a: Any?): Int {
     <!SYNTAX!>@<!>{ ->
         return<!SYNTAX!>@<!>
@@ -14,7 +16,7 @@ fun foo(a: Any?): Int {
 
     var b = 1
 
-    (<!SYNTAX!>@<!> b) = 2
+    (<!SYNTAX!>@<!> <!PARENTHESIZED_LHS_WARNING!>b<!>) = 2
 
     return<!SYNTAX!>@<!> 1
 }

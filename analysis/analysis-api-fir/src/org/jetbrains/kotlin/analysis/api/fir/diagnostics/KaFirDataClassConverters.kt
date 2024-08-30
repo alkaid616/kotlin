@@ -301,6 +301,18 @@ internal val KT_DIAGNOSTIC_CONVERTER = KaDiagnosticConverterBuilder.buildConvert
             token,
         )
     }
+    add(FirErrors.PARENTHESIZED_LHS.errorFactory) { firDiagnostic ->
+        ParenthesizedLhsErrorImpl(
+            firDiagnostic as KtPsiDiagnostic,
+            token,
+        )
+    }
+    add(FirErrors.PARENTHESIZED_LHS.warningFactory) { firDiagnostic ->
+        ParenthesizedLhsWarningImpl(
+            firDiagnostic as KtPsiDiagnostic,
+            token,
+        )
+    }
     add(FirErrors.INVISIBLE_REFERENCE) { firDiagnostic ->
         InvisibleReferenceImpl(
             firSymbolBuilder.buildSymbol(firDiagnostic.a),
