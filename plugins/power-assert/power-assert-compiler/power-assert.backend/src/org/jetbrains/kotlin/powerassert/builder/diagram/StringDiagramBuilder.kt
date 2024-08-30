@@ -14,7 +14,6 @@ import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.expressions.*
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.util.functions
-import org.jetbrains.kotlin.powerassert.diagram.CallDiagramFactory
 import org.jetbrains.kotlin.powerassert.diagram.IrTemporaryVariable
 import org.jetbrains.kotlin.powerassert.diagram.SourceFile
 

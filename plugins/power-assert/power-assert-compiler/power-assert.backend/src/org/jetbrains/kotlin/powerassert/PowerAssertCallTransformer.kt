@@ -43,6 +43,7 @@ import org.jetbrains.kotlin.powerassert.builder.call.LambdaCallBuilder
 import org.jetbrains.kotlin.powerassert.builder.call.SamConversionLambdaCallBuilder
 import org.jetbrains.kotlin.powerassert.builder.call.SimpleCallBuilder
 import org.jetbrains.kotlin.powerassert.builder.diagram.CallDiagramDiagramBuilder
+import org.jetbrains.kotlin.powerassert.builder.diagram.CallDiagramFactory
 import org.jetbrains.kotlin.powerassert.builder.diagram.DiagramBuilder
 import org.jetbrains.kotlin.powerassert.builder.diagram.StringDiagramBuilder
 import org.jetbrains.kotlin.powerassert.diagram.*
@@ -71,12 +72,14 @@ class PowerAssertCallTransformer(
         originalCall: IrCall,
         function: IrSimpleFunction,
     ): IrExpression {
+        // TODO !!! transformed may be empty if incremental complication did not include the original function !!!
+        //  how does this work for function with default parameters? there must be a better way to find the synthetic function...
         val synthetic = transformed[function.symbol]
             ?: context.referenceFunctions(function.callableId).singleOrNull { it.isSyntheticFor(function) }
         if (synthetic == null) {
             messageCollector.warn(
                 expression = originalCall,
-                message = "Called function '$function' was not compiled with the power-assert compiler-plugin.",
+                message = "Called function '${function.kotlinFqName}' was not compiled with the power-assert compiler-plugin.",
             )
             return super.visitCall(originalCall)
         }

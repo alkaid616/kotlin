@@ -5,10 +5,13 @@
 
 package kotlinx.powerassert
 
+@Target(AnnotationTarget.FUNCTION)
+@Retention(AnnotationRetention.RUNTIME)
+@MustBeDocumented
 public annotation class PowerAssert {
-    companion object {
+    public companion object {
         @Suppress("RedundantNullableReturnType")
         public val diagram: CallDiagram?
-            get() = error("Power-Assert compiler-plugin must be applied when project is compiled.")
+            get() = throw NotImplementedError("Intrinsic property! Make sure the Power-Assert compiler-plugin is applied to your build.")
     }
 }

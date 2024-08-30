@@ -6,13 +6,13 @@
 package kotlinx.powerassert
 
 public class CallDiagram(
-    val source: String,
-    val dispatchReceiver: Receiver?,
-    val extensionReceiver: Receiver?,
-    val valueParameters: Map<String, ValueParameter>,
+    public val source: String,
+    public val dispatchReceiver: Receiver?,
+    public val extensionReceiver: Receiver?,
+    public val valueParameters: Map<String, ValueParameter>,
 ) {
     public abstract class Parameter internal constructor() {
-        abstract val expressions: List<Displayable>
+        public abstract val expressions: List<Displayable>
     }
 
     public class ValueParameter(
@@ -20,15 +20,15 @@ public class CallDiagram(
     ) : Parameter()
 
     public class Receiver(
-        val implicit: Boolean,
+        public val implicit: Boolean,
         override val expressions: List<Displayable>,
     ) : Parameter()
 
     public abstract class Displayable internal constructor() {
-        abstract val startOffset: Int
-        abstract val endOffset: Int
-        abstract val displayOffset: Int
-        abstract val value: Any?
+        public abstract val startOffset: Int
+        public abstract val endOffset: Int
+        public abstract val displayOffset: Int
+        public abstract val value: Any?
     }
 
     public class Expression(
@@ -43,8 +43,8 @@ public class CallDiagram(
         override val endOffset: Int,
         override val displayOffset: Int,
         override val value: Any?,
-        val lhs: Any?,
-        val rhs: Any?,
+        public val lhs: Any?,
+        public val rhs: Any?,
     ) : Displayable()
 }
 

@@ -25,7 +25,7 @@ import org.jetbrains.kotlin.ir.util.isAnnotationWithEqualFqName
 import org.jetbrains.kotlin.ir.util.kotlinFqName
 import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
 import org.jetbrains.kotlin.name.Name
-import org.jetbrains.kotlin.powerassert.diagram.CallDiagramFactory
+import org.jetbrains.kotlin.powerassert.builder.diagram.CallDiagramFactory
 
 class PowerAssertFunctionTransformer(
     private val context: IrPluginContext,
