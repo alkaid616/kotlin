@@ -264,6 +264,16 @@ class ObjCExportDependenciesHeaderGeneratorTest(
         )
     }
 
+    @Test
+    fun `test - nullable functional type arguments and return types translated`() {
+        doTest(
+            dependenciesDir.resolve("nullableFunctionalTypeArgumentsAndReturnTypesTranslated"), configuration = HeaderGenerator.Configuration(
+                dependencies = listOf(testLibraryCKlibFile),
+                exportedDependencies = setOf(testLibraryCKlibFile)
+            )
+        )
+    }
+
     private fun doTest(root: File, configuration: HeaderGenerator.Configuration = HeaderGenerator.Configuration()) {
         if (!root.isDirectory) fail("Expected ${root.absolutePath} to be directory")
         val generatedHeaders = generator.generateHeaders(root, configuration).toString()
