@@ -14,8 +14,14 @@ import org.jetbrains.kotlin.gradle.tasks.internal.CleanableStore
 import org.jetbrains.kotlin.gradle.utils.getFile
 import java.io.File
 
+/**
+ * Spec for Node.js - common JS and Wasm runtime.
+ */
 abstract class NodeJsEnvSpec : EnvSpec<NodeJsEnv>() {
 
+    /**
+     * Specify a platform information with name and architecture
+     */
     internal abstract val platform: org.gradle.api.provider.Property<Platform>
 
     override fun produceEnv(providerFactory: ProviderFactory): Provider<NodeJsEnv> {

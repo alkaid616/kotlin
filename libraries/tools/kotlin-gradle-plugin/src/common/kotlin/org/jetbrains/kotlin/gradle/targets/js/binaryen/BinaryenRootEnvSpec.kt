@@ -14,9 +14,15 @@ import org.jetbrains.kotlin.gradle.targets.js.EnvSpec
 import org.jetbrains.kotlin.gradle.tasks.internal.CleanableStore
 import org.jetbrains.kotlin.gradle.utils.getFile
 
+/**
+ * Spec to run Binaryen - optimizing tool for wasm files
+ */
 @ExperimentalWasmDsl
 abstract class BinaryenRootEnvSpec : EnvSpec<BinaryenEnv>() {
 
+    /**
+     * Specify a platform information with name and architecture
+     */
     internal abstract val platform: Property<BinaryenPlatform>
 
     override fun produceEnv(providerFactory: ProviderFactory): Provider<BinaryenEnv> {

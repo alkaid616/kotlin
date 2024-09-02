@@ -12,11 +12,11 @@ import org.jetbrains.kotlin.gradle.targets.js.EnvSpec
 import org.jetbrains.kotlin.gradle.tasks.internal.CleanableStore
 import org.jetbrains.kotlin.gradle.utils.getFile
 
+/**
+ * Spec for D8 - this target is available only for Wasm
+ */
 @ExperimentalWasmDsl
 abstract class D8EnvSpec : EnvSpec<D8Env>() {
-
-    // value not convention because this property can be nullable to not add repository
-    abstract override val downloadBaseUrl: org.gradle.api.provider.Property<String>
 
     // Latest version number could be found here https://storage.googleapis.com/chromium-v8/official/canary/v8-linux64-rel-latest.json
     // Bash script/command to check that version specified in `VER` is available for all platforms, just copy-paste and run it in terminal:
