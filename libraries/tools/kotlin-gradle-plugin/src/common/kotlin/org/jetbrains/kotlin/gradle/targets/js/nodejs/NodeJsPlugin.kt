@@ -7,9 +7,7 @@ package org.jetbrains.kotlin.gradle.targets.js.nodejs
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.jetbrains.kotlin.gradle.plugin.internal.configurationTimePropertiesAccessor
-import org.jetbrains.kotlin.gradle.plugin.internal.usedAtConfigurationTime
-import org.jetbrains.kotlin.gradle.plugin.variantImplementationFactory
+import org.jetbrains.kotlin.gradle.internal.unameExecResult
 import org.jetbrains.kotlin.gradle.targets.js.MultiplePluginDeclarationDetector
 import org.jetbrains.kotlin.gradle.tasks.registerTask
 import org.jetbrains.kotlin.gradle.utils.castIsolatedKotlinPluginClassLoaderAware
@@ -61,16 +59,13 @@ open class NodeJsPlugin : Plugin<Project> {
     }
 
     private fun addPlatform(project: Project, extension: NodeJsEnvSpec) {
-        val uname = project.variantImplementationFactory<UnameExecutor.UnameExecutorVariantFactory>()
-            .getInstance(project)
+        val uname = project.providers
             .unameExecResult
 
         extension.platform.value(
             project.providers.systemProperty("os.name")
-                .usedAtConfigurationTime(project.configurationTimePropertiesAccessor)
                 .zip(
                     project.providers.systemProperty("os.arch")
-                        .usedAtConfigurationTime(project.configurationTimePropertiesAccessor)
                 ) { name, arch ->
                     parsePlatform(name, arch, uname)
                 }
