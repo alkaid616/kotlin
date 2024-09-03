@@ -20,45 +20,27 @@ import org.jetbrains.kotlin.powerassert.PowerAssertAnnotation
 import org.jetbrains.kotlin.powerassert.diagram.IrTemporaryVariable
 import org.jetbrains.kotlin.powerassert.diagram.SourceFile
 
-class CallDiagramDiagramBuilder(
-    private val factory: CallDiagramFactory,
-    private val sourceFile: SourceFile,
-    private val originalCall: IrCall,
-    private val variableDiagrams: Map<IrVariable, IrVariable>,
-) : DiagramBuilder {
-    override fun build(
-        builder: IrBuilderWithScope,
-        dispatchReceiver: List<IrTemporaryVariable>?,
-        extensionReceiver: List<IrTemporaryVariable>?,
-        valueParameters: Map<String, List<IrTemporaryVariable>>,
-    ): IrExpression {
-        return builder.irCallDiagram(
-            factory,
-            sourceFile,
-            originalCall,
-            dispatchReceiver,
-            extensionReceiver,
-            valueParameters,
-            variableDiagrams,
-        )
-    }
-}
-
-private fun IrBuilderWithScope.irCallDiagram(
+fun IrBuilderWithScope.irVariableDiagram(
     factory: CallDiagramFactory,
     sourceFile: SourceFile,
-    call: IrCall,
-    dispatchReceiver: List<IrTemporaryVariable>?,
-    extensionReceiver: List<IrTemporaryVariable>?,
-    valueParameters: Map<String, List<IrTemporaryVariable>>,
+    variable: IrVariable,
+    variables: List<IrTemporaryVariable>,
     variableDiagrams: Map<IrVariable, IrVariable>,
 ): IrExpression {
-    val callInfo = sourceFile.getSourceRangeInfo(call)
+    val variableInfo = sourceFile.getSourceRangeInfo(
+        // TODO K1 and K2 have different offsets for the variable...
+        //  K2 doesn't include the annotations and val/var keyword
+        minOf(
+            variable.startOffset,
+            variable.annotations.minOfOrNull { it.startOffset } ?: variable.startOffset
+        ),
+        variable.initializer!!.endOffset,
+    )
 
     // Get call source string starting at the very beginning of the first line.
     // This is so multiline calls all start from the same column offset.
-    val indentedSource = sourceFile.getText(callInfo.startOffset - callInfo.startColumnNumber, callInfo.endOffset)
-        .clearSourcePrefix(callInfo.startColumnNumber)
+    val indentedSource = sourceFile.getText(variableInfo.startOffset - variableInfo.startColumnNumber, variableInfo.endOffset)
+        .clearSourcePrefix(variableInfo.startColumnNumber)
     val rows = indentedSource.split("\n")
 
     // TODO should we even do this trimIndent()? make it a diagram creation problem?
@@ -69,7 +51,7 @@ private fun IrBuilderWithScope.irCallDiagram(
     }
 
     fun IrBuilderWithScope.irExpression(it: IrTemporaryVariable): IrConstructorCall {
-        val value = it.toValueDisplay(callInfo)
+        val value = it.toValueDisplay(variableInfo)
         val previousRows = rows.subList(0, value.row)
         val rowPadding = previousRows.sumOf { it.length + 1 } // TODO cache?
         val rowIndent = previousRows.sumOf { minOf(it.length, lineIndent) }
@@ -113,31 +95,9 @@ private fun IrBuilderWithScope.irCallDiagram(
 
     val source = rows.joinToString("\n") { it.substring(startIndex = minOf(it.length, lineIndent)) }
     return with(factory) {
-        irCallDiagram(
+        irVariableDiagram(
             source = irString(source),
-            dispatchReceiver = dispatchReceiver?.let { variables ->
-                irReceiver(expressions = dispatchReceiver.map { irExpression(it) })
-            },
-            extensionReceiver = extensionReceiver?.let { variables ->
-                irReceiver(expressions = extensionReceiver.map { irExpression(it) })
-            },
-            valueParameters = valueParameters.mapValues { (_, variables) ->
-                irValueParameter(expressions = variables.map { irExpression(it) })
-            },
+            assignment = irAssignment(expressions = variables.map { irExpression(it) }),
         )
-    }
-}
-
-fun String.clearSourcePrefix(offset: Int): String = buildString {
-    for ((i, c) in this@clearSourcePrefix.withIndex()) {
-        when {
-            i >= offset -> {
-                // Append the remaining characters and exit.
-                append(this@clearSourcePrefix.substring(i))
-                break
-            }
-            c == '\t' -> append('\t') // Preserve tabs.
-            else -> append(' ') // Replace all other characters with spaces.
-        }
     }
 }

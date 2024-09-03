@@ -37,8 +37,8 @@ sealed class Node {
     }
 }
 
-class RootNode(
-    val parameter: IrValueParameter,
+class RootNode<T>(
+    val parameter: T,
 ) : Node() {
     override fun toString() = "RootNode"
 
@@ -75,7 +75,7 @@ class ElvisNode(
     override fun toString() = "ElvisNode(${expression.dumpKotlinLike()})"
 }
 
-fun buildTree(parameter: IrValueParameter, expression: IrExpression?): RootNode {
+fun <T> buildTree(parameter: T, expression: IrExpression?): RootNode<T> {
     val tree = RootNode(parameter)
 
     expression?.accept(

@@ -81,6 +81,12 @@ public class FirLightTreeBlackBoxCodegenTestForPowerAssertGenerated extends Abst
     public void testDescribe() {
       runTest("plugins/power-assert/power-assert-compiler/testData/codegen/annotated/describe.kt");
     }
+
+    @Test
+    @TestMetadata("LocalVariables.kt")
+    public void testLocalVariables() {
+      runTest("plugins/power-assert/power-assert-compiler/testData/codegen/annotated/LocalVariables.kt");
+    }
   }
 
   @Nested

@@ -12,53 +12,59 @@ public class CallDiagram(
     public val valueParameters: Map<String, ValueParameter>,
 ) {
     public abstract class Parameter internal constructor() {
-        public abstract val expressions: List<Displayable>
+        public abstract val expressions: List<Expression>
     }
 
     public class ValueParameter(
-        override val expressions: List<Displayable>,
+        override val expressions: List<Expression>,
     ) : Parameter()
 
     public class Receiver(
-        public val implicit: Boolean,
-        override val expressions: List<Displayable>,
+        override val expressions: List<Expression>,
     ) : Parameter()
-
-    public abstract class Displayable internal constructor() {
-        public abstract val startOffset: Int
-        public abstract val endOffset: Int
-        public abstract val displayOffset: Int
-        public abstract val value: Any?
-    }
-
-    public class Expression(
-        override val startOffset: Int,
-        override val endOffset: Int,
-        override val displayOffset: Int,
-        override val value: Any?,
-    ) : Displayable()
-
-    public class EqualityExpression(
-        override val startOffset: Int,
-        override val endOffset: Int,
-        override val displayOffset: Int,
-        override val value: Any?,
-        public val lhs: Any?,
-        public val rhs: Any?,
-    ) : Displayable()
 }
 
 public fun CallDiagram.toDefaultMessage(
-    render: CallDiagram.Displayable.() -> String = CallDiagram.Displayable::render,
+    render: Expression.() -> String = Expression::render,
 ): String {
-    val rows = source.split("\n")
-    val expressions = buildList {
-        if (dispatchReceiver != null && !dispatchReceiver.implicit) addAll(dispatchReceiver.expressions)
-        if (extensionReceiver != null && !extensionReceiver.implicit) addAll(extensionReceiver.expressions)
+    val callExpressions = buildList {
+        if (dispatchReceiver != null) addAll(dispatchReceiver.expressions)
+        if (extensionReceiver != null) addAll(extensionReceiver.expressions)
         for (valueParameter in valueParameters.values) {
             addAll(valueParameter.expressions)
         }
     }
+
+    return buildString {
+        appendDiagram(source, callExpressions, render)
+
+        val variableDiagrams = callExpressions
+            .filterIsInstance<VariableAccessExpression>()
+            .mapNotNull { it.diagram }
+            .toMutableList()
+
+        var index = 0
+        while (index < variableDiagrams.size) {
+            appendLine()
+            appendLine(if (index == 0) "With:" else "And:")
+
+            val diagram = variableDiagrams[index++]
+            val assignmentExpressions = diagram.assignment.expressions
+            appendDiagram(diagram.source, assignmentExpressions, render)
+            assignmentExpressions
+                .filterIsInstance<VariableAccessExpression>()
+                .mapNotNull { it.diagram }
+                .let(variableDiagrams::addAll)
+        }
+    }
+}
+
+private fun StringBuilder.appendDiagram(
+    source: String,
+    expressions: List<Expression>,
+    render: Expression.() -> String,
+) {
+    val rows = source.split("\n")
 
     class DiagramValue(
         val row: Int,
@@ -70,7 +76,7 @@ public fun CallDiagram.toDefaultMessage(
         }
     }
 
-    fun CallDiagram.Displayable.toDiagramValue(): DiagramValue {
+    fun Expression.toDiagramValue(): DiagramValue {
         val prefix = source.substring(startIndex = 0, endIndex = displayOffset)
         val row = prefix.count { it == '\n' }
         val rowOffset = if (row == 0) 0 else (prefix.substringBeforeLast("\n").length + 1)
@@ -85,7 +91,7 @@ public fun CallDiagram.toDefaultMessage(
         .map { it.toDiagramValue() }
         .groupBy { it.row }
 
-    return buildString {
+    run {
         var separationNeeded = false
         for ((rowIndex, rowSource) in rows.withIndex()) {
             // Add an extra blank line if needed between values and source code.
@@ -112,7 +118,7 @@ public fun CallDiagram.toDefaultMessage(
             }
 
             // If a display value other than the last value covers a tab, it cannot be displayed with this row.
-            // Precalculate all values which cover a tab so they can be excluded as needed.
+            // Precalculate all values that cover a tab so they can be excluded as needed.
             val valuesCoveringTab = mutableSetOf<DiagramValue>()
             for (value in rowValues) {
                 if ('\t' in rowSource.substring(value.indent, minOf(rowSource.length, value.indent + value.result.length))) {
@@ -146,8 +152,8 @@ public fun CallDiagram.toDefaultMessage(
     }
 }
 
-public fun CallDiagram.Displayable.render(): String {
-    if (this is CallDiagram.EqualityExpression && value == false) {
+public fun Expression.render(): String {
+    if (this is EqualityExpression && value == false) {
         return "Expected <$lhs>, actual <$rhs>."
     }
 

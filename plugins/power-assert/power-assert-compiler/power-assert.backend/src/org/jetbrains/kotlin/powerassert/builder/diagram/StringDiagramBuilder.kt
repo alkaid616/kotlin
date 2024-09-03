@@ -15,17 +15,13 @@ import org.jetbrains.kotlin.ir.expressions.*
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.util.functions
 import org.jetbrains.kotlin.powerassert.diagram.IrTemporaryVariable
-import org.jetbrains.kotlin.powerassert.diagram.SourceFile
 
 class StringDiagramBuilder(
     private val factory: CallDiagramFactory,
-    sourceFile: SourceFile,
-    originalCall: IrCall,
     private val function: IrSimpleFunction,
     private val messageArgument: IrExpression?,
+    private val delegate: CallDiagramDiagramBuilder,
 ) : DiagramBuilder {
-
-    private val callDiagramDiagramBuilder = CallDiagramDiagramBuilder(factory, sourceFile, originalCall)
 
     override fun build(
         builder: IrBuilderWithScope,
@@ -35,7 +31,7 @@ class StringDiagramBuilder(
     ): IrExpression {
         val prefix = messageArgument?.let { builder.buildMessagePrefix(it, function.valueParameters.last()) }
 
-        val diagram = callDiagramDiagramBuilder.build(builder, dispatchReceiver, extensionReceiver, valueParameters)
+        val diagram = delegate.build(builder, dispatchReceiver, extensionReceiver, valueParameters)
         val message = with(factory) { builder.irDefaultMessage(diagram) }
 
         return builder.irConcat().apply {

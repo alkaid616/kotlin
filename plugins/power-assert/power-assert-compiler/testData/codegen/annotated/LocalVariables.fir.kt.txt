@@ -1,0 +1,40 @@
+fun box(): String {
+  return test1()
+}
+
+fun test1(): String {
+  return expectThrowableMessage(block = local fun <anonymous>() {
+    val tmp_0: VariableDiagram
+    val tmp_1: VariableDiagram
+    val tmp_2: VariableDiagram
+    @PowerAssert
+    val hello: String = "Hello"
+    @PowerAssert
+    val world: String = { // BLOCK
+      val tmp_3: String = "World".substring(startIndex = 1, endIndex = 4)
+      tmp_0 = VariableDiagram(source = "@PowerAssert val world = \"World\".substring(1, 4)", assignment = Assignment(expressions = listOf</* null */>(elements = [Expression(startOffset = 206, endOffset = 221, displayOffset = 33, value = tmp_3)])))
+      tmp_3
+    }
+    @PowerAssert
+    val expected: Int = { // BLOCK
+      val tmp_4: Int = hello.<get-length>()
+      tmp_1 = VariableDiagram(source = "@PowerAssert\nval expected =\n    hello.length", assignment = Assignment(expressions = listOf</* null */>(elements = [Expression(startOffset = 258, endOffset = 263, displayOffset = 32, value = hello), Expression(startOffset = 264, endOffset = 270, displayOffset = 38, value = tmp_4)])))
+      tmp_4
+    }
+    @PowerAssert
+    val actual: Int = { // BLOCK
+      val tmp_5: Int = world.<get-length>()
+      tmp_2 = VariableDiagram(source = "@PowerAssert val actual = world.length", assignment = Assignment(expressions = listOf</* null */>(elements = [VariableAccessExpression(startOffset = 309, endOffset = 314, displayOffset = 26, value = world, diagram = tmp_0), Expression(startOffset = 315, endOffset = 321, displayOffset = 32, value = tmp_5)])))
+      tmp_5
+    }
+    { // BLOCK
+      val tmp_6: Boolean = EQEQ(arg0 = expected, arg1 = actual)
+      assert(value = tmp_6, lazyMessage = local fun <anonymous>(): String {
+        return "\n" + CallDiagram(source = "assert(expected == actual)", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "value", second = ValueParameter(expressions = listOf</* null */>(elements = [VariableAccessExpression(startOffset = 333, endOffset = 341, displayOffset = 7, value = expected, diagram = tmp_1), VariableAccessExpression(startOffset = 345, endOffset = 351, displayOffset = 19, value = actual, diagram = tmp_2), EqualityExpression(startOffset = 333, endOffset = 351, displayOffset = 16, value = tmp_6, lhs = expected, rhs = actual)])))])).toDefaultMessage()
+      }
+)
+    }
+  }
+)
+}
+

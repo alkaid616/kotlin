@@ -20,15 +20,19 @@
 package org.jetbrains.kotlin.powerassert
 
 import org.jetbrains.kotlin.backend.common.IrElementTransformerVoidWithContext
+import org.jetbrains.kotlin.backend.common.ScopeWithIr
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.backend.jvm.ir.parentClassId
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.ir.IrElement
-import org.jetbrains.kotlin.ir.declarations.IrClass
-import org.jetbrains.kotlin.ir.declarations.IrFunction
-import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
+import org.jetbrains.kotlin.ir.IrStatement
+import org.jetbrains.kotlin.ir.UNDEFINED_OFFSET
+import org.jetbrains.kotlin.ir.builders.Scope
+import org.jetbrains.kotlin.ir.builders.irSet
+import org.jetbrains.kotlin.ir.declarations.*
+import org.jetbrains.kotlin.ir.expressions.IrBlockBody
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
@@ -42,10 +46,7 @@ import org.jetbrains.kotlin.powerassert.builder.call.CallBuilder
 import org.jetbrains.kotlin.powerassert.builder.call.LambdaCallBuilder
 import org.jetbrains.kotlin.powerassert.builder.call.SamConversionLambdaCallBuilder
 import org.jetbrains.kotlin.powerassert.builder.call.SimpleCallBuilder
-import org.jetbrains.kotlin.powerassert.builder.diagram.CallDiagramDiagramBuilder
-import org.jetbrains.kotlin.powerassert.builder.diagram.CallDiagramFactory
-import org.jetbrains.kotlin.powerassert.builder.diagram.DiagramBuilder
-import org.jetbrains.kotlin.powerassert.builder.diagram.StringDiagramBuilder
+import org.jetbrains.kotlin.powerassert.builder.diagram.*
 import org.jetbrains.kotlin.powerassert.diagram.*
 
 class PowerAssertCallTransformer(
@@ -56,6 +57,50 @@ class PowerAssertCallTransformer(
     private val transformed: Map<IrSimpleFunctionSymbol, IrSimpleFunctionSymbol>,
 ) : IrElementTransformerVoidWithContext() {
     private val irTypeSystemContext = IrTypeSystemContextImpl(context.irBuiltIns)
+
+    private class PowerAssertScope(scope: Scope, irElement: IrElement) : ScopeWithIr(scope, irElement) {
+        val variables = mutableMapOf<IrVariable, IrVariable>()
+    }
+
+    override fun createScope(declaration: IrSymbolOwner): ScopeWithIr {
+        return PowerAssertScope(Scope(declaration.symbol), declaration)
+    }
+
+    override fun visitFunctionNew(declaration: IrFunction): IrStatement {
+        super.visitFunctionNew(declaration)
+
+        // TODO !!! HACK? !!! this works but is really ugly how the temporary variables get added to the scope
+        //  Maybe local variable scoping should be done via a pre-pass?
+        val scope = currentScope as PowerAssertScope
+        val body = declaration.body
+        if (body is IrBlockBody) {
+            for (variable in scope.variables.values.reversed()) {
+                body.statements.add(0, variable)
+            }
+        }
+
+        return declaration
+    }
+
+    override fun visitVariable(declaration: IrVariable): IrStatement {
+        if (!declaration.hasAnnotation(PowerAssertAnnotation)) return super.visitVariable(declaration)
+
+        // TODO FIR checks
+        if (declaration.initializer == null) {
+            messageCollector.warn(element = declaration, message = "Variable annotated with @PowerAssert must have an initializer.")
+            return super.visitVariable(declaration)
+        }
+        if (declaration.isVar) {
+            messageCollector.warn(element = declaration, message = "Variable annotated with @PowerAssert must be val.")
+            return super.visitVariable(declaration)
+        }
+
+        val diagramVariable = buildForAnnotated(declaration) ?: return super.visitVariable(declaration)
+
+        val variables = (currentScope as PowerAssertScope).variables
+        variables.put(declaration, diagramVariable)
+        return declaration
+    }
 
     override fun visitCall(expression: IrCall): IrExpression {
         val function = expression.symbol.owner
@@ -78,15 +123,47 @@ class PowerAssertCallTransformer(
             ?: context.referenceFunctions(function.callableId).singleOrNull { it.isSyntheticFor(function) }
         if (synthetic == null) {
             messageCollector.warn(
-                expression = originalCall,
+                element = originalCall,
                 message = "Called function '${function.kotlinFqName}' was not compiled with the power-assert compiler-plugin.",
             )
             return super.visitCall(originalCall)
         }
 
+        val variableDiagrams = allScopes.mapNotNull { it as? PowerAssertScope }.flatMap { it.variables.entries }.associate { it.toPair() }
+        val diagramBuilder = CallDiagramDiagramBuilder(CallDiagramFactory(context), sourceFile, originalCall, variableDiagrams)
         val callBuilder = SimpleCallBuilder(synthetic, originalCall)
-        val diagramBuilder = CallDiagramDiagramBuilder(CallDiagramFactory(context), sourceFile, originalCall)
         return buildPowerAssertCall(originalCall, function, callBuilder, diagramBuilder)
+    }
+
+    private fun buildForAnnotated(
+        variable: IrVariable,
+    ): IrVariable? {
+        val factory = CallDiagramFactory(context)
+        val initializer = variable.initializer!!
+
+        val expressionRoot = buildTree(parameter = null, initializer).child
+        if (expressionRoot == null) {
+            messageCollector.info(initializer, "Expression is constant and will not be power-assert transformed")
+            return null
+        }
+
+        val currentScope = currentScope!!
+        val builder = DeclarationIrBuilder(context, currentScope.scope.scopeOwnerSymbol, initializer.startOffset, initializer.endOffset)
+
+        val diagramVariable = currentScope.scope.createTemporaryVariableDeclaration(
+            nameHint = "PowerAssertVariableDiagram",
+            irType = factory.variableDiagramType,
+            startOffset = UNDEFINED_OFFSET,
+            endOffset = UNDEFINED_OFFSET,
+        )
+
+        val variableDiagrams = allScopes.mapNotNull { it as? PowerAssertScope }.flatMap { it.variables.entries }.associate { it.toPair() }
+        variable.initializer = builder.buildDiagramNesting(sourceFile, expressionRoot) { argument, newVariables ->
+            +irSet(diagramVariable, builder.irVariableDiagram(factory, sourceFile, variable, newVariables, variableDiagrams))
+            argument
+        }
+
+        return diagramVariable
     }
 
     private fun buildForOverride(originalCall: IrCall, function: IrSimpleFunction): IrExpression {
@@ -100,7 +177,7 @@ class PowerAssertCallTransformer(
                 .joinToString("") { it.type.render() + ", " }
             val valueTypesAll = function.valueParameters.joinToString("") { it.type.render() + ", " }
             messageCollector.warn(
-                expression = originalCall,
+                element = originalCall,
                 message = """
               |Unable to find overload of function $fqName for power-assert transformation callable as:
               | - $fqName(${valueTypesTruncated}String)
@@ -116,9 +193,11 @@ class PowerAssertCallTransformer(
             function.valueParameters.size -> originalCall.getValueArgument(originalCall.valueArgumentsCount - 1)
             else -> null
         }
-        val diagramBuilder = StringDiagramBuilder(CallDiagramFactory(context), sourceFile, originalCall, function, messageArgument)
-
-        return buildPowerAssertCall(originalCall, function, callBuilder, diagramBuilder)
+        val factory = CallDiagramFactory(context)
+        val variableDiagrams = allScopes.mapNotNull { it as? PowerAssertScope }.flatMap { it.variables.entries }.associate { it.toPair() }
+        val diagramBuilder = CallDiagramDiagramBuilder(factory, sourceFile, originalCall, variableDiagrams)
+        val stringBuilder = StringDiagramBuilder(factory, function, messageArgument, diagramBuilder)
+        return buildPowerAssertCall(originalCall, function, callBuilder, stringBuilder)
     }
 
     private fun buildPowerAssertCall(
@@ -176,9 +255,9 @@ class PowerAssertCallTransformer(
         originalCall: IrCall,
         callBuilder: CallBuilder,
         diagramBuilder: DiagramBuilder,
-        dispatchRoot: RootNode? = null,
-        extensionRoot: RootNode? = null,
-        argumentRoots: List<RootNode>,
+        dispatchRoot: RootNode<IrValueParameter>? = null,
+        extensionRoot: RootNode<IrValueParameter>? = null,
+        argumentRoots: List<RootNode<IrValueParameter>>,
     ): IrExpression {
         return buildReceiverDiagram(sourceFile, dispatchRoot?.child) { dispatch, dispatchVariables ->
             buildReceiverDiagram(sourceFile, extensionRoot?.child) { extension, extensionVariables ->
@@ -294,16 +373,16 @@ class PowerAssertCallTransformer(
         }
     }
 
-    private fun MessageCollector.info(expression: IrElement, message: String) {
-        report(expression, CompilerMessageSeverity.INFO, message)
+    private fun MessageCollector.info(element: IrElement, message: String) {
+        report(element, CompilerMessageSeverity.INFO, message)
     }
 
-    private fun MessageCollector.warn(expression: IrElement, message: String) {
-        report(expression, CompilerMessageSeverity.WARNING, message)
+    private fun MessageCollector.warn(element: IrElement, message: String) {
+        report(element, CompilerMessageSeverity.WARNING, message)
     }
 
-    private fun MessageCollector.report(expression: IrElement, severity: CompilerMessageSeverity, message: String) {
-        report(severity, message, sourceFile.getCompilerMessageLocation(expression))
+    private fun MessageCollector.report(element: IrElement, severity: CompilerMessageSeverity, message: String) {
+        report(severity, message, sourceFile.getCompilerMessageLocation(element))
     }
 }
 

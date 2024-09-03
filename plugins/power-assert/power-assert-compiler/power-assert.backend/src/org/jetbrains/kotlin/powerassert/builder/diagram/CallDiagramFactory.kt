@@ -24,16 +24,22 @@ class CallDiagramFactory(
 ) {
     companion object {
         private val packageFqName = FqName("kotlinx.powerassert")
+        val classIdVariableDiagram = ClassId(packageFqName, Name.identifier("VariableDiagram"))
+        val classIdAssignment = classIdVariableDiagram.createNestedClassId(Name.identifier("Assignment"))
         val classIdCallDiagram = ClassId(packageFqName, Name.identifier("CallDiagram"))
         val classIdValueParameter = classIdCallDiagram.createNestedClassId(Name.identifier("ValueParameter"))
         val classIdReceiver = classIdCallDiagram.createNestedClassId(Name.identifier("Receiver"))
-        val classIdDisplayable = classIdCallDiagram.createNestedClassId(Name.identifier("Displayable"))
-        val classIdExpression = classIdCallDiagram.createNestedClassId(Name.identifier("Expression"))
-        val classIdEqualityExpression = classIdCallDiagram.createNestedClassId(Name.identifier("EqualityExpression"))
+        val classIdExpression = ClassId(packageFqName, Name.identifier("Expression"))
+        val classIdEqualityExpression = ClassId(packageFqName, Name.identifier("EqualityExpression"))
+        val classIdVariableAccessExpression = ClassId(packageFqName, Name.identifier("VariableAccessExpression"))
     }
 
-    private val displayableType by lazy {
-        irPluginContext.referenceClass(classIdDisplayable)!!.defaultTypeWithoutArguments
+    val variableDiagramType by lazy {
+        irPluginContext.referenceClass(classIdVariableDiagram)!!.defaultTypeWithoutArguments
+    }
+
+    private val expressionType by lazy {
+        irPluginContext.referenceClass(classIdExpression)!!.defaultTypeWithoutArguments
     }
 
     private val pairType by lazy {
@@ -79,7 +85,29 @@ class CallDiagramFactory(
 
     private fun IrBuilderWithScope.irListOf(list: List<IrExpression>): IrExpression {
         return irCall(listOfSymbol).apply {
-            putValueArgument(0, irVararg(elementType = displayableType, values = list))
+            putValueArgument(0, irVararg(elementType = expressionType, values = list))
+        }
+    }
+
+    fun IrBuilderWithScope.irVariableDiagram(
+        source: IrExpression,
+        assignment: IrExpression,
+    ): IrConstructorCall {
+        val constructor = irPluginContext.referenceConstructors(classIdVariableDiagram)
+            .singleOrNull { it.owner.isPrimary }
+            ?: error("No primary constructor found for 'kotlinx.powerassert.VariableDiagram'")
+        return irCall(constructor).apply {
+            putValueArgument(0, source)
+            putValueArgument(1, assignment)
+        }
+    }
+
+    fun IrBuilderWithScope.irAssignment(expressions: List<IrExpression>): IrConstructorCall {
+        val constructor = irPluginContext.referenceConstructors(classIdAssignment)
+            .singleOrNull { it.owner.isPrimary }
+            ?: error("No primary constructor found for 'kotlinx.powerassert.VariableDiagram.Assignment'")
+        return irCall(constructor).apply {
+            putValueArgument(0, irListOf(expressions))
         }
     }
 
@@ -109,14 +137,13 @@ class CallDiagramFactory(
         }
     }
 
-    fun IrBuilderWithScope.irReceiver(implicit: IrExpression, expressions: List<IrExpression>): IrConstructorCall {
+    fun IrBuilderWithScope.irReceiver(expressions: List<IrExpression>): IrConstructorCall {
         val constructor =
             irPluginContext.referenceConstructors(classIdReceiver)
                 .singleOrNull { it.owner.isPrimary }
                 ?: error("No primary constructor found for 'kotlinx.powerassert.CallDiagram.Receiver'")
         return irCall(constructor).apply {
-            putValueArgument(0, implicit)
-            putValueArgument(1, irListOf(expressions))
+            putValueArgument(0, irListOf(expressions))
         }
     }
 
@@ -128,7 +155,7 @@ class CallDiagramFactory(
     ): IrConstructorCall {
         val constructor = irPluginContext.referenceConstructors(classIdExpression)
             .singleOrNull { it.owner.isPrimary }
-            ?: error("No primary constructor found for 'kotlinx.powerassert.CallDiagram.Expression'")
+            ?: error("No primary constructor found for 'kotlinx.powerassert.Expression'")
         return irCall(constructor).apply {
             putValueArgument(0, irInt(startOffset))
             putValueArgument(1, irInt(endOffset))
@@ -147,7 +174,7 @@ class CallDiagramFactory(
     ): IrConstructorCall {
         val constructor = irPluginContext.referenceConstructors(classIdEqualityExpression)
             .singleOrNull { it.owner.isPrimary }
-            ?: error("No primary constructor found for 'kotlinx.powerassert.CallDiagram.EqualityExpression'")
+            ?: error("No primary constructor found for 'kotlinx.powerassert.EqualityExpression'")
         return irCall(constructor).apply {
             putValueArgument(0, irInt(startOffset))
             putValueArgument(1, irInt(endOffset))
@@ -155,6 +182,25 @@ class CallDiagramFactory(
             putValueArgument(3, value)
             putValueArgument(4, lhs)
             putValueArgument(5, rhs)
+        }
+    }
+
+    fun IrBuilderWithScope.irVariableAccessExpression(
+        startOffset: Int,
+        endOffset: Int,
+        displayOffset: Int,
+        value: IrExpression,
+        diagram: IrExpression,
+    ): IrConstructorCall {
+        val constructor = irPluginContext.referenceConstructors(classIdVariableAccessExpression)
+            .singleOrNull { it.owner.isPrimary }
+            ?: error("No primary constructor found for 'kotlinx.powerassert.VariableAccessExpression'")
+        return irCall(constructor).apply {
+            putValueArgument(0, irInt(startOffset))
+            putValueArgument(1, irInt(endOffset))
+            putValueArgument(2, irInt(displayOffset))
+            putValueArgument(3, value)
+            putValueArgument(4, diagram)
         }
     }
 

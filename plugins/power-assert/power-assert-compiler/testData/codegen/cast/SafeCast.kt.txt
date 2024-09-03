@@ -16,7 +16,7 @@ fun test1(a: Any): String {
       }
       val tmp_4: Boolean = EQEQ(arg0 = tmp_2, arg1 = 5)
       assert(value = tmp_4, lazyMessage = local fun <anonymous>(): String {
-        return "\n" + CallDiagram(source = "assert((a as? String)?.length == 5)", dispatchReceiver = Receiver(implicit = false, expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(implicit = false, expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "value", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 224, endOffset = 225, displayOffset = 8, value = tmp_0), Expression(startOffset = 224, endOffset = 236, displayOffset = 10, value = tmp_1), Expression(startOffset = 239, endOffset = 245, displayOffset = 23, value = tmp_2), EqualityExpression(startOffset = 223, endOffset = 250, displayOffset = 30, value = tmp_4, lhs = tmp_2, rhs = 5)])))])).toDefaultMessage()
+        return "\n" + CallDiagram(source = "assert((a as? String)?.length == 5)", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "value", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 224, endOffset = 225, displayOffset = 8, value = tmp_0), Expression(startOffset = 224, endOffset = 236, displayOffset = 10, value = tmp_1), Expression(startOffset = 239, endOffset = 245, displayOffset = 23, value = tmp_2), EqualityExpression(startOffset = 223, endOffset = 250, displayOffset = 30, value = tmp_4, lhs = tmp_2, rhs = 5)])))])).toDefaultMessage()
       }
 )
     }
@@ -33,7 +33,7 @@ fun test2(a: Any): String {
         return local fun <anonymous>(): Any {
           return ""
         }
-.invoke() + "\n" + CallDiagram(source = "requireNotNull(a as? String) { \"\" }", dispatchReceiver = Receiver(implicit = false, expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(implicit = false, expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "value", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 319, endOffset = 320, displayOffset = 15, value = tmp_5), Expression(startOffset = 319, endOffset = 331, displayOffset = 17, value = tmp_6)])))])).toDefaultMessage()
+.invoke() + "\n" + CallDiagram(source = "requireNotNull(a as? String) { \"\" }", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "value", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 319, endOffset = 320, displayOffset = 15, value = tmp_5), Expression(startOffset = 319, endOffset = 331, displayOffset = 17, value = tmp_6)])))])).toDefaultMessage()
       }
 )
     } /*~> Unit */
