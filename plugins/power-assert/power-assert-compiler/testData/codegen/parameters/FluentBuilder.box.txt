@@ -1,0 +1,28 @@
+---
+Expected:
+isEqualTo(expected)
+          |
+          5
+
+With:
+@PowerAssert
+val expected =
+    hello.length
+    |     |
+    Hello 5
+
+Actual:
+assertThat(actual)
+           |
+           3
+
+With:
+@PowerAssert val actual = world.length
+                          |     |
+                          orl   3
+
+And:
+@PowerAssert val world = "World".substring(1, 4)
+                                 |
+                                 orl
+---

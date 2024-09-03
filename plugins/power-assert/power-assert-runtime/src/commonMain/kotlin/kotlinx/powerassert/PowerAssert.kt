@@ -9,9 +9,15 @@ package kotlinx.powerassert
 @Retention(AnnotationRetention.RUNTIME)
 @MustBeDocumented
 public annotation class PowerAssert {
+    @Target(AnnotationTarget.CLASS, AnnotationTarget.VALUE_PARAMETER)
+    @Retention(AnnotationRetention.RUNTIME)
+    @MustBeDocumented
+    public annotation class Ignore
+
     public companion object {
         @Suppress("RedundantNullableReturnType")
         public val diagram: CallDiagram?
             get() = throw NotImplementedError("Intrinsic property! Make sure the Power-Assert compiler-plugin is applied to your build.")
     }
+
 }

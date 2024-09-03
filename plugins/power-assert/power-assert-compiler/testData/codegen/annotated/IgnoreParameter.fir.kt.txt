@@ -1,0 +1,78 @@
+fun assertEquals$powerassert(expected: Any?, actual: Any?, @Ignore message: String? = null, $diagram: CallDiagram) {
+  when {
+    EQEQ(arg0 = actual, arg1 = expected).not() -> { // BLOCK
+      val diagram: CallDiagram = { // BLOCK
+        val tmp_0: CallDiagram? = $diagram
+        when {
+          EQEQ(arg0 = tmp_0, arg1 = null) -> error(message = "no power-assert")
+          else -> tmp_0
+        }
+      }
+      throw AssertionError(p0 = "\n".plus(other = diagram.toDefaultMessage()))
+    }
+  }
+}
+
+@PowerAssert
+fun assertEquals(expected: Any?, actual: Any?, @Ignore message: String? = null) {
+  when {
+    EQEQ(arg0 = actual, arg1 = expected).not() -> { // BLOCK
+      val diagram: CallDiagram = { // BLOCK
+        val tmp_1: CallDiagram? = null
+        when {
+          EQEQ(arg0 = tmp_1, arg1 = null) -> error(message = "no power-assert")
+          else -> tmp_1
+        }
+      }
+      throw AssertionError(p0 = "\n".plus(other = diagram.toDefaultMessage()))
+    }
+  }
+}
+
+fun box(): String {
+  return test1().plus(other = test2()).plus(other = test3())
+}
+
+fun test1(): String {
+  return expectThrowableMessage(block = local fun <anonymous>() {
+    { // BLOCK
+      val tmp_2: Int = "Hello".<get-length>()
+      { // BLOCK
+        val tmp_3: String = "World".substring(startIndex = 1, endIndex = 4)
+        val tmp_4: Int = tmp_3.<get-length>()
+        assertEquals$powerassert(expected = tmp_2, actual = tmp_4, $diagram = CallDiagram(source = "assertEquals(\"Hello\".length, \"World\".substring(1, 4).length)", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "expected", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 564, endOffset = 570, displayOffset = 21, value = tmp_2)]))), Pair</* null */, /* null */>(first = "actual", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 580, endOffset = 595, displayOffset = 37, value = tmp_3), Expression(startOffset = 596, endOffset = 602, displayOffset = 53, value = tmp_4)]))), Pair</* null */, /* null */>(first = "message", second = ValueParameter(expressions = listOf</* null */>(elements = [])))])))
+      }
+    }
+  }
+)
+}
+
+fun test2(): String {
+  return expectThrowableMessage(block = local fun <anonymous>() {
+    { // BLOCK
+      val tmp_5: Int = "Hello".<get-length>()
+      { // BLOCK
+        val tmp_6: String = "World".substring(startIndex = 1, endIndex = 4)
+        val tmp_7: Int = tmp_6.<get-length>()
+        assertEquals$powerassert(expected = tmp_5, actual = tmp_7, message = "Values are not equal!", $diagram = CallDiagram(source = "assertEquals(\"Hello\".length, \"World\".substring(1, 4).length, message = \"Values are not equal!\")", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "expected", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 671, endOffset = 677, displayOffset = 21, value = tmp_5)]))), Pair</* null */, /* null */>(first = "actual", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 687, endOffset = 702, displayOffset = 37, value = tmp_6), Expression(startOffset = 703, endOffset = 709, displayOffset = 53, value = tmp_7)]))), Pair</* null */, /* null */>(first = "message", second = ValueParameter(expressions = listOf</* null */>(elements = [])))])))
+      }
+    }
+  }
+)
+}
+
+fun test3(): String {
+  return expectThrowableMessage(block = local fun <anonymous>() {
+    val message: String = "Values are not equal!"
+    { // BLOCK
+      val tmp_8: Int = "Hello".<get-length>()
+      { // BLOCK
+        val tmp_9: String = "World".substring(startIndex = 1, endIndex = 4)
+        val tmp_10: Int = tmp_9.<get-length>()
+        assertEquals$powerassert(expected = tmp_8, actual = tmp_10, message = message, $diagram = CallDiagram(source = "assertEquals(\"Hello\".length, \"World\".substring(1, 4).length, message)", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "expected", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 855, endOffset = 861, displayOffset = 21, value = tmp_8)]))), Pair</* null */, /* null */>(first = "actual", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 871, endOffset = 886, displayOffset = 37, value = tmp_9), Expression(startOffset = 887, endOffset = 893, displayOffset = 53, value = tmp_10)]))), Pair</* null */, /* null */>(first = "message", second = ValueParameter(expressions = listOf</* null */>(elements = [])))])))
+      }
+    }
+  }
+)
+}
+

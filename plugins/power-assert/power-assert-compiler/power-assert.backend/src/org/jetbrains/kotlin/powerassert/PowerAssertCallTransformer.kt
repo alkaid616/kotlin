@@ -103,13 +103,16 @@ class PowerAssertCallTransformer(
     }
 
     override fun visitCall(expression: IrCall): IrExpression {
-        val function = expression.symbol.owner
+        val result = super.visitCall(expression)
+
+        val call = result as? IrCall ?: return result
+        val function = call.symbol.owner
         val fqName = function.kotlinFqName
         return when {
-            function.valueParameters.isEmpty() -> super.visitCall(expression)
-            function.hasAnnotation(PowerAssertAnnotation) -> buildForAnnotated(expression, function)
-            fqName in functions -> buildForOverride(expression, function)
-            else -> super.visitCall(expression)
+            function.valueParameters.isEmpty() -> result
+            function.hasAnnotation(PowerAssertAnnotation) -> buildForAnnotated(call, function)
+            fqName in functions -> buildForOverride(call, function)
+            else -> result
         }
     }
 
@@ -126,7 +129,7 @@ class PowerAssertCallTransformer(
                 element = originalCall,
                 message = "Called function '${function.kotlinFqName}' was not compiled with the power-assert compiler-plugin.",
             )
-            return super.visitCall(originalCall)
+            return originalCall
         }
 
         val variableDiagrams = allScopes.mapNotNull { it as? PowerAssertScope }.flatMap { it.variables.entries }.associate { it.toPair() }
@@ -186,7 +189,7 @@ class PowerAssertCallTransformer(
               | - $fqName($valueTypesAll() -> String)
             """.trimMargin(),
             )
-            return super.visitCall(originalCall)
+            return originalCall
         }
 
         val messageArgument = when (callBuilder.function.valueParameters.size) {
@@ -206,37 +209,23 @@ class PowerAssertCallTransformer(
         callBuilder: CallBuilder,
         diagramBuilder: DiagramBuilder,
     ): IrExpression {
-        val dispatchRoot = when {
-            originalCall.symbol.owner.isInfix -> originalCall.dispatchReceiver?.let { argument ->
-                function.dispatchReceiverParameter?.let { parameter ->
-                    buildTree(parameter, argument)
-                }
-            }
-            else -> null
-        }
-        val extensionRoot = when {
-            originalCall.symbol.owner.isInfix -> originalCall.extensionReceiver?.let { argument ->
-                function.extensionReceiverParameter?.let { parameter ->
-                    buildTree(parameter, argument)
-                }
-            }
-            else -> null
-        }
+        val dispatchRoot = function.dispatchReceiverParameter?.let { getRootNode(it, originalCall.dispatchReceiver) }
+        val extensionRoot = function.extensionReceiverParameter?.let { getRootNode(it, originalCall.extensionReceiver) }
         val argumentRoots = when (callBuilder.function.valueParameters.size) {
             function.valueParameters.size -> {
                 (0 until originalCall.valueArgumentsCount - 1)
-                    .map { buildTree(function.valueParameters[it], originalCall.getValueArgument(it)) }
+                    .map { getRootNode(function.valueParameters[it], originalCall.getValueArgument(it)) }
             }
             else -> {
                 (0 until originalCall.valueArgumentsCount)
-                    .map { buildTree(function.valueParameters[it], originalCall.getValueArgument(it)) }
+                    .map { getRootNode(function.valueParameters[it], originalCall.getValueArgument(it)) }
             }
         }
 
         // If all roots are null, there are no transformable parameters
         if (dispatchRoot?.child == null && extensionRoot?.child == null && argumentRoots.all { it.child == null }) {
             messageCollector.info(originalCall, "Expression is constant and will not be power-assert transformed")
-            return super.visitCall(originalCall)
+            return originalCall
         }
 
         val symbol = currentScope!!.scope.scopeOwnerSymbol
@@ -249,6 +238,16 @@ class PowerAssertCallTransformer(
             extensionRoot = extensionRoot,
             argumentRoots = argumentRoots,
         )
+    }
+
+    private fun getRootNode(parameter: IrValueParameter, argument: IrExpression?): RootNode<IrValueParameter> {
+        // Check if the parameter or parameter type should be ignored.
+        if (
+            parameter.hasAnnotation(PowerAssertIgnoreAnnotation) ||
+            parameter.type.getClass()?.hasAnnotation(PowerAssertIgnoreAnnotation) == true
+        ) return RootNode(parameter)
+
+        return buildTree(parameter, argument)
     }
 
     private fun DeclarationIrBuilder.diagram(

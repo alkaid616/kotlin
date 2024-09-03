@@ -11,4 +11,5 @@ import org.jetbrains.kotlin.name.FqName
 val POWER_ASSERT_FUNCTION by IrDeclarationOriginImpl.Synthetic
 
 val PowerAssertAnnotation = FqName("kotlinx.powerassert.PowerAssert")
+val PowerAssertIgnoreAnnotation = FqName("kotlinx.powerassert.PowerAssert.Ignore")
 val PowerAssertGetDiagram = FqName("kotlinx.powerassert.PowerAssert.Companion.<get-diagram>")

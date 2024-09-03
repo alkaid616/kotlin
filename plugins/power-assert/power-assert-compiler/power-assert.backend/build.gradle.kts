@@ -12,6 +12,8 @@ dependencies {
     compileOnly(project(":compiler:cli"))
 
     compileOnly(intellijCore())
+
+    compileOnly(project(":kotlin-power-assert-runtime"))
 }
 
 optInToUnsafeDuringIrConstructionAPI()
