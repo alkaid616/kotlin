@@ -5,7 +5,7 @@ isEqualTo(expected)
           5
 
 With:
-@PowerAssert
+@Explain
 val expected =
     hello.length
     |     |
@@ -17,12 +17,12 @@ assertThat(actual)
            3
 
 With:
-@PowerAssert val actual = world.length
-                          |     |
-                          orl   3
+@Explain val actual = world.length
+                      |     |
+                      orl   3
 
 And:
-@PowerAssert val world = "World".substring(1, 4)
-                                 |
-                                 orl
+@Explain val world = "World".substring(1, 4)
+                             |
+                             orl
 ---

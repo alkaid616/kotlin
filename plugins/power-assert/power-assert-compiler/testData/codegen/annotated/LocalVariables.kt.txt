@@ -1,5 +1,5 @@
 fun box(): String {
-  return test1()
+  return test1().plus(other = test2())
 }
 
 fun test1(): String {
@@ -7,34 +7,67 @@ fun test1(): String {
     val tmp_0: VariableDiagram
     val tmp_1: VariableDiagram
     val tmp_2: VariableDiagram
-    @PowerAssert
+    @Explain
     val hello: String = "Hello"
-    @PowerAssert
+    @Explain
     val world: String = { // BLOCK
       val tmp_3: String = "World".substring(startIndex = 1, endIndex = 4)
-      tmp_0 = VariableDiagram(source = "@PowerAssert val world = \"World\".substring(1, 4)", assignment = Assignment(expressions = listOf</* null */>(elements = [Expression(startOffset = 206, endOffset = 221, displayOffset = 33, value = tmp_3)])))
+      tmp_0 = VariableDiagram(source = "@Explain val world = \"World\".substring(1, 4)", assignment = Assignment(expressions = listOf</* null */>(elements = [Expression(startOffset = 29, endOffset = 44, displayOffset = 29, value = tmp_3)])))
       tmp_3
     }
-    @PowerAssert
+    @Explain
     val expected: Int = { // BLOCK
       val tmp_4: Int = hello.<get-length>()
-      tmp_1 = VariableDiagram(source = "@PowerAssert\nval expected =\n    hello.length", assignment = Assignment(expressions = listOf</* null */>(elements = [Expression(startOffset = 258, endOffset = 263, displayOffset = 32, value = hello), Expression(startOffset = 264, endOffset = 270, displayOffset = 38, value = tmp_4)])))
+      tmp_1 = VariableDiagram(source = "@Explain\nval expected =\n    hello.length", assignment = Assignment(expressions = listOf</* null */>(elements = [Expression(startOffset = 28, endOffset = 33, displayOffset = 28, value = hello), Expression(startOffset = 34, endOffset = 40, displayOffset = 34, value = tmp_4)])))
       tmp_4
     }
-    @PowerAssert
+    @Explain
     val actual: Int = { // BLOCK
       val tmp_5: Int = world.<get-length>()
-      tmp_2 = VariableDiagram(source = "@PowerAssert val actual = world.length", assignment = Assignment(expressions = listOf</* null */>(elements = [VariableAccessExpression(startOffset = 309, endOffset = 314, displayOffset = 26, value = world, diagram = tmp_0), Expression(startOffset = 315, endOffset = 321, displayOffset = 32, value = tmp_5)])))
+      tmp_2 = VariableDiagram(source = "@Explain val actual = world.length", assignment = Assignment(expressions = listOf</* null */>(elements = [VariableAccessExpression(startOffset = 22, endOffset = 27, displayOffset = 22, value = world, diagram = tmp_0), Expression(startOffset = 28, endOffset = 34, displayOffset = 28, value = tmp_5)])))
       tmp_5
     }
     { // BLOCK
       val tmp_6: Boolean = EQEQ(arg0 = expected, arg1 = actual)
       assert(value = tmp_6, lazyMessage = local fun <anonymous>(): String {
-        return "\n" + CallDiagram(source = "assert(expected == actual)", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "value", second = ValueParameter(expressions = listOf</* null */>(elements = [VariableAccessExpression(startOffset = 333, endOffset = 341, displayOffset = 7, value = expected, diagram = tmp_1), VariableAccessExpression(startOffset = 345, endOffset = 351, displayOffset = 19, value = actual, diagram = tmp_2), EqualityExpression(startOffset = 333, endOffset = 351, displayOffset = 16, value = tmp_6, lhs = expected, rhs = actual)])))])).toDefaultMessage()
+        return "\n" + CallDiagram(source = "assert(expected == actual)", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "value", second = ValueParameter(expressions = listOf</* null */>(elements = [VariableAccessExpression(startOffset = 7, endOffset = 15, displayOffset = 7, value = expected, diagram = tmp_1), VariableAccessExpression(startOffset = 19, endOffset = 25, displayOffset = 19, value = actual, diagram = tmp_2), EqualityExpression(startOffset = 7, endOffset = 25, displayOffset = 16, value = tmp_6, lhs = expected, rhs = actual)])))])).toDefaultMessage()
       }
 )
     }
   }
 )
+}
+
+fun test2(): String {
+  return expectThrowableMessage(block = local fun <anonymous>() {
+    test2_run()
+  }
+)
+}
+
+@Explain
+fun test2_run() {
+  val tmp_7: VariableDiagram
+  val tmp_8: VariableDiagram
+  @Explain
+  val expected: Int = { // BLOCK
+    val tmp_9: Int = "Hello".<get-length>()
+    tmp_7 = VariableDiagram(source = "expected = \"Hello\".length", assignment = Assignment(expressions = listOf</* null */>(elements = [Expression(startOffset = 19, endOffset = 25, displayOffset = 19, value = tmp_9)])))
+    tmp_9
+  }
+  @Explain
+  val actual: Int = { // BLOCK
+    val tmp_10: String = "World".substring(startIndex = 1, endIndex = 4)
+    val tmp_11: Int = tmp_10.<get-length>()
+    tmp_8 = VariableDiagram(source = "actual = \"World\".substring(1, 4).length", assignment = Assignment(expressions = listOf</* null */>(elements = [Expression(startOffset = 17, endOffset = 32, displayOffset = 17, value = tmp_10), Expression(startOffset = 33, endOffset = 39, displayOffset = 33, value = tmp_11)])))
+    tmp_11
+  }
+  { // BLOCK
+    val tmp_12: Boolean = EQEQ(arg0 = expected, arg1 = actual)
+    assert(value = tmp_12, lazyMessage = local fun <anonymous>(): String {
+      return "\n" + CallDiagram(source = "assert(expected == actual)", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "value", second = ValueParameter(expressions = listOf</* null */>(elements = [VariableAccessExpression(startOffset = 7, endOffset = 15, displayOffset = 7, value = expected, diagram = tmp_7), VariableAccessExpression(startOffset = 19, endOffset = 25, displayOffset = 19, value = actual, diagram = tmp_8), EqualityExpression(startOffset = 7, endOffset = 25, displayOffset = 16, value = tmp_12, lhs = expected, rhs = actual)])))])).toDefaultMessage()
+    }
+)
+  }
 }
 

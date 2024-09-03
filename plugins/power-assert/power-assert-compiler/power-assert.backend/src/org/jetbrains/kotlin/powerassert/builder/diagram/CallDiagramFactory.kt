@@ -24,6 +24,7 @@ class CallDiagramFactory(
 ) {
     companion object {
         private val packageFqName = FqName("kotlinx.powerassert")
+        val classIdExplain = ClassId(packageFqName, Name.identifier("Explain"))
         val classIdVariableDiagram = ClassId(packageFqName, Name.identifier("VariableDiagram"))
         val classIdAssignment = classIdVariableDiagram.createNestedClassId(Name.identifier("Assignment"))
         val classIdCallDiagram = ClassId(packageFqName, Name.identifier("CallDiagram"))
@@ -32,6 +33,16 @@ class CallDiagramFactory(
         val classIdExpression = ClassId(packageFqName, Name.identifier("Expression"))
         val classIdEqualityExpression = ClassId(packageFqName, Name.identifier("EqualityExpression"))
         val classIdVariableAccessExpression = ClassId(packageFqName, Name.identifier("VariableAccessExpression"))
+    }
+
+    val explainClassSymbol by lazy {
+        irPluginContext.referenceClass(classIdExplain)!!
+    }
+
+    val explainConstructorSymbol by lazy {
+        irPluginContext.referenceConstructors(classIdExplain)
+            .singleOrNull { it.owner.isPrimary }
+            ?: error("No primary constructor found for 'kotlinx.powerassert.Explain'")
     }
 
     val variableDiagramType by lazy {

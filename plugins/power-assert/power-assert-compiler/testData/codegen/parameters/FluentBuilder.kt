@@ -1,3 +1,4 @@
+import kotlinx.powerassert.Explain
 import kotlinx.powerassert.PowerAssert
 import kotlinx.powerassert.CallDiagram
 import kotlinx.powerassert.toDefaultMessage
@@ -30,13 +31,13 @@ fun box(): String {
 }
 
 fun test1() = expectThrowableMessage {
-    @PowerAssert val hello = "Hello"
-    @PowerAssert val world = "World".substring(1, 4)
+    @Explain val hello = "Hello"
+    @Explain val world = "World".substring(1, 4)
 
-    @PowerAssert
+    @Explain
     val expected =
         hello.length
-    @PowerAssert val actual = world.length
+    @Explain val actual = world.length
 
     assertThat(actual).isEqualTo(expected)
 }

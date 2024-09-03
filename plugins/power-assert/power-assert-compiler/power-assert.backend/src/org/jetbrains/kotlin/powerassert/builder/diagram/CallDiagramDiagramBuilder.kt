@@ -16,7 +16,7 @@ import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 import org.jetbrains.kotlin.ir.util.deepCopyWithSymbols
 import org.jetbrains.kotlin.ir.util.hasAnnotation
-import org.jetbrains.kotlin.powerassert.PowerAssertAnnotation
+import org.jetbrains.kotlin.powerassert.ExplainAnnotation
 import org.jetbrains.kotlin.powerassert.diagram.IrTemporaryVariable
 import org.jetbrains.kotlin.powerassert.diagram.SourceFile
 
@@ -57,7 +57,8 @@ private fun IrBuilderWithScope.irCallDiagram(
 
     // Get call source string starting at the very beginning of the first line.
     // This is so multiline calls all start from the same column offset.
-    val indentedSource = sourceFile.getText(callInfo.startOffset - callInfo.startColumnNumber, callInfo.endOffset)
+    val startOffset = callInfo.startOffset - callInfo.startColumnNumber
+    val indentedSource = sourceFile.getText(startOffset, callInfo.endOffset)
         .clearSourcePrefix(callInfo.startColumnNumber)
     val rows = indentedSource.split("\n")
 
@@ -72,16 +73,15 @@ private fun IrBuilderWithScope.irCallDiagram(
         val value = it.toValueDisplay(callInfo)
         val previousRows = rows.subList(0, value.row)
         val rowPadding = previousRows.sumOf { it.length + 1 } // TODO cache?
-        val rowIndent = previousRows.sumOf { minOf(it.length, lineIndent) }
-        val offsetAdjust = -lineIndent - rowIndent
+        val offsetAdjust = lineIndent + previousRows.sumOf { minOf(it.length, lineIndent) } // TODO cache?
         return with(factory) {
             val initializer = it.temporary.initializer
 
-            if (it.temporary.hasAnnotation(PowerAssertAnnotation) && it.temporary in variableDiagrams) {
+            if (it.temporary.hasAnnotation(ExplainAnnotation) && it.temporary in variableDiagrams) {
                 irVariableAccessExpression(
-                    startOffset = it.sourceRangeInfo.startOffset + offsetAdjust,
-                    endOffset = it.sourceRangeInfo.endOffset + offsetAdjust,
-                    displayOffset = rowPadding + value.indent + offsetAdjust,
+                    startOffset = it.sourceRangeInfo.startOffset - startOffset - offsetAdjust,
+                    endOffset = it.sourceRangeInfo.endOffset - startOffset - offsetAdjust,
+                    displayOffset = rowPadding + value.indent - offsetAdjust,
                     value = irGet(value.value),
                     diagram = irGet(variableDiagrams.getValue(it.temporary)),
                 )
@@ -93,18 +93,18 @@ private fun IrBuilderWithScope.irCallDiagram(
                 val lhs = initializer.getValueArgument(0)!!
                 val rhs = initializer.getValueArgument(1)!!
                 irEqualityExpression(
-                    startOffset = it.sourceRangeInfo.startOffset + offsetAdjust,
-                    endOffset = it.sourceRangeInfo.endOffset + offsetAdjust,
-                    displayOffset = rowPadding + value.indent + offsetAdjust,
+                    startOffset = it.sourceRangeInfo.startOffset - startOffset - offsetAdjust,
+                    endOffset = it.sourceRangeInfo.endOffset - startOffset - offsetAdjust,
+                    displayOffset = rowPadding + value.indent - offsetAdjust,
                     value = irGet(value.value),
                     lhs = lhs.deepCopyWithSymbols(),
                     rhs = rhs.deepCopyWithSymbols(),
                 )
             } else {
                 irExpression(
-                    startOffset = it.sourceRangeInfo.startOffset + offsetAdjust,
-                    endOffset = it.sourceRangeInfo.endOffset + offsetAdjust,
-                    displayOffset = rowPadding + value.indent + offsetAdjust,
+                    startOffset = it.sourceRangeInfo.startOffset - startOffset - offsetAdjust,
+                    endOffset = it.sourceRangeInfo.endOffset - startOffset - offsetAdjust,
+                    displayOffset = rowPadding + value.indent - offsetAdjust,
                     value = irGet(value.value),
                 )
             }

@@ -4,20 +4,36 @@ assert(expected == actual)
        5        |  3
                 Expected <5>, actual <3>.
 
-With:
-@PowerAssert
+Where:
+@Explain
 val expected =
     hello.length
     |     |
     Hello 5
 
 And:
-@PowerAssert val actual = world.length
-                          |     |
-                          orl   3
+@Explain val actual = world.length
+                      |     |
+                      orl   3
 
 And:
-@PowerAssert val world = "World".substring(1, 4)
-                                 |
-                                 orl
+@Explain val world = "World".substring(1, 4)
+                             |
+                             orl
+---
+---
+assert(expected == actual)
+       |        |  |
+       5        |  3
+                Expected <5>, actual <3>.
+
+Where:
+val expected = "Hello".length
+                       |
+                       5
+
+And:
+val actual = "World".substring(1, 4).length
+                     |               |
+                     orl             3
 ---

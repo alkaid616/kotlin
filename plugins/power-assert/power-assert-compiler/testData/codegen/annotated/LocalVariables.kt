@@ -1,17 +1,30 @@
 // DUMP_KT_IR
 
-import kotlinx.powerassert.PowerAssert
+import kotlinx.powerassert.Explain
 
 fun box(): String {
-    return test1()
+    return test1() +
+            test2()
 }
 
 fun test1() = expectThrowableMessage {
-    @PowerAssert val hello = "Hello"
-    @PowerAssert val world = "World".substring(1, 4)
-    @PowerAssert
+    @Explain val hello = "Hello"
+    @Explain val world = "World".substring(1, 4)
+
+    @Explain
     val expected =
         hello.length
-    @PowerAssert val actual = world.length
+    @Explain val actual = world.length
+    assert(expected == actual)
+}
+
+fun test2() = expectThrowableMessage {
+    test2_run()
+}
+
+@Explain
+fun test2_run() {
+    val expected = "Hello".length
+    val actual = "World".substring(1, 4).length
     assert(expected == actual)
 }

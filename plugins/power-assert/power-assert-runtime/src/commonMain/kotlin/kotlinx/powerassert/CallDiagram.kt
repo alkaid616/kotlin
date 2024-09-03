@@ -46,7 +46,7 @@ public fun CallDiagram.toDefaultMessage(
         var index = 0
         while (index < variableDiagrams.size) {
             appendLine()
-            appendLine(if (index == 0) "With:" else "And:")
+            appendLine(if (index == 0) "Where:" else "And:")
 
             val diagram = variableDiagrams[index++]
             val assignmentExpressions = diagram.assignment.expressions

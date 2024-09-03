@@ -23,6 +23,7 @@ import org.jetbrains.kotlin.backend.common.IrElementTransformerVoidWithContext
 import org.jetbrains.kotlin.backend.common.ScopeWithIr
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
+import org.jetbrains.kotlin.backend.jvm.ir.isInvokeSuspendOfLambda
 import org.jetbrains.kotlin.backend.jvm.ir.parentClassId
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
@@ -35,6 +36,8 @@ import org.jetbrains.kotlin.ir.declarations.*
 import org.jetbrains.kotlin.ir.expressions.IrBlockBody
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
+import org.jetbrains.kotlin.ir.expressions.impl.IrConstructorCallImpl
+import org.jetbrains.kotlin.ir.expressions.impl.fromSymbolOwner
 import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
 import org.jetbrains.kotlin.ir.symbols.IrTypeParameterSymbol
 import org.jetbrains.kotlin.ir.types.*
@@ -83,7 +86,13 @@ class PowerAssertCallTransformer(
     }
 
     override fun visitVariable(declaration: IrVariable): IrStatement {
-        if (!declaration.hasAnnotation(PowerAssertAnnotation)) return super.visitVariable(declaration)
+        if (
+            !declaration.hasAnnotation(ExplainAnnotation) &&
+            (declaration.parent as? IrAnnotationContainer)?.hasAnnotation(ExplainAnnotation) != true
+            // TODO inherit through lambda type argument?
+        ) return super.visitVariable(declaration)
+
+        (declaration.parent as IrFunction).isInvokeSuspendOfLambda()
 
         // TODO FIR checks
         if (declaration.initializer == null) {
@@ -164,6 +173,13 @@ class PowerAssertCallTransformer(
         variable.initializer = builder.buildDiagramNesting(sourceFile, expressionRoot) { argument, newVariables ->
             +irSet(diagramVariable, builder.irVariableDiagram(factory, sourceFile, variable, newVariables, variableDiagrams))
             argument
+        }
+        if (!variable.hasAnnotation(ExplainAnnotation)) {
+            // Add annotation so other code knows there is a diagram available.
+            variable.annotations = variable.annotations + IrConstructorCallImpl.fromSymbolOwner(
+                factory.explainConstructorSymbol.owner.returnType,
+                factory.explainConstructorSymbol,
+            )
         }
 
         return diagramVariable

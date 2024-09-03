@@ -28,7 +28,7 @@ import org.jetbrains.kotlin.ir.expressions.IrWhen
 import org.jetbrains.kotlin.ir.util.deepCopyWithSymbols
 import org.jetbrains.kotlin.ir.util.hasAnnotation
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
-import org.jetbrains.kotlin.powerassert.PowerAssertAnnotation
+import org.jetbrains.kotlin.powerassert.ExplainAnnotation
 
 fun IrBuilderWithScope.buildDiagramNesting(
     sourceFile: SourceFile,
@@ -111,7 +111,7 @@ private fun IrBlockBuilder.add(
     val transformer = IrTemporaryExtractionTransformer(this@add, variables)
     val copy = expression.deepCopyWithSymbols(scope.getLocalDeclarationParent()).transform(transformer, null)
 
-    val variable = if (expression is IrGetValue && expression.symbol.owner.hasAnnotation(PowerAssertAnnotation)) {
+    val variable = if (expression is IrGetValue && expression.symbol.owner.hasAnnotation(ExplainAnnotation)) {
         // Value will have already been transformed by PowerAssert and is safe to access multiple times.
         expression.symbol.owner as IrVariable
     } else {

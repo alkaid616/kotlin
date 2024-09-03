@@ -5,7 +5,7 @@
 
 package kotlinx.powerassert
 
-@Target(AnnotationTarget.FUNCTION, AnnotationTarget.LOCAL_VARIABLE)
+@Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
 @MustBeDocumented
 public annotation class PowerAssert {
