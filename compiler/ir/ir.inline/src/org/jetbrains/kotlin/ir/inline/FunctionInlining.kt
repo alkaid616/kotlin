@@ -105,12 +105,21 @@ abstract class InlineFunctionResolverReplacingCoroutineIntrinsics<Ctx : CommonBa
     }
 }
 
+interface InlineFunctionBodyCopyingObserver {
+    fun onCopiedCall(originalCall: IrCall, copiedCall: IrCall)
+
+    object DEFAULT : InlineFunctionBodyCopyingObserver {
+        override fun onCopiedCall(originalCall: IrCall, copiedCall: IrCall) = Unit
+    }
+}
+
 open class FunctionInlining(
     val context: CommonBackendContext,
     private val inlineFunctionResolver: InlineFunctionResolver,
     private val insertAdditionalImplicitCasts: Boolean = false,
     private val regenerateInlinedAnonymousObjects: Boolean = false,
     private val produceOuterThisFields: Boolean = true,
+    private val observer: InlineFunctionBodyCopyingObserver = InlineFunctionBodyCopyingObserver.DEFAULT,
 ) : IrElementTransformerVoidWithContext(), BodyLoweringPass {
     override fun lower(irBody: IrBody, container: IrDeclaration) {
         // TODO container: IrSymbolDeclaration
@@ -161,8 +170,9 @@ open class FunctionInlining(
             expression, actualCallee, currentScope!!, parent,
             context,
             inlineFunctionResolver,
+            observer,
             insertAdditionalImplicitCasts,
-            produceOuterThisFields
+            produceOuterThisFields,
         )
         return inliner.inline().markAsRegenerated()
     }
@@ -191,8 +201,9 @@ open class FunctionInlining(
         val parent: IrDeclarationParent?,
         val context: CommonBackendContext,
         private val inlineFunctionResolver: InlineFunctionResolver,
+        private val observer: InlineFunctionBodyCopyingObserver,
         private val insertAdditionalImplicitCasts: Boolean,
-        private val produceOuterThisFields: Boolean
+        private val produceOuterThisFields: Boolean,
     ) {
         private val elementsWithLocationToPatch = hashSetOf<IrGetValue>()
 
@@ -206,7 +217,7 @@ open class FunctionInlining(
                 (0 until callSite.typeArgumentsCount).associate {
                     typeParameters[it].symbol to callSite.getTypeArgument(it)
                 }
-            InlineFunctionBodyPreprocessor(typeArguments, parent, inlineFunctionResolver.callInlinerStrategy)
+            InlineFunctionBodyPreprocessor(observer, typeArguments, parent, inlineFunctionResolver.callInlinerStrategy)
         }
 
         val substituteMap = mutableMapOf<IrValueParameter, IrExpression>()
