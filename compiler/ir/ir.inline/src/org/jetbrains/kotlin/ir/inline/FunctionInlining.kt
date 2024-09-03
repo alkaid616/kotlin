@@ -62,6 +62,8 @@ abstract class InlineFunctionResolver {
         get() = CallInlinerStrategy.DEFAULT
     open val allowExternalInlining: Boolean
         get() = false
+    open val preCodegenInlining: Boolean
+        get() = false
 
     open fun needsInlining(function: IrFunction) = function.isInline && (allowExternalInlining || !function.isExternal)
 
@@ -244,14 +246,16 @@ open class FunctionInlining(
              */
             val irBuilder = context.createIrBuilder(irReturnableBlockSymbol, endOffset, endOffset)
 
+            val returnType = if (inlineFunctionResolver.preCodegenInlining) callee.returnType else callSite.type
+
             val transformer = ParameterSubstitutor()
             val newStatements = statements.map { it.transform(transformer, data = null) as IrStatement }
 
             val inlinedBlock = IrInlinedFunctionBlockImpl(
                 startOffset = callSite.startOffset,
                 endOffset = callSite.endOffset,
-                type = callSite.type,
-                inlineFunction = callee.originalFunction,
+                type = returnType,
+                inlineFunction = if (inlineFunctionResolver.preCodegenInlining) callee else callee.originalFunction,
                 origin = null,
                 statements = evaluationStatements + newStatements
             ).apply {
@@ -267,7 +271,7 @@ open class FunctionInlining(
             return IrReturnableBlockImpl(
                 startOffset = callSite.startOffset,
                 endOffset = callSite.endOffset,
-                type = callSite.type,
+                type = returnType,
                 symbol = irReturnableBlockSymbol,
                 origin = null,
                 statements = listOf(inlinedBlock),
@@ -277,7 +281,7 @@ open class FunctionInlining(
                         expression.transformChildrenVoid(this)
 
                         if (expression.returnTargetSymbol == copiedCallee.symbol) {
-                            val expr = expression.value.doImplicitCastIfNeededTo(callSite.type)
+                            val expr = expression.value.doImplicitCastIfNeededTo(returnType)
                             return irBuilder.at(expression).irReturn(expr)
                         }
                         return expression
@@ -710,7 +714,7 @@ open class FunctionInlining(
                  * For simplicity and to produce simpler IR we don't create temporaries for every immutable variable,
                  * not only for those referring to inlinable lambdas.
                  */
-                if (argument.isInlinableLambdaArgument || argument.isInlinablePropertyReference) {
+                if ((argument.isInlinableLambdaArgument || argument.isInlinablePropertyReference) && !inlineFunctionResolver.preCodegenInlining) {
                     substituteMap[parameter] = argument.argumentExpression
                     val arg = argument.argumentExpression
                     when {
@@ -764,7 +768,8 @@ open class FunctionInlining(
         }
 
         private fun ParameterToArgument.doesNotNeedTemporaryVariable(): Boolean =
-            argumentExpression.isPure(false, context = context) && parameter.isInlineParameter()
+            argumentExpression.isPure(false, context = context)
+                    && (inlineFunctionResolver.preCodegenInlining || parameter.isInlineParameter())
 
         private fun createTemporaryVariable(
             parameter: IrValueParameter,
