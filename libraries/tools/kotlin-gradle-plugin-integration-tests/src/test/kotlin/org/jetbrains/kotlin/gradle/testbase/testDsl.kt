@@ -516,6 +516,9 @@ private fun commonBuildSetup(
         .values
         .sortedWith(compareBy { it.toString() })
         .joinToString(separator = ",")
+
+    val gradleJvmOptions = collectGradleJvmOptions(enableGradleDaemonMemoryLimitInMb, buildOptions.useFileLeakDetectorToFile)
+
     return buildOptions.toArguments(gradleVersion) + buildArguments + listOfNotNull(
         // Required toolchains should be pre-installed via repo. Tests should not download any JDKs
         "-Porg.gradle.java.installations.auto-download=false",
@@ -526,9 +529,9 @@ private fun commonBuildSetup(
         // Decreasing Gradle daemon idle timeout to 1 min from default 3 hours.
         // This should help with OOM on CI when agents do not have enough free memory available.
         "-Dorg.gradle.daemon.idletimeout=60000",
-        if (enableGradleDaemonMemoryLimitInMb != null) {
+        if (gradleJvmOptions.isNotEmpty()) {
             // Limiting Gradle daemon heap size to reduce memory pressure on CI agents
-            "-Dorg.gradle.jvmargs=-Xmx${enableGradleDaemonMemoryLimitInMb}m"
+            "-Dorg.gradle.jvmargs=${gradleJvmOptions.joinToString(separator = "\" \"", prefix = "\"", postfix = "\"")}"
         } else null,
         if (enableKotlinDaemonMemoryLimitInMb != null) {
             // Limiting Kotlin daemon heap size to reduce memory pressure on CI agents
@@ -543,6 +546,19 @@ private fun commonBuildSetup(
             "-Pkotlin.daemon.jvmargs=-agentlib:jdwp=transport=dt_socket,server=n,suspend=y,address=$it"
         }
     )
+}
+
+private fun collectGradleJvmOptions(
+    enableGradleDaemonMemoryLimitInMb: Int?,
+    useFileLeakDetectorToFile: File?,
+): ArrayList<String> {
+    val gradleJvmOptions = ArrayList<String>()
+    if (useFileLeakDetectorToFile != null) {
+        val fileLeakDetector = File("src/test/resources/common/file-leak-detector-1.15-jar-with-dependencies.jar")
+        gradleJvmOptions.add("-javaagent:${fileLeakDetector.absolutePath}=trace=${useFileLeakDetectorToFile.absolutePath}")
+    }
+    if (enableGradleDaemonMemoryLimitInMb != null) gradleJvmOptions.add("-Xmx${enableGradleDaemonMemoryLimitInMb}m")
+    return gradleJvmOptions
 }
 
 private fun TestProject.withBuildSummary(
@@ -608,7 +624,7 @@ internal fun Path.addDefaultSettingsToSettingsGradle(
     gradleVersion: GradleVersion,
     dependencyManagement: DependencyManagement = DependencyManagement.DefaultDependencyManagement(),
     localRepo: Path? = null,
-    projectIsolationEnabled: Boolean = false
+    projectIsolationEnabled: Boolean = false,
 ) {
     addPluginManagementToSettings()
     when (dependencyManagement) {
@@ -1007,7 +1023,7 @@ fun KGPBaseTest.defaultLocalRepo(gradleVersion: GradleVersion) = workingDir.reso
 
 fun enableConfigurationCacheSinceGradle(
     sinceGradleVersion: String,
-    currentGradleVersion: GradleVersion
+    currentGradleVersion: GradleVersion,
 ): BuildOptions.ConfigurationCacheValue =
     if (currentGradleVersion >= GradleVersion.version(sinceGradleVersion)) BuildOptions.ConfigurationCacheValue.ENABLED else BuildOptions.ConfigurationCacheValue.AUTO
 

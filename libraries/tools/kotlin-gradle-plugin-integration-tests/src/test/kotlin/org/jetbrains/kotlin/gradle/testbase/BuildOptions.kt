@@ -16,6 +16,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompilerExecutionStrategy
 import org.jetbrains.kotlin.gradle.report.BuildReportType
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.toLowerCaseAsciiOnly
 import org.junit.jupiter.api.condition.OS
+import java.io.File
 import java.nio.file.Path
 import java.util.*
 import kotlin.io.path.absolutePathString
@@ -60,6 +61,7 @@ data class BuildOptions(
     val kotlinUserHome: Path? = testKitDir.resolve(".kotlin"),
     val compilerArgumentsLogLevel: String? = "info",
     val kmpIsolatedProjectsSupport: KmpIsolatedProjectsSupport? = null,
+    val useFileLeakDetectorToFile: File? = null,
 ) {
     enum class ConfigurationCacheValue {
         DISABLED,
