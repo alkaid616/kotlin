@@ -5,7 +5,7 @@
 
 package org.jetbrains.kotlin.gradle.targets.js.binaryen
 
-import org.gradle.api.file.DirectoryProperty
+
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
