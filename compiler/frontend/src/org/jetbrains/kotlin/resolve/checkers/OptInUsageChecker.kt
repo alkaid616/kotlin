@@ -47,6 +47,7 @@ import org.jetbrains.kotlin.resolve.deprecation.DeprecationResolver
 import org.jetbrains.kotlin.resolve.deprecation.DeprecationSettings
 import org.jetbrains.kotlin.resolve.descriptorUtil.annotationClass
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
+import org.jetbrains.kotlin.resolve.descriptorUtil.module
 import org.jetbrains.kotlin.resolve.sam.SamConstructorDescriptor
 import org.jetbrains.kotlin.storage.LockBasedStorageManager
 import org.jetbrains.kotlin.types.AbbreviatedType
@@ -206,7 +207,7 @@ class OptInUsageChecker : CallChecker {
                 if (optInMarker != null) {
                     result.addIfNotNull(optInMarker)
                 } else if (fromSupertype) {
-                    result.addAll(annotation.loadSubclassOptInRequired(context))
+                    result.addAll(annotation.loadSubclassOptInRequired(module))
                 }
             }
 
@@ -296,12 +297,11 @@ class OptInUsageChecker : CallChecker {
             return OptInDescription(fqNameSafe, severity, message, subclassesOnly)
         }
 
-        private fun AnnotationDescriptor.loadSubclassOptInRequired(context: BindingContext?): List<OptInDescription> {
+        private fun AnnotationDescriptor.loadSubclassOptInRequired(module: ModuleDescriptor): List<OptInDescription> {
             if (this.fqName != SUBCLASS_OPT_IN_REQUIRED_FQ_NAME) return emptyList()
             val markerClass = getOptInAnnotationArgs(this)
             return markerClass.mapNotNull { constant ->
-                val klass = constant.value as? KClassValue.Value.NormalClass ?: return@mapNotNull null
-                val markerDescriptor = context?.get(BindingContext.FQNAME_TO_CLASS_DESCRIPTOR, klass.classId.asSingleFqName().toUnsafe())
+                val markerDescriptor = (constant as? KClassValue)?.getArgumentType(module)?.constructor?.declarationDescriptor as? ClassDescriptor
                 markerDescriptor?.loadOptInForMarkerAnnotation(subclassesOnly = true)
             }
         }
