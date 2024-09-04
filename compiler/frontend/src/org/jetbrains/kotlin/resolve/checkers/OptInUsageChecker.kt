@@ -40,10 +40,8 @@ import org.jetbrains.kotlin.resolve.checkers.OptInNames.REQUIRES_OPT_IN_FQ_NAME
 import org.jetbrains.kotlin.resolve.checkers.OptInNames.SUBCLASS_OPT_IN_REQUIRED_FQ_NAME
 import org.jetbrains.kotlin.resolve.checkers.OptInNames.OPT_IN_ANNOTATION_CLASS
 import org.jetbrains.kotlin.resolve.checkers.OptInNames.WAS_EXPERIMENTAL_FQ_NAME
-import org.jetbrains.kotlin.resolve.constants.ArrayValue
-import org.jetbrains.kotlin.resolve.constants.EnumValue
-import org.jetbrains.kotlin.resolve.constants.KClassValue
-import org.jetbrains.kotlin.resolve.constants.StringValue
+import org.jetbrains.kotlin.resolve.checkers.OptInUsageCheckerUtils.getOptInAnnotationArgs
+import org.jetbrains.kotlin.resolve.constants.*
 import org.jetbrains.kotlin.resolve.deprecation.DeprecationLevelValue
 import org.jetbrains.kotlin.resolve.deprecation.DeprecationResolver
 import org.jetbrains.kotlin.resolve.deprecation.DeprecationSettings
@@ -204,10 +202,12 @@ class OptInUsageChecker : CallChecker {
             }
 
             for (annotation in annotations) {
-                result.addIfNotNull(
-                    annotation.annotationClass?.loadOptInForMarkerAnnotation(useFutureError)
-                        ?: if (fromSupertype) annotation.loadSubclassOptInRequired(context) else null
-                )
+                val optInMarker = annotation.annotationClass?.loadOptInForMarkerAnnotation(useFutureError)
+                if (optInMarker != null) {
+                    result.addIfNotNull(optInMarker)
+                } else if (fromSupertype) {
+                    result.addAll(annotation.loadSubclassOptInRequired(context))
+                }
             }
 
             if (this is CallableDescriptor && this !is ClassConstructorDescriptor) {
@@ -296,14 +296,14 @@ class OptInUsageChecker : CallChecker {
             return OptInDescription(fqNameSafe, severity, message, subclassesOnly)
         }
 
-        private fun AnnotationDescriptor.loadSubclassOptInRequired(context: BindingContext?): OptInDescription? {
-            if (this.fqName != SUBCLASS_OPT_IN_REQUIRED_FQ_NAME) return null
-            val markerClass = allValueArguments[OPT_IN_ANNOTATION_CLASS]
-            if (markerClass !is KClassValue) return null
-            val value = markerClass.value
-            if (value !is KClassValue.Value.NormalClass) return null
-            val markerDescriptor = context?.get(BindingContext.FQNAME_TO_CLASS_DESCRIPTOR, value.classId.asSingleFqName().toUnsafe())
-            return markerDescriptor?.loadOptInForMarkerAnnotation(subclassesOnly = true)
+        private fun AnnotationDescriptor.loadSubclassOptInRequired(context: BindingContext?): List<OptInDescription> {
+            if (this.fqName != SUBCLASS_OPT_IN_REQUIRED_FQ_NAME) return emptyList()
+            val markerClass = getOptInAnnotationArgs(this)
+            return markerClass.mapNotNull { constant ->
+                val klass = constant.value as? KClassValue.Value.NormalClass ?: return@mapNotNull null
+                val markerDescriptor = context?.get(BindingContext.FQNAME_TO_CLASS_DESCRIPTOR, klass.classId.asSingleFqName().toUnsafe())
+                markerDescriptor?.loadOptInForMarkerAnnotation(subclassesOnly = true)
+            }
         }
 
         private fun PsiElement.isOptInAllowed(annotationFqName: FqName, context: CheckerContext, subclassesOnly: Boolean): Boolean =
@@ -366,10 +366,10 @@ class OptInUsageChecker : CallChecker {
             return this is KtAnnotated && annotationEntries.any { entry ->
                 val descriptor = bindingContext.get(BindingContext.ANNOTATION, entry)
                 if (descriptor != null && descriptor.fqName == SUBCLASS_OPT_IN_REQUIRED_FQ_NAME) {
-                    val annotationClass = descriptor.allValueArguments[OPT_IN_ANNOTATION_CLASS]
-                    annotationClass is KClassValue && annotationClass.value.let { value ->
-                        value is KClassValue.Value.NormalClass &&
-                                value.classId.asSingleFqName() == annotationFqName && value.arrayDimensions == 0
+                    val annotationClasses = getOptInAnnotationArgs(descriptor)
+                    annotationClasses.any { constant ->
+                        val klass = constant.value as? KClassValue.Value.NormalClass ?: return false
+                        klass.classId.asSingleFqName() == annotationFqName && klass.arrayDimensions == 0
                     }
                 } else false
             }
