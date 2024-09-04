@@ -65,7 +65,7 @@ open class D8Plugin : Plugin<Project> {
     companion object {
         const val TASKS_GROUP_NAME: String = "d8"
 
-        // uncomment after bootstrap and changes inside setupV8
+        // To prevent Kotlin build from failing (due to `-Werror`), only internalize after upgrade of bootstrap version
 //        @InternalKotlinGradlePluginApi
         fun apply(project: Project): D8Extension {
             project.plugins.apply(D8Plugin::class.java)

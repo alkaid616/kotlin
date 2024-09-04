@@ -49,56 +49,50 @@ open class NodeJsRootExtension(
         project.logger.kotlinInfo("Storing cached files in $it")
     }
 
-    @Suppress("DEPRECATION")
     @Deprecated(
         "Use installationDir from NodeJsExtension (not NodeJsRootExtension) instead." +
                 "You can find this extension after applying NodeJsPlugin. This will be removed in 2.2"
     )
     var installationDir: File = gradleHome.resolve("nodejs")
 
-    @Suppress("DEPRECATION")
     @Deprecated(
         "Use download from NodeJsExtension (not NodeJsRootExtension) instead" +
                 "You can find this extension after applying NodeJsPlugin. This will be removed in 2.2"
     )
     var download = true
 
-    @Suppress("DEPRECATION")
     @Deprecated(
         "Use downloadBaseUrl from NodeJsExtension (not NodeJsRootExtension) instead" +
                 "You can find this extension after applying NodeJsPlugin. This will be removed in 2.2"
     )
     var nodeDownloadBaseUrl by ::downloadBaseUrl
 
-    @Suppress("DEPRECATION")
+    // To prevent Kotlin build from failing (due to `-Werror`), only deprecate after upgrade of bootstrap version
 //    @Deprecated(
 //        "Use downloadBaseUrl from NodeJsExtension (not NodeJsRootExtension) instead" +
 //                "You can find this extension after applying NodeJsPlugin. This will be removed in 2.2"
 //    )
     var downloadBaseUrl: String? = "https://nodejs.org/dist"
 
-    @Suppress("DEPRECATION")
     @Deprecated(
         "Use version from NodeJsExtension (not NodeJsRootExtension) instead" +
                 "You can find this extension after applying NodeJsPlugin. This will be removed in 2.2"
     )
     var nodeVersion by ::version
 
-    @Suppress("DEPRECATION")
+    // To prevent Kotlin build from failing (due to `-Werror`), only deprecate after upgrade of bootstrap version
 //    @Deprecated(
 //        "Use downloadBaseUrl from NodeJsExtension (not NodeJsRootExtension) instead" +
 //                "You can find this extension after applying NodeJsPlugin. This will be removed in 2.2"
 //    )
     var version = "22.0.0"
 
-    @Suppress("DEPRECATION")
     @Deprecated(
         "Use command from NodeJsExtension (not NodeJsRootExtension) instead" +
                 "You can find this extension after applying NodeJsPlugin. This will be removed in 2.2"
     )
     var command = "node"
 
-    @Suppress("DEPRECATION")
     @Deprecated(
         "Use command from NodeJsExtension (not NodeJsRootExtension) instead" +
                 "You can find this extension after applying NodeJsPlugin. This will be removed in 2.2"
