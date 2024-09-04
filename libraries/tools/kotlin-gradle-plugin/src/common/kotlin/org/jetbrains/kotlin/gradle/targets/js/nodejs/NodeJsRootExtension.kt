@@ -93,6 +93,7 @@ open class NodeJsRootExtension(
     )
     var command = "node"
 
+    @Suppress("DEPRECATION")
     @Deprecated(
         "Use command from NodeJsExtension (not NodeJsRootExtension) instead" +
                 "You can find this extension after applying NodeJsPlugin. This will be removed in 2.2"
