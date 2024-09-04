@@ -7,6 +7,7 @@ package org.jetbrains.kotlin.sir.bridge.impl
 
 import org.jetbrains.kotlin.sir.*
 import org.jetbrains.kotlin.sir.bridge.*
+import org.jetbrains.kotlin.sir.mangler.mangledName
 import org.jetbrains.kotlin.sir.util.*
 
 private const val exportAnnotationFqName = "kotlin.native.internal.ExportedBridge"
@@ -17,6 +18,7 @@ private const val foundationHeader = "Foundation/Foundation.h"
 internal class BridgeGeneratorImpl(private val typeNamer: SirTypeNamer) : BridgeGenerator {
     override fun generateBridges(request: BridgeRequest): List<GeneratedBridge> = when (request) {
         is FunctionBridgeRequest -> generateFunctionBridges(request)
+        is TypeBindingBridgeRequest -> listOf(generateTypeBindingBridge(request))
     }
 
     private fun generateFunctionBridges(request: FunctionBridgeRequest) = buildList {
@@ -71,6 +73,15 @@ internal class BridgeGeneratorImpl(private val typeNamer: SirTypeNamer) : Bridge
             }
         }
     })
+
+    private fun generateTypeBindingBridge(request: TypeBindingBridgeRequest): TypeBindingBridge {
+        val annotationName = "kotlin.native.internal.objc.BindClassToObjCName"
+        val kotlinType = request.kotlinTypeFqName.joinToString(separator = ".")
+        val swiftName = request.sirClass.mangledName
+        return TypeBindingBridge(
+            kotlinFileAnnotation = "$annotationName($kotlinType::class, \"$swiftName\")"
+        )
+    }
 }
 
 private class BridgeFunctionDescriptor(
