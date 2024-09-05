@@ -9,12 +9,9 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.PsiErrorElement
 import org.jetbrains.kotlin.KtRealPsiSourceElement
 import org.jetbrains.kotlin.analysis.api.compile.CodeFragmentCapturedValue
-import org.jetbrains.kotlin.analysis.api.components.KaCodeCompilationException
-import org.jetbrains.kotlin.analysis.api.components.KaCompilationResult
-import org.jetbrains.kotlin.analysis.api.components.KaCompilerFacility
+import org.jetbrains.kotlin.analysis.api.components.*
 import org.jetbrains.kotlin.analysis.api.components.KaCompilerFacility.Companion.CODE_FRAGMENT_CLASS_NAME
 import org.jetbrains.kotlin.analysis.api.components.KaCompilerFacility.Companion.CODE_FRAGMENT_METHOD_NAME
-import org.jetbrains.kotlin.analysis.api.components.KaCompilerTarget
 import org.jetbrains.kotlin.analysis.api.diagnostics.KaDiagnostic
 import org.jetbrains.kotlin.analysis.api.diagnostics.KaDiagnosticWithPsi
 import org.jetbrains.kotlin.analysis.api.fir.KaFirSession
@@ -32,6 +29,7 @@ import org.jetbrains.kotlin.analysis.low.level.api.fir.projectStructure.llFirMod
 import org.jetbrains.kotlin.analysis.low.level.api.fir.sessions.LLFirSession
 import org.jetbrains.kotlin.analysis.low.level.api.fir.sessions.llFirSession
 import org.jetbrains.kotlin.analysis.low.level.api.fir.util.codeFragment
+import org.jetbrains.kotlin.analysis.low.level.api.fir.util.getContainingFile
 import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
 import org.jetbrains.kotlin.backend.common.phaser.PhaseConfig
 import org.jetbrains.kotlin.backend.jvm.*
@@ -43,12 +41,23 @@ import org.jetbrains.kotlin.config.CommonConfigurationKeys
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.config.messageCollector
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
-import org.jetbrains.kotlin.diagnostics.*
+import org.jetbrains.kotlin.diagnostics.DiagnosticMarker
+import org.jetbrains.kotlin.diagnostics.DiagnosticReporterFactory
+import org.jetbrains.kotlin.diagnostics.KtPsiDiagnostic
+import org.jetbrains.kotlin.diagnostics.Severity
 import org.jetbrains.kotlin.diagnostics.impl.BaseDiagnosticsCollector
+import org.jetbrains.kotlin.fileClasses.javaFileFacadeFqName
+import org.jetbrains.kotlin.fir.FirElement
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.analysis.diagnostics.toFirDiagnostics
-import org.jetbrains.kotlin.fir.backend.*
-import org.jetbrains.kotlin.fir.backend.jvm.*
+import org.jetbrains.kotlin.fir.backend.Fir2IrConfiguration
+import org.jetbrains.kotlin.fir.backend.Fir2IrConversionScope
+import org.jetbrains.kotlin.fir.backend.Fir2IrExtensions
+import org.jetbrains.kotlin.fir.backend.FirMetadataSource
+import org.jetbrains.kotlin.fir.backend.jvm.FirJvmBackendExtension
+import org.jetbrains.kotlin.fir.backend.jvm.FirJvmBuiltinProviderActualDeclarationExtractor
+import org.jetbrains.kotlin.fir.backend.jvm.FirJvmVisibilityConverter
+import org.jetbrains.kotlin.fir.backend.jvm.JvmFir2IrExtensions
 import org.jetbrains.kotlin.fir.backend.utils.CodeFragmentConversionData
 import org.jetbrains.kotlin.fir.backend.utils.InjectedValue
 import org.jetbrains.kotlin.fir.backend.utils.conversionData
@@ -57,16 +66,22 @@ import org.jetbrains.kotlin.fir.declarations.FirFile
 import org.jetbrains.kotlin.fir.declarations.FirFunction
 import org.jetbrains.kotlin.fir.declarations.FirResolvePhase
 import org.jetbrains.kotlin.fir.declarations.utils.hasBody
+import org.jetbrains.kotlin.fir.declarations.utils.isInline
 import org.jetbrains.kotlin.fir.diagnostics.ConeSyntaxDiagnostic
+import org.jetbrains.kotlin.fir.expressions.FirCallableReferenceAccess
+import org.jetbrains.kotlin.fir.expressions.FirFunctionCall
 import org.jetbrains.kotlin.fir.languageVersionSettings
 import org.jetbrains.kotlin.fir.lazy.AbstractFir2IrLazyDeclaration
 import org.jetbrains.kotlin.fir.pipeline.*
 import org.jetbrains.kotlin.fir.psi
 import org.jetbrains.kotlin.fir.references.FirReference
 import org.jetbrains.kotlin.fir.references.FirThisReference
+import org.jetbrains.kotlin.fir.references.symbol
 import org.jetbrains.kotlin.fir.references.toResolvedSymbol
 import org.jetbrains.kotlin.fir.symbols.FirBasedSymbol
+import org.jetbrains.kotlin.fir.symbols.impl.FirNamedFunctionSymbol
 import org.jetbrains.kotlin.fir.symbols.lazyResolveToPhaseRecursively
+import org.jetbrains.kotlin.fir.visitors.FirVisitorVoid
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.PsiIrFileEntry
@@ -107,10 +122,11 @@ internal class KaFirCompilerFacility(
         file: KtFile,
         configuration: CompilerConfiguration,
         target: KaCompilerTarget,
-        allowedErrorFilter: (KaDiagnostic) -> Boolean
+        allowedErrorFilter: (KaDiagnostic) -> Boolean,
+        prebuiltDependencies: KaPrebuiltDependencies?
     ): KaCompilationResult = withValidityAssertion {
         try {
-            compileUnsafe(file, configuration, target, allowedErrorFilter)
+            compileUnsafe(file, configuration, target, allowedErrorFilter, prebuiltDependencies)
         } catch (e: Throwable) {
             rethrowIntellijPlatformExceptionIfNeeded(e)
             throw KaCodeCompilationException(e)
@@ -121,7 +137,8 @@ internal class KaFirCompilerFacility(
         file: KtFile,
         configuration: CompilerConfiguration,
         target: KaCompilerTarget,
-        allowedErrorFilter: (KaDiagnostic) -> Boolean
+        allowedErrorFilter: (KaDiagnostic) -> Boolean,
+        prebuiltDependencies: KaPrebuiltDependencies?
     ): KaCompilationResult {
         val classBuilderFactory = when (target) {
             is KaCompilerTarget.Jvm -> target.classBuilderFactory
@@ -190,6 +207,10 @@ internal class KaFirCompilerFacility(
                 )
             }
 
+        val inlineFuncDependencyByteArray = prebuiltDependencies?.classNameToByteArray ?: compileDependencyFilesContainingInline(
+            mainFirFile, dependencyFiles, configuration, target, allowedErrorFilter
+        )
+
         val targetConfiguration = configuration
             .copy()
             .apply {
@@ -233,6 +254,10 @@ internal class KaFirCompilerFacility(
             .codegenFactory(codegenFactory)
             .diagnosticReporter(diagnosticReporter)
             .build()
+
+        inlineFuncDependencyByteArray.forEach { (className, compileResult) ->
+            generationState.inlineCache.classBytes.put(className, compileResult)
+        }
 
         try {
             generationState.beforeCompile()
@@ -284,6 +309,57 @@ internal class KaFirCompilerFacility(
         }
     }
 
+    private fun collectInlineFuncInDependency(mainFirFile: FirFile, dependencyFiles: List<KtFile>): List<KtFile> {
+        val dependencyFilesContainingInline = mutableListOf<KtFile>()
+        mainFirFile.accept(object : FirVisitorVoid() {
+            override fun visitElement(element: FirElement) {
+                element.acceptChildren(this)
+            }
+
+            override fun visitFunctionCall(functionCall: FirFunctionCall) {
+                super.visitFunctionCall(functionCall)
+                val symbol = functionCall.calleeReference.symbol as? FirNamedFunctionSymbol ?: return
+                collectKtFileContainingInlineFunction(symbol.fir)
+            }
+
+            override fun visitCallableReferenceAccess(callableReferenceAccess: FirCallableReferenceAccess) {
+                super.visitCallableReferenceAccess(callableReferenceAccess)
+                val symbol = callableReferenceAccess.calleeReference.symbol as? FirNamedFunctionSymbol ?: return
+                collectKtFileContainingInlineFunction(symbol.fir)
+            }
+
+            private fun collectKtFileContainingInlineFunction(fir: FirFunction) {
+                if (fir.isInline) {
+                    fir.getContainingFile()?.psi?.let { psi ->
+                        if (psi is KtFile && psi in dependencyFiles) dependencyFilesContainingInline.add(psi)
+                    }
+                }
+            }
+        })
+        return dependencyFilesContainingInline
+    }
+
+    private fun compileDependencyFilesContainingInline(
+        mainFirFile: FirFile, dependencyFiles: List<KtFile>,
+        configuration: CompilerConfiguration,
+        target: KaCompilerTarget,
+        allowedErrorFilter: (KaDiagnostic) -> Boolean,
+    ): Map<String, ByteArray> {
+        val dependencyFilesContainingInline = collectInlineFuncInDependency(mainFirFile, dependencyFiles)
+        val classNameToByteArray = mutableMapOf<String, ByteArray>()
+        dependencyFilesContainingInline.forEach { dependencyFile ->
+            val className = dependencyFile.javaFileFacadeFqName.toString().replace(".", "/").let {
+                if (it.endsWith("Kt")) it.substringBeforeLast("Kt")
+                else it
+            }
+            val compileResult = compileUnsafe(dependencyFile, configuration, target, allowedErrorFilter, null)
+            val artifact = compileResult as? KaCompilationResult.Success ?: return@forEach
+            val compiledFile = artifact.output.firstOrNull { it.path == "$className.class" } ?: return@forEach
+            classNameToByteArray[className] = compiledFile.content
+        }
+        return classNameToByteArray
+    }
+
     private fun runFir2Ir(
         session: LLFirSession,
         firFiles: List<FirFile>,
@@ -292,7 +368,8 @@ internal class KaFirCompilerFacility(
         effectiveConfiguration: CompilerConfiguration,
         irGeneratorExtensions: List<IrGenerationExtension>
     ): Fir2IrActualizedResult {
-        val fir2IrConfiguration = Fir2IrConfiguration.forAnalysisApi(effectiveConfiguration, session.languageVersionSettings, diagnosticReporter)
+        val fir2IrConfiguration =
+            Fir2IrConfiguration.forAnalysisApi(effectiveConfiguration, session.languageVersionSettings, diagnosticReporter)
         val firResult = FirResult(listOf(ModuleCompilerAnalyzedOutput(session, session.getScopeSession(), firFiles)))
 
         return firResult.convertToIrAndActualize(

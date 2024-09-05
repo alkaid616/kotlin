@@ -92,6 +92,47 @@ public sealed class KaCompilerTarget {
 @Deprecated("Use 'KaCompilerTarget' instead.", replaceWith = ReplaceWith("KaCompilerTarget"))
 public typealias KtCompilerTarget = KaCompilerTarget
 
+/**
+ * A class to keep [ByteArray] of dependencies. The key of [classNameToByteArray] is the class name for the [ByteArray].
+ *
+ * For example, to provide the prebuilt byte-array of `Foo.kt` file in `com.example.foo` package, [classNameToByteArray] has to
+ * keep `com/example/foo/Foo` as a key and its byte-array as a value.
+ *
+ * Generally, [KaCompilerFacility.compile] handles dependencies by running only FIR2IR for the dependency files. However, when a
+ * dependency file is a part of a source library module, and it contains an inline function, it must do more to generate JVM IR.
+ * Otherwise, the JVM IR generation backend will crash because of the missing JVM IR class containing the inline function.
+ *
+ * To handle source lib modules containing inline functions, [KaCompilerFacility.compile] internally conducts the following
+ * additional steps:
+ *  1. Recursively visit FIR for the file given to [KaCompilerFacility.compile] and collect inline functions for calls/references
+ *     that are declared in source lib modules.
+ *  2. Generate JVM IR for the inline functions, which recursively calls [KaCompilerFacility.compile], and use them to inline the
+ *     calls and references in the target file for the JVM IR generation.
+ *
+ * Since the above steps can be heavy, [KaCompilerFacility.compile] takes an optional parameter whose type is this class that
+ * provides the byte-array for the inline function dependencies. For example, the user of [KaCompilerFacility.compile] can keep
+ * the compile result of inline function dependency as `Map<String, ByteArray>` and reuse it many times like:
+ * ```
+ * analyze(mainFile) {
+ *   val classNameToByteArray = mutableMapOf<String, ByteArray>()
+ *   val result = compile(inlineFunctionFile, compilerConfiguration, target, allowedErrorFilter)
+ *   ... fill classNameToByteArray with result ...
+ *   compile(mainFile, compilerConfiguration, target, allowedErrorFilter, KaPrebuiltDependencies(classNameToByteArray))
+ *   compile(anotherMainFile, compilerConfiguration, target, allowedErrorFilter, KaPrebuiltDependencies(classNameToByteArray))
+ * }
+ * ```
+ * or
+ * ```
+ * val classNameToByteArray = ... read from CLI compile artifacts ...
+ * analyze(mainFile) {
+ *   compile(mainFile, compilerConfiguration, target, allowedErrorFilter, KaPrebuiltDependencies(classNameToByteArray))
+ *   compile(anotherMainFile, compilerConfiguration, target, allowedErrorFilter, KaPrebuiltDependencies(classNameToByteArray))
+ * }
+ * ```
+ */
+@KaExperimentalApi
+public class KaPrebuiltDependencies(public val classNameToByteArray: Map<String, ByteArray>)
+
 @KaExperimentalApi
 public interface KaCompilerFacility {
     public companion object {
@@ -120,6 +161,11 @@ public interface KaCompilerFacility {
      * @param allowedErrorFilter Filter for the allowed errors.
      * Compilation will be aborted if there are errors that this filter rejects.
      *
+     * @param prebuiltDependencies Optional parameter providing prebuilt inline function dependency byte-array.
+     *  If this parameter is null, this function will internally generate JVM IR for dependency inline functions, which may  be heavy
+     *  computation. Optionally, if the user of this API provides a non-null [prebuiltDependencies], this function will use it for
+     *  JVM IR generation for inline functions declared in dependencies.
+     *
      * @return Compilation result.
      *
      * The function rethrows exceptions from the compiler, wrapped in [KaCodeCompilationException].
@@ -131,7 +177,8 @@ public interface KaCompilerFacility {
         file: KtFile,
         configuration: CompilerConfiguration,
         target: KaCompilerTarget,
-        allowedErrorFilter: (KaDiagnostic) -> Boolean
+        allowedErrorFilter: (KaDiagnostic) -> Boolean,
+        prebuiltDependencies: KaPrebuiltDependencies? = null
     ): KaCompilationResult
 }
 

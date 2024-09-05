@@ -7,12 +7,12 @@ package org.jetbrains.kotlin.analysis.api.impl.base.test.cases.components.compil
 
 import com.intellij.openapi.extensions.LoadingOrder
 import org.jetbrains.kotlin.analysis.api.analyze
-import org.jetbrains.kotlin.analysis.api.components.KaCompilationResult
-import org.jetbrains.kotlin.analysis.api.components.KaCompiledFile
-import org.jetbrains.kotlin.analysis.api.components.KaCompilerFacility
-import org.jetbrains.kotlin.analysis.api.components.KaCompilerTarget
+import org.jetbrains.kotlin.analysis.api.components.*
 import org.jetbrains.kotlin.analysis.api.diagnostics.KaDiagnostic
 import org.jetbrains.kotlin.analysis.api.diagnostics.KaDiagnosticWithPsi
+import org.jetbrains.kotlin.analysis.api.projectStructure.KaSourceModule
+import org.jetbrains.kotlin.analysis.api.resolution.singleFunctionCallOrNull
+import org.jetbrains.kotlin.analysis.api.resolution.symbol
 import org.jetbrains.kotlin.analysis.test.framework.base.AbstractAnalysisApiBasedTest
 import org.jetbrains.kotlin.analysis.test.framework.projectStructure.KtTestModule
 import org.jetbrains.kotlin.analysis.test.framework.services.expressionMarkerProvider
@@ -27,6 +27,7 @@ import org.jetbrains.kotlin.codegen.forTestCompile.ForTestCompileRuntime
 import org.jetbrains.kotlin.config.CommonConfigurationKeys
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.config.JVMConfigurationKeys
+import org.jetbrains.kotlin.fileClasses.javaFileFacadeFqName
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors
 import org.jetbrains.kotlin.fir.plugin.services.PluginRuntimeAnnotationsProvider
 import org.jetbrains.kotlin.ir.IrElement
@@ -43,10 +44,7 @@ import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.FqNameUnsafe
-import org.jetbrains.kotlin.psi.KtCodeFragment
-import org.jetbrains.kotlin.psi.KtElement
-import org.jetbrains.kotlin.psi.KtFile
-import org.jetbrains.kotlin.psi.KtPsiFactory
+import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.test.Constructor
 import org.jetbrains.kotlin.test.builders.TestConfigurationBuilder
 import org.jetbrains.kotlin.test.directives.ConfigurationDirectives
@@ -63,7 +61,7 @@ import org.jetbrains.org.objectweb.asm.Opcodes
 import org.jetbrains.org.objectweb.asm.Type
 import org.jetbrains.org.objectweb.asm.tree.ClassNode
 import java.io.File
-import kotlin.test.assertFalse
+import kotlin.reflect.jvm.jvmName
 
 abstract class AbstractFirPluginPrototypeMultiModuleCompilerFacilityTest : AbstractCompilerFacilityTest() {
     override fun extraCustomRuntimeClasspathProviders(): Array<Constructor<RuntimeClasspathProvider>> =
@@ -95,10 +93,6 @@ abstract class AbstractCompilerFacilityTest : AbstractAnalysisApiBasedTest() {
         val annotationToCheckCalls = mainModule.testModule.directives[Directives.CHECK_CALLS_WITH_ANNOTATION].singleOrNull()
         val irCollector = CollectingIrGenerationExtension(annotationToCheckCalls)
 
-        val project = mainFile.project
-        project.extensionArea.getExtensionPoint(IrGenerationExtension.extensionPointName)
-            .registerExtension(irCollector, LoadingOrder.LAST, project)
-
         val compilerConfiguration = CompilerConfiguration().apply {
             put(CommonConfigurationKeys.MODULE_NAME, mainModule.testModule.name)
             put(CommonConfigurationKeys.LANGUAGE_VERSION_SETTINGS, mainModule.testModule.languageVersionSettings)
@@ -111,11 +105,24 @@ abstract class AbstractCompilerFacilityTest : AbstractAnalysisApiBasedTest() {
                 ?.let { put(KaCompilerFacility.CODE_FRAGMENT_METHOD_NAME, it) }
         }
 
-        analyze(mainFile) {
-            val target = KaCompilerTarget.Jvm(ClassBuilderFactories.TEST)
-            val allowedErrorFilter: (KaDiagnostic) -> Boolean = { it.factoryName in ALLOWED_ERRORS }
+        val target = KaCompilerTarget.Jvm(ClassBuilderFactories.TEST)
+        val allowedErrorFilter: (KaDiagnostic) -> Boolean = { it.factoryName in ALLOWED_ERRORS }
 
-            val result = compile(mainFile, compilerConfiguration, target, allowedErrorFilter)
+        var prebuiltDependencies: KaPrebuiltDependencies? = null
+        mainModule.testModule.directives[Directives.PROVIDE_PREBUILT_DEPENDENCIES].singleOrNull()?.let { dependencyClassNames ->
+            val classNameToByteArray = compileDependencyFilesContainingInline(
+                mainFile, mainModule.ktModule as KaSourceModule, compilerConfiguration, target, allowedErrorFilter
+            )
+            assert(dependencyClassNames.split(',') == classNameToByteArray.keys.toList())
+            prebuiltDependencies = KaPrebuiltDependencies(classNameToByteArray)
+        }
+
+        val project = mainFile.project
+        project.extensionArea.getExtensionPoint(IrGenerationExtension.extensionPointName)
+            .registerExtension(irCollector, LoadingOrder.LAST, project)
+
+        analyze(mainFile) {
+            val result = compile(mainFile, compilerConfiguration, target, allowedErrorFilter, prebuiltDependencies)
 
             val actualText = when (result) {
                 is KaCompilationResult.Failure -> result.errors.joinToString("\n") { dumpDiagnostic(it) }
@@ -149,6 +156,47 @@ abstract class AbstractCompilerFacilityTest : AbstractAnalysisApiBasedTest() {
             }
             useCustomRuntimeClasspathProviders(*extraCustomRuntimeClasspathProviders())
         }
+    }
+
+    private fun collectFilesContainingDependencyInlineFunc(file: KtFile, mainModule: KaSourceModule): Set<KtFile> {
+        val filesContainingInlineFunction = mutableSetOf<KtFile>()
+        file.accept(object : KtTreeVisitorVoid() {
+            override fun visitExpression(expression: KtExpression) {
+                super.visitExpression(expression)
+                analyze(expression) {
+                    val symbol = expression.resolveToCall()?.singleFunctionCallOrNull()?.symbol ?: return@analyze
+                    val containingModule = symbol.containingModule as? KaSourceModule ?: return@analyze
+                    if (containingModule != mainModule) {
+                        val ktFileContainingSymbol = symbol.containingFile?.psi?.containingFile as? KtFile ?: return@analyze
+                        filesContainingInlineFunction.add(ktFileContainingSymbol)
+                    }
+                }
+            }
+        })
+        return filesContainingInlineFunction
+    }
+
+    private fun compileDependencyFilesContainingInline(
+        mainFile: KtFile, mainModule: KaSourceModule,
+        configuration: CompilerConfiguration,
+        target: KaCompilerTarget,
+        allowedErrorFilter: (KaDiagnostic) -> Boolean,
+    ): Map<String, ByteArray> {
+        val dependencyFilesContainingInline = collectFilesContainingDependencyInlineFunc(mainFile, mainModule)
+        val classNameToByteArray = mutableMapOf<String, ByteArray>()
+        dependencyFilesContainingInline.forEach { dependencyFile ->
+            val className = dependencyFile.javaFileFacadeFqName.toString().replace(".", "/").let {
+                if (it.endsWith("Kt")) it.substringBeforeLast("Kt")
+                else it
+            }
+            val compileResult = analyze(dependencyFile) {
+                compile(dependencyFile, configuration, target, allowedErrorFilter)
+            }
+            val artifact = compileResult as? KaCompilationResult.Success ?: return@forEach
+            val compiledFile = artifact.output.firstOrNull { it.path == "$className.class" } ?: return@forEach
+            classNameToByteArray[className] = compiledFile.content
+        }
+        return classNameToByteArray
     }
 
     private fun dumpDiagnostic(diagnostic: KaDiagnostic): String {
@@ -215,6 +263,10 @@ abstract class AbstractCompilerFacilityTest : AbstractAnalysisApiBasedTest() {
         val CHECK_CALLS_WITH_ANNOTATION by stringDirective(
             "Check whether all functions of calls and getters of properties with a given annotation are listed in *.check_calls.txt or not"
         )
+
+        val PROVIDE_PREBUILT_DEPENDENCIES by stringDirective(
+            "Class names of prebuilt dependencies to be compiled and kept in ${KaPrebuiltDependencies::class.jvmName}"
+        )
     }
 }
 
@@ -249,14 +301,11 @@ internal fun createCodeFragment(ktFile: KtFile, module: TestModule, testServices
 }
 
 private class CollectingIrGenerationExtension(private val annotationToCheckCalls: String?) : IrGenerationExtension {
-    lateinit var result: String
-        private set
+    var result: String = ""
 
     val functionsWithAnnotationToCheckCalls: MutableSet<String> = mutableSetOf()
 
     override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
-        assertFalse { ::result.isInitialized }
-
         val dumpOptions = DumpIrTreeOptions(
             normalizeNames = true,
             stableOrder = true,
