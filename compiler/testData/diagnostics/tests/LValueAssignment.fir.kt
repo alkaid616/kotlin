@@ -47,8 +47,8 @@ fun cannotBe() {
     <!VARIABLE_EXPECTED!>""<!> = "";
     <!VARIABLE_EXPECTED!>foo()<!> = Unit;
 
-    (<!PARENTHESIZED_LHS_WARNING, VARIABLE_EXPECTED!>i <!USELESS_CAST!>as Int<!><!>) = 34
-    (<!PARENTHESIZED_LHS_WARNING, USELESS_IS_CHECK, VARIABLE_EXPECTED!>i is Int<!>) = false
+    <!PARENTHESIZED_LHS_WARNING!>(<!VARIABLE_EXPECTED!>i <!USELESS_CAST!>as Int<!><!>)<!> = 34
+    <!PARENTHESIZED_LHS_WARNING!>(<!USELESS_IS_CHECK, VARIABLE_EXPECTED!>i is Int<!>)<!> = false
     <!VARIABLE_EXPECTED!>A()<!> = A()
     <!VARIABLE_EXPECTED!>5<!> = 34
 }
@@ -59,19 +59,19 @@ annotation class Ann
 
 fun canBe(i0: Int, j: Int) {
     var i = i0
-    (label@ <!PARENTHESIZED_LHS_WARNING!>i<!>) = 34
+    <!PARENTHESIZED_LHS_WARNING!>(label@ i)<!> = 34
 
-    (label@ <!PARENTHESIZED_LHS_WARNING, VAL_REASSIGNMENT!>j<!>) = 34 //repeat for j
+    <!PARENTHESIZED_LHS_WARNING!>(label@ <!VAL_REASSIGNMENT!>j<!>)<!> = 34 //repeat for j
 
     val a = A()
-    (l@ <!PARENTHESIZED_LHS_WARNING!>a.a<!>) = 3894
+    <!PARENTHESIZED_LHS_WARNING!>(l@ a.a)<!> = 3894
 
     @Ann
-    l@ (<!PARENTHESIZED_LHS_WARNING!>i<!>) = 123
+    l@ <!PARENTHESIZED_LHS_WARNING!>(i)<!> = 123
 }
 
 fun canBe2(j: Int) {
-    (label@ <!PARENTHESIZED_LHS_WARNING, VAL_REASSIGNMENT!>j<!>) = 34
+    <!PARENTHESIZED_LHS_WARNING!>(label@ <!VAL_REASSIGNMENT!>j<!>)<!> = 34
 }
 
 class A() {
@@ -81,10 +81,10 @@ class A() {
 class Test() {
     fun testIllegalValues() {
         <!VARIABLE_EXPECTED!>1<!> += 23
-        (l@ <!PARENTHESIZED_LHS_WARNING, VARIABLE_EXPECTED!>1<!>) += 23
+        <!PARENTHESIZED_LHS_WARNING!>(l@ <!VARIABLE_EXPECTED!>1<!>)<!> += 23
 
         <!VARIABLE_EXPECTED!>getInt()<!> += 343
-        (f@ <!PARENTHESIZED_LHS_WARNING, VARIABLE_EXPECTED!>getInt()<!>) += 343
+        <!PARENTHESIZED_LHS_WARNING!>(f@ <!VARIABLE_EXPECTED!>getInt()<!>)<!> += 343
 
         <!VARIABLE_EXPECTED!>1<!>++
         (r@ <!VARIABLE_EXPECTED!>1<!>)--
@@ -103,7 +103,7 @@ class Test() {
         s += (a@ 2)
 
         @Ann
-        l@ (<!PARENTHESIZED_LHS_WARNING, VARIABLE_EXPECTED!>1<!>) = 123
+        l@ <!PARENTHESIZED_LHS_WARNING!>(<!VARIABLE_EXPECTED!>1<!>)<!> = 123
     }
 
     fun testIncompleteSyntax() {
@@ -116,7 +116,7 @@ class Test() {
         val b: Int = 34
 
         a += 34
-        (l@ <!PARENTHESIZED_LHS_WARNING!>a<!>) += 34
+        <!PARENTHESIZED_LHS_WARNING!>(l@ a)<!> += 34
 
         <!VAL_REASSIGNMENT!>b<!> += 34
 
@@ -131,9 +131,9 @@ class Test() {
     fun testVariables1() {
         val b: Int = 34
 
-        (l@ <!PARENTHESIZED_LHS_WARNING, VAL_REASSIGNMENT!>b<!>) += 34
+        <!PARENTHESIZED_LHS_WARNING!>(l@ <!VAL_REASSIGNMENT!>b<!>)<!> += 34
         //repeat for b
-        (<!PARENTHESIZED_LHS_WARNING, VAL_REASSIGNMENT!>b<!>) += 3
+        <!PARENTHESIZED_LHS_WARNING!>(<!VAL_REASSIGNMENT!>b<!>)<!> += 3
     }
 
     fun testArrays(a: Array<Int>, ab: Ab) {

@@ -17,7 +17,7 @@ fun foo(a: Array<A>) {
 fun bar() {
     var x = ""
 
-    (<!PARENTHESIZED_LHS_ERROR!>x<!>) = ""
+    <!PARENTHESIZED_LHS_ERROR!>(x)<!> = ""
     (x) <!UNRESOLVED_REFERENCE!>+=<!> ""
 }
 

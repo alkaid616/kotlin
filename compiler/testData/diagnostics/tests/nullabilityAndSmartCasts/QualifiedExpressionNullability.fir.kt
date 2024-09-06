@@ -33,8 +33,8 @@ fun main() {
 
     val w: Foo? = null
     w<!UNSAFE_CALL!>.<!>f = z
-    (<!PARENTHESIZED_LHS_WARNING!>w<!UNSAFE_CALL!>.<!>f<!>) = z
-    (label@ <!PARENTHESIZED_LHS_WARNING!>w<!UNSAFE_CALL!>.<!>f<!>) = z
+    <!PARENTHESIZED_LHS_WARNING!>(w<!UNSAFE_CALL!>.<!>f)<!> = z
+    <!PARENTHESIZED_LHS_WARNING!>(label@ w<!UNSAFE_CALL!>.<!>f)<!> = z
     w!!.f = z
     w.f = z
     w<!UNNECESSARY_NOT_NULL_ASSERTION!>!!<!>.f = z

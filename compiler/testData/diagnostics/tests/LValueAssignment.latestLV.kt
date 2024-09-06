@@ -47,8 +47,8 @@ fun cannotBe() {
     <!VARIABLE_EXPECTED!>""<!> = "";
     <!VARIABLE_EXPECTED!>foo()<!> = Unit;
 
-    (<!PARENTHESIZED_LHS_ERROR, VARIABLE_EXPECTED!>i <!USELESS_CAST!>as Int<!><!>) = 34
-    (<!PARENTHESIZED_LHS_ERROR, USELESS_IS_CHECK, VARIABLE_EXPECTED!>i is Int<!>) = false
+    <!PARENTHESIZED_LHS_ERROR!>(<!VARIABLE_EXPECTED!>i <!USELESS_CAST!>as Int<!><!>)<!> = 34
+    <!PARENTHESIZED_LHS_ERROR!>(<!USELESS_IS_CHECK, VARIABLE_EXPECTED!>i is Int<!>)<!> = false
     <!VARIABLE_EXPECTED!>A()<!> = A()
     <!VARIABLE_EXPECTED!>5<!> = 34
 }
@@ -59,19 +59,19 @@ annotation class Ann
 
 fun canBe(i0: Int, j: Int) {
     var i = i0
-    (label@ <!PARENTHESIZED_LHS_ERROR!>i<!>) = 34
+    <!PARENTHESIZED_LHS_ERROR!>(label@ i)<!> = 34
 
-    (label@ <!PARENTHESIZED_LHS_ERROR, VAL_REASSIGNMENT!>j<!>) = 34 //repeat for j
+    <!PARENTHESIZED_LHS_ERROR!>(label@ <!VAL_REASSIGNMENT!>j<!>)<!> = 34 //repeat for j
 
     val a = A()
-    (l@ <!PARENTHESIZED_LHS_ERROR!>a.a<!>) = 3894
+    <!PARENTHESIZED_LHS_ERROR!>(l@ a.a)<!> = 3894
 
     @Ann
-    l@ (<!PARENTHESIZED_LHS_ERROR!>i<!>) = 123
+    l@ <!PARENTHESIZED_LHS_ERROR!>(i)<!> = 123
 }
 
 fun canBe2(j: Int) {
-    (label@ <!PARENTHESIZED_LHS_ERROR, VAL_REASSIGNMENT!>j<!>) = 34
+    <!PARENTHESIZED_LHS_ERROR!>(label@ <!VAL_REASSIGNMENT!>j<!>)<!> = 34
 }
 
 class A() {
@@ -103,7 +103,7 @@ class Test() {
         s += (a@ 2)
 
         @Ann
-        l@ (<!PARENTHESIZED_LHS_ERROR, VARIABLE_EXPECTED!>1<!>) = 123
+        l@ <!PARENTHESIZED_LHS_ERROR!>(<!VARIABLE_EXPECTED!>1<!>)<!> = 123
     }
 
     fun testIncompleteSyntax() {

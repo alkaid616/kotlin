@@ -17,8 +17,8 @@ fun foo(a: Array<A>) {
 fun bar() {
     var x = ""
 
-    (<!PARENTHESIZED_LHS_WARNING!>x<!>) = ""
-    (<!PARENTHESIZED_LHS_WARNING!>x<!>) += ""
+    <!PARENTHESIZED_LHS_WARNING!>(x)<!> = ""
+    <!PARENTHESIZED_LHS_WARNING!>(x)<!> += ""
 }
 
 fun baz() {

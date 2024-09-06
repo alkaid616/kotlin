@@ -16,7 +16,7 @@ fun foo(a: Any?): Int {
 
     var b = 1
 
-    (<!SYNTAX!>@<!> <!PARENTHESIZED_LHS_WARNING!>b<!>) = 2
+    <!PARENTHESIZED_LHS_WARNING!>(<!SYNTAX!>@<!> b)<!> = 2
 
     return<!SYNTAX!>@<!> 1
 }
