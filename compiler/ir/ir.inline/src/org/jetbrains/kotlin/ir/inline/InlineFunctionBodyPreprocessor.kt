@@ -33,7 +33,6 @@ private enum class NonReifiedTypeParameterRemappingMode {
 
 
 internal class InlineFunctionBodyPreprocessor(
-    val observer: InlineFunctionBodyCopyingObserver,
     val typeArguments: Map<IrTypeParameterSymbol, IrType?>?,
     val parent: IrDeclarationParent?,
     val strategy: CallInlinerStrategy,
@@ -181,7 +180,6 @@ internal class InlineFunctionBodyPreprocessor(
 
         override fun visitCall(expression: IrCall): IrCall {
             return super.visitCall(expression).also {
-                observer.onCopiedCall(expression, it)
                 // We can't do it right now, because we need to return IrCall, and postprocessor for Native
                 // want to return IrConstructorCall. In principle this could be done by changing return type in
                 // DeepCopyIrTreeWithSymbols, but that's too invasive.
