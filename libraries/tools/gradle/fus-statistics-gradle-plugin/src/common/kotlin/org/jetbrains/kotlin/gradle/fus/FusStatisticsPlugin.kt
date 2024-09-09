@@ -19,8 +19,10 @@ class FusStatisticsPlugin @Inject constructor() : Plugin<Project> {
         val uidService = BuildUidService.registerIfAbsent(project)
         val fusService = registerGradleBuildFusStatisticsServiceIfAbsent(project, uidService)
         project.afterEvaluate {
-            //force to create build service
-            fusService.get()
+            project.afterEvaluate {
+                //force to create build service
+                fusService.get()
+            }
         }
     }
 }

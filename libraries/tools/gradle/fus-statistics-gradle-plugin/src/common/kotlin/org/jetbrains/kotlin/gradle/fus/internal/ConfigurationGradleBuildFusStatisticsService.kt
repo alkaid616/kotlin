@@ -12,19 +12,19 @@ import org.jetbrains.kotlin.gradle.fus.Metric
 import org.jetbrains.kotlin.gradle.fus.UniqueId
 
 abstract class ConfigurationGradleBuildFusStatisticsService :
-    GradleBuildFusStatisticsService<ConfigurationGradleBuildFusStatisticsService.Parameters>  {
-    interface Parameters : BuildServiceParameters {
-        val configurationMetrics: ListProperty<Metric>
-    }
+    GradleBuildFusStatisticsService<BuildServiceParameters.None> {
+    val configurationMetrics = ArrayList<Metric>()
 
     override fun reportMetric(name: String, value: String, uniqueId: UniqueId) {
-        parameters.configurationMetrics.add(Metric(name, value, uniqueId))
+        configurationMetrics.add(Metric(name, value, uniqueId))
     }
+
     override fun reportMetric(name: String, value: Number, uniqueId: UniqueId) {
-        parameters.configurationMetrics.add(Metric(name, value, uniqueId))
+        configurationMetrics.add(Metric(name, value, uniqueId))
     }
+
     override fun reportMetric(name: String, value: Boolean, uniqueId: UniqueId) {
-        parameters.configurationMetrics.add(Metric(name, value, uniqueId))
+        configurationMetrics.add(Metric(name, value, uniqueId))
     }
 
     override fun close() {

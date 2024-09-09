@@ -48,7 +48,6 @@ private fun registerIfAbsent(project: Project, uidService: Provider<BuildUidServ
     } else {
 
         val configurationGradleBuildFusStatisticsService = project.gradle.sharedServices.registerIfAbsent("configuration_" + serviceName, ConfigurationGradleBuildFusStatisticsService::class.java) {
-            it.parameters.configurationMetrics.empty()
         }
 
         project.gradle.sharedServices.registerIfAbsent(serviceName, InternalGradleBuildFusStatisticsService::class.java) {
@@ -56,7 +55,7 @@ private fun registerIfAbsent(project: Project, uidService: Provider<BuildUidServ
             it.parameters.fusStatisticsRootDirPath.disallowChanges()
             it.parameters.fusStatisticIsEnabled.set(statisticsIsEnabled)
             it.parameters.fusStatisticIsEnabled.disallowChanges()
-            it.parameters.configurationMetrics.set(configurationGradleBuildFusStatisticsService.map { it.parameters.configurationMetrics.get() })
+            it.parameters.configurationMetrics.set(configurationGradleBuildFusStatisticsService.map { it.configurationMetrics })
             it.parameters.useBuildFinishFlowAction.set(GradleVersion.current().baseVersion >= GradleVersion.version("8.1"))
             it.parameters.buildUidService.set(uidService)
             it.parameters.buildUidService.disallowChanges()
