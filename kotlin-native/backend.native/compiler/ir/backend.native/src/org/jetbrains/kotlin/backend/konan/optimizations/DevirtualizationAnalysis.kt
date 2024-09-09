@@ -24,6 +24,7 @@ import org.jetbrains.kotlin.ir.declarations.*
 import org.jetbrains.kotlin.ir.declarations.impl.IrVariableImpl
 import org.jetbrains.kotlin.ir.expressions.*
 import org.jetbrains.kotlin.ir.expressions.impl.*
+import org.jetbrains.kotlin.ir.irAttribute
 import org.jetbrains.kotlin.ir.symbols.IrFunctionSymbol
 import org.jetbrains.kotlin.ir.symbols.impl.IrVariableSymbolImpl
 import org.jetbrains.kotlin.ir.types.IrType
@@ -36,6 +37,8 @@ import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
 import org.jetbrains.kotlin.name.Name
 import java.util.*
 import kotlin.collections.ArrayList
+
+internal var IrCall.devirtualizedCallSite: DevirtualizationAnalysis.DevirtualizedCallSite? by irAttribute(followAttributeOwner = true)
 
 object DevirtualizationUnfoldFactors {
     /**
@@ -424,6 +427,18 @@ internal object DevirtualizationAnalysis {
                 irCallSite?.let { ir2stringWhole(it).trimEnd() } ?: this.toString()
 
         fun analyze(): AnalysisResult {
+            irModule.acceptChildrenVoid(object : IrElementVisitorVoid {
+                override fun visitElement(element: IrElement) {
+                    element.acceptChildrenVoid(this)
+                }
+
+                override fun visitCall(expression: IrCall) {
+                    expression.acceptChildrenVoid(this)
+
+                    expression.attributeOwnerId = expression
+                }
+            })
+
             val functions = moduleDFG.functions
             assert(DataFlowIR.Type.Virtual !in symbolTable.classMap.values) {
                 "DataFlowIR.Type.Virtual cannot be in symbolTable.classMap"
@@ -650,15 +665,16 @@ internal object DevirtualizationAnalysis {
                     }
                     context.log { "" }
 
-                    result[virtualCall] = DevirtualizedCallSite(virtualCall.callee,
+                    val devirtualizedCallSite = DevirtualizedCallSite(virtualCall.callee,
                             possibleReceivers.map { possibleReceiverType ->
                                 val callee = possibleReceiverType.calleeAt(virtualCall)
                                 if (callee is DataFlowIR.FunctionSymbol.Declared && callee.symbolTableIndex < 0)
                                     error("Function ${possibleReceiverType}.$callee cannot be called virtually," +
                                             " but actually is at call site: ${virtualCall.debugString()}")
                                 DevirtualizedCallee(possibleReceiverType, callee)
-                            }) to function.symbol
-
+                            })
+                    result[virtualCall] = devirtualizedCallSite to function.symbol
+                    virtualCall.irCallSite?.devirtualizedCallSite = devirtualizedCallSite
                 }
             }
 
@@ -689,7 +705,7 @@ internal object DevirtualizationAnalysis {
                 }
             }
 
-            return AnalysisResult(result.asSequence().associateBy({ it.key }, { it.value.first }), typeHierarchy)
+            return AnalysisResult(typeHierarchy)
         }
 
         /*
@@ -1337,14 +1353,12 @@ internal object DevirtualizationAnalysis {
 
     class DevirtualizedCallSite(val callee: DataFlowIR.FunctionSymbol, val possibleCallees: List<DevirtualizedCallee>)
 
-    class AnalysisResult(val devirtualizedCallSites: Map<DataFlowIR.Node.VirtualCall, DevirtualizedCallSite>,
-                         val typeHierarchy: DevirtualizationAnalysisImpl.TypeHierarchy)
+    class AnalysisResult(val typeHierarchy: DevirtualizationAnalysisImpl.TypeHierarchy)
 
     fun run(context: Context, irModule: IrModuleFragment, moduleDFG: ModuleDFG) =
             DevirtualizationAnalysisImpl(context, irModule, moduleDFG).analyze()
 
     fun devirtualize(irModule: IrModuleFragment, context: Context,
-                     devirtualizedCallSites: Map<IrCall, DevirtualizedCallSite>,
                      maxVTableUnfoldFactor: Int, maxITableUnfoldFactor: Int) {
         val symbols = context.ir.symbols
         val nativePtrEqualityOperatorSymbol = symbols.areEqualByValue[PrimitiveBinaryType.POINTER]!!
@@ -1486,7 +1500,7 @@ internal object DevirtualizationAnalysis {
 
                 if (expression.superQualifierSymbol == null && expression.symbol.owner.isOverridable)
                     ++callSitesCount
-                val devirtualizedCallSite = devirtualizedCallSites[expression] ?: return expression
+                val devirtualizedCallSite = expression.devirtualizedCallSite ?: return expression
                 val possibleCallees = devirtualizedCallSite.possibleCallees
                         .groupBy { it.callee }
                         .entries.map { entry -> entry.key to entry.value.map { it.receiverType }.distinct() }
