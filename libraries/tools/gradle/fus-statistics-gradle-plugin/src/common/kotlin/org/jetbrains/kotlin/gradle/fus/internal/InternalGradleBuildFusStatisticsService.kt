@@ -26,6 +26,7 @@ abstract class InternalGradleBuildFusStatisticsService :
     interface Parameters : BuildServiceParameters {
         val fusStatisticsRootDirPath: Property<String>
         val configurationMetrics: ListProperty<Metric>
+//        val configurationMetricsService: Property<ConfigurationGradleBuildFusStatisticsService>
         val fusStatisticIsEnabled: Property<Boolean>
         val useBuildFinishFlowAction: Property<Boolean>
         val buildUidService: Property<BuildUidService>

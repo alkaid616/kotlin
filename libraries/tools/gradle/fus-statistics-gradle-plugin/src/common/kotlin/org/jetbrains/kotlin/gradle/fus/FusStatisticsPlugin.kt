@@ -17,6 +17,10 @@ import javax.inject.Inject
 class FusStatisticsPlugin @Inject constructor() : Plugin<Project> {
     override fun apply(project: Project) {
         val uidService = BuildUidService.registerIfAbsent(project)
-        registerGradleBuildFusStatisticsServiceIfAbsent(project, uidService)
+        val fusService = registerGradleBuildFusStatisticsServiceIfAbsent(project, uidService)
+        project.afterEvaluate {
+            //force to create build service
+            fusService.get()
+        }
     }
 }

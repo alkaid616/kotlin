@@ -17,7 +17,7 @@ import org.jetbrains.kotlin.gradle.fus.UsesGradleBuildFusStatisticsService
 private const val statisticsIsEnabled: Boolean = true //KT-59629 Wait for user confirmation before start to collect metrics
 private const val FUS_STATISTICS_PATH = "kotlin.session.logger.root.path"
 private val serviceClass = GradleBuildFusStatisticsService::class.java
-internal val serviceName = "${serviceClass.name}_${serviceClass.classLoader.hashCode()}"
+val serviceName = "${serviceClass.name}_${serviceClass.classLoader.hashCode()}"
 private val log = Logging.getLogger(GradleBuildFusStatisticsService::class.java)
 
 fun registerGradleBuildFusStatisticsServiceIfAbsent(project: Project, uidService: Provider<BuildUidService>): Provider<out GradleBuildFusStatisticsService<out BuildServiceParameters>> {
@@ -46,12 +46,17 @@ private fun registerIfAbsent(project: Project, uidService: Provider<BuildUidServ
         )
         project.gradle.sharedServices.registerIfAbsent(serviceName, NoConsentGradleBuildFusService::class.java) {}
     } else {
+
+        val configurationGradleBuildFusStatisticsService = project.gradle.sharedServices.registerIfAbsent("configuration_" + serviceName, ConfigurationGradleBuildFusStatisticsService::class.java) {
+            it.parameters.configurationMetrics.empty()
+        }
+
         project.gradle.sharedServices.registerIfAbsent(serviceName, InternalGradleBuildFusStatisticsService::class.java) {
             it.parameters.fusStatisticsRootDirPath.set(customPath)
             it.parameters.fusStatisticsRootDirPath.disallowChanges()
             it.parameters.fusStatisticIsEnabled.set(statisticsIsEnabled)
             it.parameters.fusStatisticIsEnabled.disallowChanges()
-            it.parameters.configurationMetrics.empty()
+            it.parameters.configurationMetrics.set(configurationGradleBuildFusStatisticsService.map { it.parameters.configurationMetrics.get() })
             it.parameters.useBuildFinishFlowAction.set(GradleVersion.current().baseVersion >= GradleVersion.version("8.1"))
             it.parameters.buildUidService.set(uidService)
             it.parameters.buildUidService.disallowChanges()
