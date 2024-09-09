@@ -98,4 +98,14 @@ interface TestVersions {
     object DevelocityPlugin {
         const val VERSION = "3.18"
     }
+    object AtomicfuPlugin {
+        const val VERSION = "0.25.0"
+    }
+    object KoverPlugin {
+        const val VERSION = "0.9.0-RC"
+    }
+    object BinaryCompatibilityValidatorPlugin {
+        const val VERSION = "0.16.3"
+    }
+
 }
