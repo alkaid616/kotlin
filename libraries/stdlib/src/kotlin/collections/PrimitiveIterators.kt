@@ -43,7 +43,7 @@ public abstract class ByteIterator : Iterator<Byte> {
 
 
     /**
-     * Returns the next value in the sequence without boxing.
+     * Returns the next element in the iteration without boxing conversion.
      * @throws NoSuchElementException if the iteration has no next element.
      */
     public abstract fun nextByte(): Byte
@@ -84,7 +84,7 @@ public abstract class CharIterator : Iterator<Char> {
 
 
     /**
-     * Returns the next value in the sequence without boxing.
+     * Returns the next element in the iteration without boxing conversion.
      * @throws NoSuchElementException if the iteration has no next element.
      */
     public abstract fun nextChar(): Char
@@ -125,7 +125,7 @@ public abstract class ShortIterator : Iterator<Short> {
 
 
     /**
-     * Returns the next value in the sequence without boxing.
+     * Returns the next element in the iteration without boxing conversion.
      * @throws NoSuchElementException if the iteration has no next element.
      */
     public abstract fun nextShort(): Short
@@ -166,7 +166,7 @@ public abstract class IntIterator : Iterator<Int> {
 
 
     /**
-     * Returns the next value in the sequence without boxing.
+     * Returns the next element in the iteration without boxing conversion.
      * @throws NoSuchElementException if the iteration has no next element.
      */
     public abstract fun nextInt(): Int
@@ -207,7 +207,7 @@ public abstract class LongIterator : Iterator<Long> {
 
 
     /**
-     * Returns the next value in the sequence without boxing.
+     * Returns the next element in the iteration without boxing conversion.
      * @throws NoSuchElementException if the iteration has no next element.
      */
     public abstract fun nextLong(): Long
@@ -248,7 +248,7 @@ public abstract class FloatIterator : Iterator<Float> {
 
 
     /**
-     * Returns the next value in the sequence without boxing.
+     * Returns the next element in the iteration without boxing conversion.
      * @throws NoSuchElementException if the iteration has no next element.
      */
     public abstract fun nextFloat(): Float
@@ -289,7 +289,7 @@ public abstract class DoubleIterator : Iterator<Double> {
 
 
     /**
-     * Returns the next value in the sequence without boxing.
+     * Returns the next element in the iteration without boxing conversion.
      * @throws NoSuchElementException if the iteration has no next element.
      */
     public abstract fun nextDouble(): Double
@@ -330,7 +330,7 @@ public abstract class BooleanIterator : Iterator<Boolean> {
 
 
     /**
-     * Returns the next value in the sequence without boxing.
+     * Returns the next element in the iteration without boxing conversion.
      * @throws NoSuchElementException if the iteration has no next element.
      */
     public abstract fun nextBoolean(): Boolean

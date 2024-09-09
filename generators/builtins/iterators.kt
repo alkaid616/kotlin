@@ -62,7 +62,7 @@ class GenerateIterators(out: PrintWriter) : BuiltInsSourceGenerator(out) {
             out.println()
             out.println("""
     /**
-     * Returns the next value in the sequence without boxing.
+     * Returns the next element in the iteration without boxing conversion.
      * @throws NoSuchElementException if the iteration has no next element.
      */""")
             out.println("    public abstract fun next$type(): $type")
