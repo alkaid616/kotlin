@@ -4,7 +4,7 @@ isEqualTo(expected)
           |
           5
 
-With:
+Where:
 @Explain
 val expected =
     hello.length
@@ -16,7 +16,7 @@ assertThat(actual)
            |
            3
 
-With:
+Where:
 @Explain val actual = world.length
                       |     |
                       orl   3

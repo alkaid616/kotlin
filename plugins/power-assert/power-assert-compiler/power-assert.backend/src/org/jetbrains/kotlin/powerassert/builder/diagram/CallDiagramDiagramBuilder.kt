@@ -77,7 +77,7 @@ private fun IrBuilderWithScope.irCallDiagram(
         return with(factory) {
             val initializer = it.temporary.initializer
 
-            if (it.temporary.hasAnnotation(ExplainAnnotation) && it.temporary in variableDiagrams) {
+            if (it.temporary in variableDiagrams) {
                 irVariableAccessExpression(
                     startOffset = it.sourceRangeInfo.startOffset - startOffset - offsetAdjust,
                     endOffset = it.sourceRangeInfo.endOffset - startOffset - offsetAdjust,

@@ -26,16 +26,17 @@ import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrGetValue
 import org.jetbrains.kotlin.ir.expressions.IrWhen
 import org.jetbrains.kotlin.ir.util.deepCopyWithSymbols
-import org.jetbrains.kotlin.ir.util.hasAnnotation
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
-import org.jetbrains.kotlin.powerassert.ExplainAnnotation
+import org.jetbrains.kotlin.powerassert.EXPLAIN
+import org.jetbrains.kotlin.powerassert.POWER_ASSERT_TEMPORARY
+import org.jetbrains.kotlin.powerassert.isExplained
 
 fun IrBuilderWithScope.buildDiagramNesting(
     sourceFile: SourceFile,
     root: Node,
     call: IrBlockBuilder.(IrExpression, List<IrTemporaryVariable>) -> IrExpression,
 ): IrExpression {
-    return irBlock {
+    return irBlock(origin = EXPLAIN) {
         +buildExpression(sourceFile, root, emptyList()) { argument, subStack ->
             call(argument, subStack)
         }
@@ -111,11 +112,11 @@ private fun IrBlockBuilder.add(
     val transformer = IrTemporaryExtractionTransformer(this@add, variables)
     val copy = expression.deepCopyWithSymbols(scope.getLocalDeclarationParent()).transform(transformer, null)
 
-    val variable = if (expression is IrGetValue && expression.symbol.owner.hasAnnotation(ExplainAnnotation)) {
+    val variable = if (expression is IrGetValue && expression.symbol.owner.isExplained()) {
         // Value will have already been transformed by PowerAssert and is safe to access multiple times.
         expression.symbol.owner as IrVariable
     } else {
-        irTemporary(copy, nameHint = "PowerAssertSynthesized")
+        irTemporary(copy, nameHint = "PowerAssertSynthesized", origin = POWER_ASSERT_TEMPORARY)
     }
     val newVariables = variables + IrTemporaryVariable(variable, expression, sourceRangeInfo, text)
     return call(irGet(variable), newVariables)

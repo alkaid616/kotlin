@@ -165,6 +165,7 @@ class PowerAssertCallTransformer(
         val diagramVariable = currentScope.scope.createTemporaryVariableDeclaration(
             nameHint = "PowerAssertVariableDiagram",
             irType = factory.variableDiagramType,
+            origin = EXPLAIN_DIAGRAM,
             startOffset = UNDEFINED_OFFSET,
             endOffset = UNDEFINED_OFFSET,
         )
@@ -173,13 +174,6 @@ class PowerAssertCallTransformer(
         variable.initializer = builder.buildDiagramNesting(sourceFile, expressionRoot) { argument, newVariables ->
             +irSet(diagramVariable, builder.irVariableDiagram(factory, sourceFile, variable, newVariables, variableDiagrams))
             argument
-        }
-        if (!variable.hasAnnotation(ExplainAnnotation)) {
-            // Add annotation so other code knows there is a diagram available.
-            variable.annotations = variable.annotations + IrConstructorCallImpl.fromSymbolOwner(
-                factory.explainConstructorSymbol.owner.returnType,
-                factory.explainConstructorSymbol,
-            )
         }
 
         return diagramVariable

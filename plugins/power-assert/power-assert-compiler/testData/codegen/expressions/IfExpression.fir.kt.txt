@@ -5,36 +5,36 @@ fun box(): String {
 fun test1(a: Int, b: Int): String {
   return expectThrowableMessage(block = local fun <anonymous>() {
     { // BLOCK
-      val tmp_0: Int = a
-      val tmp_1: Int = b
-      val tmp_2: Boolean = less(arg0 = tmp_0, arg1 = tmp_1)
+      val tmp0_PowerAssertSynthesized: Int = a
+      val tmp1_PowerAssertSynthesized: Int = b
+      val tmp2_PowerAssertSynthesized: Boolean = less(arg0 = tmp0_PowerAssertSynthesized, arg1 = tmp1_PowerAssertSynthesized)
       when {
-        tmp_2 -> { // BLOCK
-          val tmp_3: Int = a
-          val tmp_4: Int = b
-          val tmp_5: Boolean = EQEQ(arg0 = tmp_3, arg1 = tmp_4)
-          assert(value = tmp_5, lazyMessage = local fun <anonymous>(): String {
-            return "\n" + CallDiagram(source = "assert(if (a < b) a == b else if (b < a) b == a else false)", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "value", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 11, endOffset = 12, displayOffset = 11, value = tmp_0), Expression(startOffset = 15, endOffset = 16, displayOffset = 15, value = tmp_1), Expression(startOffset = 11, endOffset = 16, displayOffset = 13, value = tmp_2), Expression(startOffset = 18, endOffset = 19, displayOffset = 18, value = tmp_3), Expression(startOffset = 23, endOffset = 24, displayOffset = 23, value = tmp_4), EqualityExpression(startOffset = 18, endOffset = 24, displayOffset = 20, value = tmp_5, lhs = tmp_3, rhs = tmp_4)])))])).toDefaultMessage()
+        tmp2_PowerAssertSynthesized -> { // BLOCK
+          val tmp3_PowerAssertSynthesized: Int = a
+          val tmp4_PowerAssertSynthesized: Int = b
+          val tmp5_PowerAssertSynthesized: Boolean = EQEQ(arg0 = tmp3_PowerAssertSynthesized, arg1 = tmp4_PowerAssertSynthesized)
+          assert(value = tmp5_PowerAssertSynthesized, lazyMessage = local fun <anonymous>(): String {
+            return "\n" + CallDiagram(source = "assert(if (a < b) a == b else if (b < a) b == a else false)", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "value", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 11, endOffset = 12, displayOffset = 11, value = tmp0_PowerAssertSynthesized), Expression(startOffset = 15, endOffset = 16, displayOffset = 15, value = tmp1_PowerAssertSynthesized), Expression(startOffset = 11, endOffset = 16, displayOffset = 13, value = tmp2_PowerAssertSynthesized), Expression(startOffset = 18, endOffset = 19, displayOffset = 18, value = tmp3_PowerAssertSynthesized), Expression(startOffset = 23, endOffset = 24, displayOffset = 23, value = tmp4_PowerAssertSynthesized), EqualityExpression(startOffset = 18, endOffset = 24, displayOffset = 20, value = tmp5_PowerAssertSynthesized, lhs = tmp3_PowerAssertSynthesized, rhs = tmp4_PowerAssertSynthesized)])))])).toDefaultMessage()
           }
 )
         }
         else -> { // BLOCK
-          val tmp_6: Int = b
-          val tmp_7: Int = a
-          val tmp_8: Boolean = less(arg0 = tmp_6, arg1 = tmp_7)
+          val tmp6_PowerAssertSynthesized: Int = b
+          val tmp7_PowerAssertSynthesized: Int = a
+          val tmp8_PowerAssertSynthesized: Boolean = less(arg0 = tmp6_PowerAssertSynthesized, arg1 = tmp7_PowerAssertSynthesized)
           when {
-            tmp_8 -> { // BLOCK
-              val tmp_9: Int = b
-              val tmp_10: Int = a
-              val tmp_11: Boolean = EQEQ(arg0 = tmp_9, arg1 = tmp_10)
-              assert(value = tmp_11, lazyMessage = local fun <anonymous>(): String {
-                return "\n" + CallDiagram(source = "assert(if (a < b) a == b else if (b < a) b == a else false)", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "value", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 11, endOffset = 12, displayOffset = 11, value = tmp_0), Expression(startOffset = 15, endOffset = 16, displayOffset = 15, value = tmp_1), Expression(startOffset = 11, endOffset = 16, displayOffset = 13, value = tmp_2), Expression(startOffset = 34, endOffset = 35, displayOffset = 34, value = tmp_6), Expression(startOffset = 38, endOffset = 39, displayOffset = 38, value = tmp_7), Expression(startOffset = 34, endOffset = 39, displayOffset = 36, value = tmp_8), Expression(startOffset = 41, endOffset = 42, displayOffset = 41, value = tmp_9), Expression(startOffset = 46, endOffset = 47, displayOffset = 46, value = tmp_10), EqualityExpression(startOffset = 41, endOffset = 47, displayOffset = 43, value = tmp_11, lhs = tmp_9, rhs = tmp_10)])))])).toDefaultMessage()
+            tmp8_PowerAssertSynthesized -> { // BLOCK
+              val tmp9_PowerAssertSynthesized: Int = b
+              val tmp10_PowerAssertSynthesized: Int = a
+              val tmp11_PowerAssertSynthesized: Boolean = EQEQ(arg0 = tmp9_PowerAssertSynthesized, arg1 = tmp10_PowerAssertSynthesized)
+              assert(value = tmp11_PowerAssertSynthesized, lazyMessage = local fun <anonymous>(): String {
+                return "\n" + CallDiagram(source = "assert(if (a < b) a == b else if (b < a) b == a else false)", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "value", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 11, endOffset = 12, displayOffset = 11, value = tmp0_PowerAssertSynthesized), Expression(startOffset = 15, endOffset = 16, displayOffset = 15, value = tmp1_PowerAssertSynthesized), Expression(startOffset = 11, endOffset = 16, displayOffset = 13, value = tmp2_PowerAssertSynthesized), Expression(startOffset = 34, endOffset = 35, displayOffset = 34, value = tmp6_PowerAssertSynthesized), Expression(startOffset = 38, endOffset = 39, displayOffset = 38, value = tmp7_PowerAssertSynthesized), Expression(startOffset = 34, endOffset = 39, displayOffset = 36, value = tmp8_PowerAssertSynthesized), Expression(startOffset = 41, endOffset = 42, displayOffset = 41, value = tmp9_PowerAssertSynthesized), Expression(startOffset = 46, endOffset = 47, displayOffset = 46, value = tmp10_PowerAssertSynthesized), EqualityExpression(startOffset = 41, endOffset = 47, displayOffset = 43, value = tmp11_PowerAssertSynthesized, lhs = tmp9_PowerAssertSynthesized, rhs = tmp10_PowerAssertSynthesized)])))])).toDefaultMessage()
               }
 )
             }
             else -> { // BLOCK
               assert(value = false, lazyMessage = local fun <anonymous>(): String {
-                return "\n" + CallDiagram(source = "assert(if (a < b) a == b else if (b < a) b == a else false)", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "value", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 11, endOffset = 12, displayOffset = 11, value = tmp_0), Expression(startOffset = 15, endOffset = 16, displayOffset = 15, value = tmp_1), Expression(startOffset = 11, endOffset = 16, displayOffset = 13, value = tmp_2), Expression(startOffset = 34, endOffset = 35, displayOffset = 34, value = tmp_6), Expression(startOffset = 38, endOffset = 39, displayOffset = 38, value = tmp_7), Expression(startOffset = 34, endOffset = 39, displayOffset = 36, value = tmp_8)])))])).toDefaultMessage()
+                return "\n" + CallDiagram(source = "assert(if (a < b) a == b else if (b < a) b == a else false)", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "value", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 11, endOffset = 12, displayOffset = 11, value = tmp0_PowerAssertSynthesized), Expression(startOffset = 15, endOffset = 16, displayOffset = 15, value = tmp1_PowerAssertSynthesized), Expression(startOffset = 11, endOffset = 16, displayOffset = 13, value = tmp2_PowerAssertSynthesized), Expression(startOffset = 34, endOffset = 35, displayOffset = 34, value = tmp6_PowerAssertSynthesized), Expression(startOffset = 38, endOffset = 39, displayOffset = 38, value = tmp7_PowerAssertSynthesized), Expression(startOffset = 34, endOffset = 39, displayOffset = 36, value = tmp8_PowerAssertSynthesized)])))])).toDefaultMessage()
               }
 )
             }
@@ -49,32 +49,32 @@ fun test1(a: Int, b: Int): String {
 fun test2(a: Int, b: Int): String {
   return expectThrowableMessage(block = local fun <anonymous>() {
     { // BLOCK
-      val tmp_12: Int = a
-      val tmp_13: Int = a
-      val tmp_14: Int = b
-      val tmp_15: Boolean = less(arg0 = tmp_13, arg1 = tmp_14)
+      val tmp0_PowerAssertSynthesized: Int = a
+      val tmp1_PowerAssertSynthesized: Int = a
+      val tmp2_PowerAssertSynthesized: Int = b
+      val tmp3_PowerAssertSynthesized: Boolean = less(arg0 = tmp1_PowerAssertSynthesized, arg1 = tmp2_PowerAssertSynthesized)
       when {
-        tmp_15 -> { // BLOCK
-          val tmp_16: Int = a
-          val tmp_17: Int = tmp_12.plus(other = tmp_16)
-          val tmp_18: Int = b
-          val tmp_19: Int = tmp_17.plus(other = tmp_18)
-          val tmp_20: Int = a
-          val tmp_21: Boolean = EQEQ(arg0 = tmp_19, arg1 = tmp_20)
-          assert(value = tmp_21, lazyMessage = local fun <anonymous>(): String {
-            return "\n" + CallDiagram(source = "assert(a + (if (a < b) a else b) + b == a)", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "value", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 7, endOffset = 8, displayOffset = 7, value = tmp_12), Expression(startOffset = 16, endOffset = 17, displayOffset = 16, value = tmp_13), Expression(startOffset = 20, endOffset = 21, displayOffset = 20, value = tmp_14), Expression(startOffset = 16, endOffset = 21, displayOffset = 18, value = tmp_15), Expression(startOffset = 23, endOffset = 24, displayOffset = 23, value = tmp_16), Expression(startOffset = 7, endOffset = 32, displayOffset = 9, value = tmp_17), Expression(startOffset = 35, endOffset = 36, displayOffset = 35, value = tmp_18), Expression(startOffset = 7, endOffset = 36, displayOffset = 33, value = tmp_19), Expression(startOffset = 40, endOffset = 41, displayOffset = 40, value = tmp_20), EqualityExpression(startOffset = 7, endOffset = 41, displayOffset = 37, value = tmp_21, lhs = tmp_19, rhs = tmp_20)])))])).toDefaultMessage()
+        tmp3_PowerAssertSynthesized -> { // BLOCK
+          val tmp4_PowerAssertSynthesized: Int = a
+          val tmp5_PowerAssertSynthesized: Int = tmp0_PowerAssertSynthesized.plus(other = tmp4_PowerAssertSynthesized)
+          val tmp6_PowerAssertSynthesized: Int = b
+          val tmp7_PowerAssertSynthesized: Int = tmp5_PowerAssertSynthesized.plus(other = tmp6_PowerAssertSynthesized)
+          val tmp8_PowerAssertSynthesized: Int = a
+          val tmp9_PowerAssertSynthesized: Boolean = EQEQ(arg0 = tmp7_PowerAssertSynthesized, arg1 = tmp8_PowerAssertSynthesized)
+          assert(value = tmp9_PowerAssertSynthesized, lazyMessage = local fun <anonymous>(): String {
+            return "\n" + CallDiagram(source = "assert(a + (if (a < b) a else b) + b == a)", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "value", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 7, endOffset = 8, displayOffset = 7, value = tmp0_PowerAssertSynthesized), Expression(startOffset = 16, endOffset = 17, displayOffset = 16, value = tmp1_PowerAssertSynthesized), Expression(startOffset = 20, endOffset = 21, displayOffset = 20, value = tmp2_PowerAssertSynthesized), Expression(startOffset = 16, endOffset = 21, displayOffset = 18, value = tmp3_PowerAssertSynthesized), Expression(startOffset = 23, endOffset = 24, displayOffset = 23, value = tmp4_PowerAssertSynthesized), Expression(startOffset = 7, endOffset = 32, displayOffset = 9, value = tmp5_PowerAssertSynthesized), Expression(startOffset = 35, endOffset = 36, displayOffset = 35, value = tmp6_PowerAssertSynthesized), Expression(startOffset = 7, endOffset = 36, displayOffset = 33, value = tmp7_PowerAssertSynthesized), Expression(startOffset = 40, endOffset = 41, displayOffset = 40, value = tmp8_PowerAssertSynthesized), EqualityExpression(startOffset = 7, endOffset = 41, displayOffset = 37, value = tmp9_PowerAssertSynthesized, lhs = tmp7_PowerAssertSynthesized, rhs = tmp8_PowerAssertSynthesized)])))])).toDefaultMessage()
           }
 )
         }
         else -> { // BLOCK
-          val tmp_22: Int = b
-          val tmp_23: Int = tmp_12.plus(other = tmp_22)
-          val tmp_24: Int = b
-          val tmp_25: Int = tmp_23.plus(other = tmp_24)
-          val tmp_26: Int = a
-          val tmp_27: Boolean = EQEQ(arg0 = tmp_25, arg1 = tmp_26)
-          assert(value = tmp_27, lazyMessage = local fun <anonymous>(): String {
-            return "\n" + CallDiagram(source = "assert(a + (if (a < b) a else b) + b == a)", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "value", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 7, endOffset = 8, displayOffset = 7, value = tmp_12), Expression(startOffset = 16, endOffset = 17, displayOffset = 16, value = tmp_13), Expression(startOffset = 20, endOffset = 21, displayOffset = 20, value = tmp_14), Expression(startOffset = 16, endOffset = 21, displayOffset = 18, value = tmp_15), Expression(startOffset = 30, endOffset = 31, displayOffset = 30, value = tmp_22), Expression(startOffset = 7, endOffset = 32, displayOffset = 9, value = tmp_23), Expression(startOffset = 35, endOffset = 36, displayOffset = 35, value = tmp_24), Expression(startOffset = 7, endOffset = 36, displayOffset = 33, value = tmp_25), Expression(startOffset = 40, endOffset = 41, displayOffset = 40, value = tmp_26), EqualityExpression(startOffset = 7, endOffset = 41, displayOffset = 37, value = tmp_27, lhs = tmp_25, rhs = tmp_26)])))])).toDefaultMessage()
+          val tmp10_PowerAssertSynthesized: Int = b
+          val tmp11_PowerAssertSynthesized: Int = tmp0_PowerAssertSynthesized.plus(other = tmp10_PowerAssertSynthesized)
+          val tmp12_PowerAssertSynthesized: Int = b
+          val tmp13_PowerAssertSynthesized: Int = tmp11_PowerAssertSynthesized.plus(other = tmp12_PowerAssertSynthesized)
+          val tmp14_PowerAssertSynthesized: Int = a
+          val tmp15_PowerAssertSynthesized: Boolean = EQEQ(arg0 = tmp13_PowerAssertSynthesized, arg1 = tmp14_PowerAssertSynthesized)
+          assert(value = tmp15_PowerAssertSynthesized, lazyMessage = local fun <anonymous>(): String {
+            return "\n" + CallDiagram(source = "assert(a + (if (a < b) a else b) + b == a)", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "value", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 7, endOffset = 8, displayOffset = 7, value = tmp0_PowerAssertSynthesized), Expression(startOffset = 16, endOffset = 17, displayOffset = 16, value = tmp1_PowerAssertSynthesized), Expression(startOffset = 20, endOffset = 21, displayOffset = 20, value = tmp2_PowerAssertSynthesized), Expression(startOffset = 16, endOffset = 21, displayOffset = 18, value = tmp3_PowerAssertSynthesized), Expression(startOffset = 30, endOffset = 31, displayOffset = 30, value = tmp10_PowerAssertSynthesized), Expression(startOffset = 7, endOffset = 32, displayOffset = 9, value = tmp11_PowerAssertSynthesized), Expression(startOffset = 35, endOffset = 36, displayOffset = 35, value = tmp12_PowerAssertSynthesized), Expression(startOffset = 7, endOffset = 36, displayOffset = 33, value = tmp13_PowerAssertSynthesized), Expression(startOffset = 40, endOffset = 41, displayOffset = 40, value = tmp14_PowerAssertSynthesized), EqualityExpression(startOffset = 7, endOffset = 41, displayOffset = 37, value = tmp15_PowerAssertSynthesized, lhs = tmp13_PowerAssertSynthesized, rhs = tmp14_PowerAssertSynthesized)])))])).toDefaultMessage()
           }
 )
         }
@@ -87,36 +87,36 @@ fun test2(a: Int, b: Int): String {
 fun test3(a: Int, b: Int): String {
   return expectThrowableMessage(block = local fun <anonymous>() {
     { // BLOCK
-      val tmp_28: Int = a
-      val tmp_29: Int = b
-      val tmp_30: Boolean = less(arg0 = tmp_28, arg1 = tmp_29)
+      val tmp0_PowerAssertSynthesized: Int = a
+      val tmp1_PowerAssertSynthesized: Int = b
+      val tmp2_PowerAssertSynthesized: Boolean = less(arg0 = tmp0_PowerAssertSynthesized, arg1 = tmp1_PowerAssertSynthesized)
       when {
-        tmp_30 -> { // BLOCK
-          val tmp_31: Int = a
-          val tmp_32: Int = b
-          val tmp_33: Boolean = EQEQ(arg0 = tmp_31, arg1 = tmp_32)
-          assert(value = tmp_33, lazyMessage = local fun <anonymous>(): String {
-            return "\n" + CallDiagram(source = "assert(\n    when {\n        a < b -> a == b\n        b < a -> b == a\n        else -> false\n    }\n)", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "value", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 27, endOffset = 28, displayOffset = 27, value = tmp_28), Expression(startOffset = 31, endOffset = 32, displayOffset = 31, value = tmp_29), Expression(startOffset = 27, endOffset = 32, displayOffset = 29, value = tmp_30), Expression(startOffset = 36, endOffset = 37, displayOffset = 36, value = tmp_31), Expression(startOffset = 41, endOffset = 42, displayOffset = 41, value = tmp_32), EqualityExpression(startOffset = 36, endOffset = 42, displayOffset = 38, value = tmp_33, lhs = tmp_31, rhs = tmp_32)])))])).toDefaultMessage()
+        tmp2_PowerAssertSynthesized -> { // BLOCK
+          val tmp3_PowerAssertSynthesized: Int = a
+          val tmp4_PowerAssertSynthesized: Int = b
+          val tmp5_PowerAssertSynthesized: Boolean = EQEQ(arg0 = tmp3_PowerAssertSynthesized, arg1 = tmp4_PowerAssertSynthesized)
+          assert(value = tmp5_PowerAssertSynthesized, lazyMessage = local fun <anonymous>(): String {
+            return "\n" + CallDiagram(source = "assert(\n    when {\n        a < b -> a == b\n        b < a -> b == a\n        else -> false\n    }\n)", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "value", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 27, endOffset = 28, displayOffset = 27, value = tmp0_PowerAssertSynthesized), Expression(startOffset = 31, endOffset = 32, displayOffset = 31, value = tmp1_PowerAssertSynthesized), Expression(startOffset = 27, endOffset = 32, displayOffset = 29, value = tmp2_PowerAssertSynthesized), Expression(startOffset = 36, endOffset = 37, displayOffset = 36, value = tmp3_PowerAssertSynthesized), Expression(startOffset = 41, endOffset = 42, displayOffset = 41, value = tmp4_PowerAssertSynthesized), EqualityExpression(startOffset = 36, endOffset = 42, displayOffset = 38, value = tmp5_PowerAssertSynthesized, lhs = tmp3_PowerAssertSynthesized, rhs = tmp4_PowerAssertSynthesized)])))])).toDefaultMessage()
           }
 )
         }
         else -> { // BLOCK
-          val tmp_34: Int = b
-          val tmp_35: Int = a
-          val tmp_36: Boolean = less(arg0 = tmp_34, arg1 = tmp_35)
+          val tmp6_PowerAssertSynthesized: Int = b
+          val tmp7_PowerAssertSynthesized: Int = a
+          val tmp8_PowerAssertSynthesized: Boolean = less(arg0 = tmp6_PowerAssertSynthesized, arg1 = tmp7_PowerAssertSynthesized)
           when {
-            tmp_36 -> { // BLOCK
-              val tmp_37: Int = b
-              val tmp_38: Int = a
-              val tmp_39: Boolean = EQEQ(arg0 = tmp_37, arg1 = tmp_38)
-              assert(value = tmp_39, lazyMessage = local fun <anonymous>(): String {
-                return "\n" + CallDiagram(source = "assert(\n    when {\n        a < b -> a == b\n        b < a -> b == a\n        else -> false\n    }\n)", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "value", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 27, endOffset = 28, displayOffset = 27, value = tmp_28), Expression(startOffset = 31, endOffset = 32, displayOffset = 31, value = tmp_29), Expression(startOffset = 27, endOffset = 32, displayOffset = 29, value = tmp_30), Expression(startOffset = 51, endOffset = 52, displayOffset = 51, value = tmp_34), Expression(startOffset = 55, endOffset = 56, displayOffset = 55, value = tmp_35), Expression(startOffset = 51, endOffset = 56, displayOffset = 53, value = tmp_36), Expression(startOffset = 60, endOffset = 61, displayOffset = 60, value = tmp_37), Expression(startOffset = 65, endOffset = 66, displayOffset = 65, value = tmp_38), EqualityExpression(startOffset = 60, endOffset = 66, displayOffset = 62, value = tmp_39, lhs = tmp_37, rhs = tmp_38)])))])).toDefaultMessage()
+            tmp8_PowerAssertSynthesized -> { // BLOCK
+              val tmp9_PowerAssertSynthesized: Int = b
+              val tmp10_PowerAssertSynthesized: Int = a
+              val tmp11_PowerAssertSynthesized: Boolean = EQEQ(arg0 = tmp9_PowerAssertSynthesized, arg1 = tmp10_PowerAssertSynthesized)
+              assert(value = tmp11_PowerAssertSynthesized, lazyMessage = local fun <anonymous>(): String {
+                return "\n" + CallDiagram(source = "assert(\n    when {\n        a < b -> a == b\n        b < a -> b == a\n        else -> false\n    }\n)", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "value", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 27, endOffset = 28, displayOffset = 27, value = tmp0_PowerAssertSynthesized), Expression(startOffset = 31, endOffset = 32, displayOffset = 31, value = tmp1_PowerAssertSynthesized), Expression(startOffset = 27, endOffset = 32, displayOffset = 29, value = tmp2_PowerAssertSynthesized), Expression(startOffset = 51, endOffset = 52, displayOffset = 51, value = tmp6_PowerAssertSynthesized), Expression(startOffset = 55, endOffset = 56, displayOffset = 55, value = tmp7_PowerAssertSynthesized), Expression(startOffset = 51, endOffset = 56, displayOffset = 53, value = tmp8_PowerAssertSynthesized), Expression(startOffset = 60, endOffset = 61, displayOffset = 60, value = tmp9_PowerAssertSynthesized), Expression(startOffset = 65, endOffset = 66, displayOffset = 65, value = tmp10_PowerAssertSynthesized), EqualityExpression(startOffset = 60, endOffset = 66, displayOffset = 62, value = tmp11_PowerAssertSynthesized, lhs = tmp9_PowerAssertSynthesized, rhs = tmp10_PowerAssertSynthesized)])))])).toDefaultMessage()
               }
 )
             }
             else -> { // BLOCK
               assert(value = false, lazyMessage = local fun <anonymous>(): String {
-                return "\n" + CallDiagram(source = "assert(\n    when {\n        a < b -> a == b\n        b < a -> b == a\n        else -> false\n    }\n)", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "value", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 27, endOffset = 28, displayOffset = 27, value = tmp_28), Expression(startOffset = 31, endOffset = 32, displayOffset = 31, value = tmp_29), Expression(startOffset = 27, endOffset = 32, displayOffset = 29, value = tmp_30), Expression(startOffset = 51, endOffset = 52, displayOffset = 51, value = tmp_34), Expression(startOffset = 55, endOffset = 56, displayOffset = 55, value = tmp_35), Expression(startOffset = 51, endOffset = 56, displayOffset = 53, value = tmp_36)])))])).toDefaultMessage()
+                return "\n" + CallDiagram(source = "assert(\n    when {\n        a < b -> a == b\n        b < a -> b == a\n        else -> false\n    }\n)", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "value", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 27, endOffset = 28, displayOffset = 27, value = tmp0_PowerAssertSynthesized), Expression(startOffset = 31, endOffset = 32, displayOffset = 31, value = tmp1_PowerAssertSynthesized), Expression(startOffset = 27, endOffset = 32, displayOffset = 29, value = tmp2_PowerAssertSynthesized), Expression(startOffset = 51, endOffset = 52, displayOffset = 51, value = tmp6_PowerAssertSynthesized), Expression(startOffset = 55, endOffset = 56, displayOffset = 55, value = tmp7_PowerAssertSynthesized), Expression(startOffset = 51, endOffset = 56, displayOffset = 53, value = tmp8_PowerAssertSynthesized)])))])).toDefaultMessage()
               }
 )
             }
@@ -131,39 +131,39 @@ fun test3(a: Int, b: Int): String {
 fun test4(initial: Boolean, a: Int, b: Int): String {
   return expectThrowableMessage(block = local fun <anonymous>() {
     { // BLOCK
-      val tmp_40: Boolean = initial
+      val tmp0_PowerAssertSynthesized: Boolean = initial
       when {
-        tmp_40 -> { // BLOCK
-          val tmp_41: Int = a
-          val tmp_42: Int = b
-          val tmp_43: Boolean = less(arg0 = tmp_41, arg1 = tmp_42)
+        tmp0_PowerAssertSynthesized -> { // BLOCK
+          val tmp1_PowerAssertSynthesized: Int = a
+          val tmp2_PowerAssertSynthesized: Int = b
+          val tmp3_PowerAssertSynthesized: Boolean = less(arg0 = tmp1_PowerAssertSynthesized, arg1 = tmp2_PowerAssertSynthesized)
           when {
-            tmp_43 -> { // BLOCK
-              val tmp_44: Int = a
-              val tmp_45: Int = b
-              val tmp_46: Boolean = EQEQ(arg0 = tmp_44, arg1 = tmp_45)
-              assert(value = tmp_46, lazyMessage = local fun <anonymous>(): String {
-                return "\n" + CallDiagram(source = "assert(\n    initial && when {\n        a < b -> a == b\n        b < a -> b == a\n        else -> false\n    }\n)", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "value", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 12, endOffset = 19, displayOffset = 12, value = tmp_40), Expression(startOffset = 38, endOffset = 39, displayOffset = 38, value = tmp_41), Expression(startOffset = 42, endOffset = 43, displayOffset = 42, value = tmp_42), Expression(startOffset = 38, endOffset = 43, displayOffset = 40, value = tmp_43), Expression(startOffset = 47, endOffset = 48, displayOffset = 47, value = tmp_44), Expression(startOffset = 52, endOffset = 53, displayOffset = 52, value = tmp_45), EqualityExpression(startOffset = 47, endOffset = 53, displayOffset = 49, value = tmp_46, lhs = tmp_44, rhs = tmp_45)])))])).toDefaultMessage()
+            tmp3_PowerAssertSynthesized -> { // BLOCK
+              val tmp4_PowerAssertSynthesized: Int = a
+              val tmp5_PowerAssertSynthesized: Int = b
+              val tmp6_PowerAssertSynthesized: Boolean = EQEQ(arg0 = tmp4_PowerAssertSynthesized, arg1 = tmp5_PowerAssertSynthesized)
+              assert(value = tmp6_PowerAssertSynthesized, lazyMessage = local fun <anonymous>(): String {
+                return "\n" + CallDiagram(source = "assert(\n    initial && when {\n        a < b -> a == b\n        b < a -> b == a\n        else -> false\n    }\n)", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "value", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 12, endOffset = 19, displayOffset = 12, value = tmp0_PowerAssertSynthesized), Expression(startOffset = 38, endOffset = 39, displayOffset = 38, value = tmp1_PowerAssertSynthesized), Expression(startOffset = 42, endOffset = 43, displayOffset = 42, value = tmp2_PowerAssertSynthesized), Expression(startOffset = 38, endOffset = 43, displayOffset = 40, value = tmp3_PowerAssertSynthesized), Expression(startOffset = 47, endOffset = 48, displayOffset = 47, value = tmp4_PowerAssertSynthesized), Expression(startOffset = 52, endOffset = 53, displayOffset = 52, value = tmp5_PowerAssertSynthesized), EqualityExpression(startOffset = 47, endOffset = 53, displayOffset = 49, value = tmp6_PowerAssertSynthesized, lhs = tmp4_PowerAssertSynthesized, rhs = tmp5_PowerAssertSynthesized)])))])).toDefaultMessage()
               }
 )
             }
             else -> { // BLOCK
-              val tmp_47: Int = b
-              val tmp_48: Int = a
-              val tmp_49: Boolean = less(arg0 = tmp_47, arg1 = tmp_48)
+              val tmp7_PowerAssertSynthesized: Int = b
+              val tmp8_PowerAssertSynthesized: Int = a
+              val tmp9_PowerAssertSynthesized: Boolean = less(arg0 = tmp7_PowerAssertSynthesized, arg1 = tmp8_PowerAssertSynthesized)
               when {
-                tmp_49 -> { // BLOCK
-                  val tmp_50: Int = b
-                  val tmp_51: Int = a
-                  val tmp_52: Boolean = EQEQ(arg0 = tmp_50, arg1 = tmp_51)
-                  assert(value = tmp_52, lazyMessage = local fun <anonymous>(): String {
-                    return "\n" + CallDiagram(source = "assert(\n    initial && when {\n        a < b -> a == b\n        b < a -> b == a\n        else -> false\n    }\n)", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "value", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 12, endOffset = 19, displayOffset = 12, value = tmp_40), Expression(startOffset = 38, endOffset = 39, displayOffset = 38, value = tmp_41), Expression(startOffset = 42, endOffset = 43, displayOffset = 42, value = tmp_42), Expression(startOffset = 38, endOffset = 43, displayOffset = 40, value = tmp_43), Expression(startOffset = 62, endOffset = 63, displayOffset = 62, value = tmp_47), Expression(startOffset = 66, endOffset = 67, displayOffset = 66, value = tmp_48), Expression(startOffset = 62, endOffset = 67, displayOffset = 64, value = tmp_49), Expression(startOffset = 71, endOffset = 72, displayOffset = 71, value = tmp_50), Expression(startOffset = 76, endOffset = 77, displayOffset = 76, value = tmp_51), EqualityExpression(startOffset = 71, endOffset = 77, displayOffset = 73, value = tmp_52, lhs = tmp_50, rhs = tmp_51)])))])).toDefaultMessage()
+                tmp9_PowerAssertSynthesized -> { // BLOCK
+                  val tmp10_PowerAssertSynthesized: Int = b
+                  val tmp11_PowerAssertSynthesized: Int = a
+                  val tmp12_PowerAssertSynthesized: Boolean = EQEQ(arg0 = tmp10_PowerAssertSynthesized, arg1 = tmp11_PowerAssertSynthesized)
+                  assert(value = tmp12_PowerAssertSynthesized, lazyMessage = local fun <anonymous>(): String {
+                    return "\n" + CallDiagram(source = "assert(\n    initial && when {\n        a < b -> a == b\n        b < a -> b == a\n        else -> false\n    }\n)", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "value", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 12, endOffset = 19, displayOffset = 12, value = tmp0_PowerAssertSynthesized), Expression(startOffset = 38, endOffset = 39, displayOffset = 38, value = tmp1_PowerAssertSynthesized), Expression(startOffset = 42, endOffset = 43, displayOffset = 42, value = tmp2_PowerAssertSynthesized), Expression(startOffset = 38, endOffset = 43, displayOffset = 40, value = tmp3_PowerAssertSynthesized), Expression(startOffset = 62, endOffset = 63, displayOffset = 62, value = tmp7_PowerAssertSynthesized), Expression(startOffset = 66, endOffset = 67, displayOffset = 66, value = tmp8_PowerAssertSynthesized), Expression(startOffset = 62, endOffset = 67, displayOffset = 64, value = tmp9_PowerAssertSynthesized), Expression(startOffset = 71, endOffset = 72, displayOffset = 71, value = tmp10_PowerAssertSynthesized), Expression(startOffset = 76, endOffset = 77, displayOffset = 76, value = tmp11_PowerAssertSynthesized), EqualityExpression(startOffset = 71, endOffset = 77, displayOffset = 73, value = tmp12_PowerAssertSynthesized, lhs = tmp10_PowerAssertSynthesized, rhs = tmp11_PowerAssertSynthesized)])))])).toDefaultMessage()
                   }
 )
                 }
                 else -> { // BLOCK
                   assert(value = false, lazyMessage = local fun <anonymous>(): String {
-                    return "\n" + CallDiagram(source = "assert(\n    initial && when {\n        a < b -> a == b\n        b < a -> b == a\n        else -> false\n    }\n)", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "value", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 12, endOffset = 19, displayOffset = 12, value = tmp_40), Expression(startOffset = 38, endOffset = 39, displayOffset = 38, value = tmp_41), Expression(startOffset = 42, endOffset = 43, displayOffset = 42, value = tmp_42), Expression(startOffset = 38, endOffset = 43, displayOffset = 40, value = tmp_43), Expression(startOffset = 62, endOffset = 63, displayOffset = 62, value = tmp_47), Expression(startOffset = 66, endOffset = 67, displayOffset = 66, value = tmp_48), Expression(startOffset = 62, endOffset = 67, displayOffset = 64, value = tmp_49)])))])).toDefaultMessage()
+                    return "\n" + CallDiagram(source = "assert(\n    initial && when {\n        a < b -> a == b\n        b < a -> b == a\n        else -> false\n    }\n)", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "value", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 12, endOffset = 19, displayOffset = 12, value = tmp0_PowerAssertSynthesized), Expression(startOffset = 38, endOffset = 39, displayOffset = 38, value = tmp1_PowerAssertSynthesized), Expression(startOffset = 42, endOffset = 43, displayOffset = 42, value = tmp2_PowerAssertSynthesized), Expression(startOffset = 38, endOffset = 43, displayOffset = 40, value = tmp3_PowerAssertSynthesized), Expression(startOffset = 62, endOffset = 63, displayOffset = 62, value = tmp7_PowerAssertSynthesized), Expression(startOffset = 66, endOffset = 67, displayOffset = 66, value = tmp8_PowerAssertSynthesized), Expression(startOffset = 62, endOffset = 67, displayOffset = 64, value = tmp9_PowerAssertSynthesized)])))])).toDefaultMessage()
                   }
 )
                 }
@@ -173,7 +173,7 @@ fun test4(initial: Boolean, a: Int, b: Int): String {
         }
         else -> { // BLOCK
           assert(value = false, lazyMessage = local fun <anonymous>(): String {
-            return "\n" + CallDiagram(source = "assert(\n    initial && when {\n        a < b -> a == b\n        b < a -> b == a\n        else -> false\n    }\n)", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "value", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 12, endOffset = 19, displayOffset = 12, value = tmp_40)])))])).toDefaultMessage()
+            return "\n" + CallDiagram(source = "assert(\n    initial && when {\n        a < b -> a == b\n        b < a -> b == a\n        else -> false\n    }\n)", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "value", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 12, endOffset = 19, displayOffset = 12, value = tmp0_PowerAssertSynthesized)])))])).toDefaultMessage()
           }
 )
         }

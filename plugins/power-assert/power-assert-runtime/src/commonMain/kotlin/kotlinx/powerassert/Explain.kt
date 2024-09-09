@@ -6,6 +6,6 @@
 package kotlinx.powerassert
 
 @Target(AnnotationTarget.LOCAL_VARIABLE, AnnotationTarget.FUNCTION, AnnotationTarget.TYPE)
-@Retention(AnnotationRetention.RUNTIME)
+@Retention(AnnotationRetention.SOURCE)
 @MustBeDocumented
 public annotation class Explain
