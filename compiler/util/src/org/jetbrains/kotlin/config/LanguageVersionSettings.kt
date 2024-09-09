@@ -337,7 +337,6 @@ enum class LanguageFeature(
     AllowSuperCallToJavaInterface(KOTLIN_2_1, kind = OTHER), // KT-69729
     ProhibitJavaClassInheritingPrivateKotlinClass(KOTLIN_2_1, kind = OTHER), // KT-66328
     ProhibitReturningIncorrectNullabilityValuesFromSamConstructorLambdaOfJdkInterfaces(KOTLIN_2_1, kind = BUG_FIX), // KT-57014
-    IntersectionReifiedTypeParameterWarning(KOTLIN_2_1, kind = BUG_FIX), // KT-52469
 
     // It's not a fully blown LF, but mostly a way to manage potential unexpected semantic changes
     // See the single usage at org.jetbrains.kotlin.fir.types.ConeTypeApproximator.fastPathSkipApproximation
@@ -400,6 +399,7 @@ enum class LanguageFeature(
     MultiPlatformProjects(sinceVersion = null),
     ProhibitComparisonOfIncompatibleClasses(sinceVersion = null, kind = BUG_FIX),
     ProhibitAllMultipleDefaultsInheritedFromSupertypes(sinceVersion = null, kind = BUG_FIX),
+    ProhibitIntersectionReifiedTypeParameter(sinceVersion = null, kind = BUG_FIX), // KT-52469
     ExplicitBackingFields(sinceVersion = null, kind = UNSTABLE_FEATURE), // KT-14663
     FunctionalTypeWithExtensionAsSupertype(sinceVersion = null),
     JsAllowValueClassesInExternals(sinceVersion = null, kind = OTHER),

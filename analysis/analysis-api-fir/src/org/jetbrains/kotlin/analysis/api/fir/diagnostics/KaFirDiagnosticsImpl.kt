@@ -2144,12 +2144,19 @@ internal class DefinitelyNonNullableAsReifiedImpl(
     token: KaLifetimeToken,
 ) : KaAbstractFirDiagnostic<PsiElement>(firDiagnostic, token), KaFirDiagnostic.DefinitelyNonNullableAsReified
 
-internal class TypeIntersectionAsReifiedImpl(
+internal class TypeIntersectionAsReifiedErrorImpl(
     override val typeParameter: KaTypeParameterSymbol,
     override val types: List<KaType>,
     firDiagnostic: KtPsiDiagnostic,
     token: KaLifetimeToken,
-) : KaAbstractFirDiagnostic<PsiElement>(firDiagnostic, token), KaFirDiagnostic.TypeIntersectionAsReified
+) : KaAbstractFirDiagnostic<PsiElement>(firDiagnostic, token), KaFirDiagnostic.TypeIntersectionAsReifiedError
+
+internal class TypeIntersectionAsReifiedWarningImpl(
+    override val typeParameter: KaTypeParameterSymbol,
+    override val types: List<KaType>,
+    firDiagnostic: KtPsiDiagnostic,
+    token: KaLifetimeToken,
+) : KaAbstractFirDiagnostic<PsiElement>(firDiagnostic, token), KaFirDiagnostic.TypeIntersectionAsReifiedWarning
 
 internal class FinalUpperBoundImpl(
     override val type: KaType,

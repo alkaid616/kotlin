@@ -804,7 +804,7 @@ object DIAGNOSTICS_LIST : DiagnosticList("FirErrors") {
             parameter<ConeKotlinType>("type")
         }
         val DEFINITELY_NON_NULLABLE_AS_REIFIED by error<PsiElement>()
-        val TYPE_INTERSECTION_AS_REIFIED by warning<PsiElement> {
+        val TYPE_INTERSECTION_AS_REIFIED by deprecationError<PsiElement>(LanguageFeature.ProhibitIntersectionReifiedTypeParameter) {
             parameter<FirTypeParameterSymbol>("typeParameter")
             parameter<Collection<ConeKotlinType>>("types")
         }

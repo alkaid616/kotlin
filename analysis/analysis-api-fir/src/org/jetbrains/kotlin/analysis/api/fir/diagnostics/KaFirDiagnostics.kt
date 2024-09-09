@@ -1785,8 +1785,14 @@ sealed interface KaFirDiagnostic<PSI : PsiElement> : KaDiagnosticWithPsi<PSI> {
         override val diagnosticClass get() = DefinitelyNonNullableAsReified::class
     }
 
-    interface TypeIntersectionAsReified : KaFirDiagnostic<PsiElement> {
-        override val diagnosticClass get() = TypeIntersectionAsReified::class
+    interface TypeIntersectionAsReifiedError : KaFirDiagnostic<PsiElement> {
+        override val diagnosticClass get() = TypeIntersectionAsReifiedError::class
+        val typeParameter: KaTypeParameterSymbol
+        val types: List<KaType>
+    }
+
+    interface TypeIntersectionAsReifiedWarning : KaFirDiagnostic<PsiElement> {
+        override val diagnosticClass get() = TypeIntersectionAsReifiedWarning::class
         val typeParameter: KaTypeParameterSymbol
         val types: List<KaType>
     }

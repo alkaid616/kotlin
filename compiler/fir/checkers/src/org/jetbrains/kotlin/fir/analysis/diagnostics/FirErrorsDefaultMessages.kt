@@ -1582,7 +1582,8 @@ object FirErrorsDefaultMessages : BaseDiagnosticRendererFactory() {
         )
         map.put(
             TYPE_INTERSECTION_AS_REIFIED,
-            "Type argument for type parameter ''{0}'' was inferred to the intersection of {1}. " +
+            "Type argument for reified type parameter ''{0}'' was inferred to the intersection of {1}. " +
+                    "Reification of an intersection type results in the common supertype being used. " +
                     "This may lead to subtle issues and an explicit type argument is encouraged.",
             SYMBOL,
             RENDER_TYPE.joinToString(prefix = "['", postfix = "']", separator = "' & '"),
