@@ -352,9 +352,9 @@ class FusStatisticsIT : KGPBaseTest() {
                 "plugins {",
                 """
                     plugins {
-                        id("org.jetbrains.kotlinx.atomicfu") version "${TestVersions.AtomicfuPlugin.VERSION}"
-                        id("org.jetbrains.kotlinx.kover") version "${TestVersions.KoverPlugin.VERSION}"
-                        id("org.jetbrains.kotlinx.binary-compatibility-validator") version "${TestVersions.BinaryCompatibilityValidatorPlugin.VERSION}"
+                        id("org.jetbrains.kotlinx.atomicfu") version "${TestVersions.ThirdPartyDependencies.KOTLINX_ATOMICFU}"
+                        id("org.jetbrains.kotlinx.kover") version "${TestVersions.ThirdPartyDependencies.KOTLINX_KOVER}"
+                        id("org.jetbrains.kotlinx.binary-compatibility-validator") version "${TestVersions.ThirdPartyDependencies.KOTLINX_BINARY_COMPATIBILITY_VALIDATOR}"
                         id("org.jetbrains.kotlin.plugin.serialization") version "${'$'}kotlin_version"
                     """.trimIndent()
             )
