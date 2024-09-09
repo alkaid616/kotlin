@@ -11,8 +11,6 @@ import org.jetbrains.kotlin.backend.konan.driver.PhaseEngine
 import org.jetbrains.kotlin.backend.konan.driver.utilities.CExportFiles
 import org.jetbrains.kotlin.backend.konan.driver.utilities.createTempFiles
 import org.jetbrains.kotlin.backend.konan.ir.konanLibrary
-import org.jetbrains.kotlin.backend.konan.optimizations.DataFlowIR
-import org.jetbrains.kotlin.backend.konan.optimizations.DevirtualizationAnalysis
 import org.jetbrains.kotlin.cli.common.CommonCompilerPerformanceManager
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.config.KlibConfigurationKeys
@@ -404,36 +402,6 @@ internal fun PhaseEngine<NativeGenerationState>.runBackendCodegen(module: IrModu
  */
 private fun PhaseEngine<NativeGenerationState>.runCodegen(module: IrModuleFragment) {
     val optimize = context.shouldOptimize()
-    module.files.forEach {
-        runPhase(ReturnsInsertionPhase, it)
-    }
-    val moduleDFG = runPhase(BuildDFGPhase, module, disable = !optimize)
-    runPhase(DevirtualizationAnalysisPhase, DevirtualizationAnalysisInput(module, moduleDFG), disable = !optimize)
-    val dceResult = runPhase(DCEPhase, DCEInput(module, moduleDFG), disable = !optimize)
-    runPhase(RemoveRedundantCallsToStaticInitializersPhase, RedundantCallsInput(moduleDFG, module), disable = !optimize)
-    runPhase(DevirtualizationPhase, DevirtualizationInput(module, moduleDFG), disable = !optimize)
-    module.files.forEach {
-        runPhase(CoroutinesVarSpillingPhase, it)
-        // Have to run after link dependencies phase, because fields from dependencies can be changed during lowerings.
-        // Inline accessors only in optimized builds due to separate compilation and possibility to get broken debug information.
-        runPhase(PropertyAccessorInlinePhase, it, disable = !optimize)
-        runPhase(InlineClassPropertyAccessorsPhase, it, disable = !optimize)
-        runPhase(RedundantCoercionsCleaningPhase, it)
-        // depends on redundantCoercionsCleaningPhase
-        runPhase(UnboxInlinePhase, it, disable = !optimize)
-
-    }
-    runPhase(CreateLLVMDeclarationsPhase, module)
-    runPhase(GHAPhase, module, disable = !optimize)
-    runPhase(RTTIPhase, RTTIInput(module, dceResult))
-    val lifetimes = runPhase(EscapeAnalysisPhase, EscapeAnalysisInput(module, moduleDFG), disable = !optimize)
-    runPhase(CodegenPhase, CodegenInput(module, lifetimes))
-}
-
-/*
-
-private fun PhaseEngine<NativeGenerationState>.runCodegen(module: IrModuleFragment) {
-    val optimize = context.shouldOptimize()
     val enablePreCodegenInliner = context.config.enablePreCodegenInliner && optimize
     module.files.forEach {
         runPhase(ReturnsInsertionPhase, it)
@@ -443,50 +411,27 @@ private fun PhaseEngine<NativeGenerationState>.runCodegen(module: IrModuleFragme
         runPhase(InlineClassPropertyAccessorsPhase, it, disable = !optimize)
     }
     val moduleDFG = runPhase(BuildDFGPhase, module, disable = !optimize)
-    val allDeclaredTypes = listOf(DataFlowIR.Type.Virtual) +
-            moduleDFG.symbolTable.classMap.values +
-            moduleDFG.symbolTable.primitiveMap.values
-    val allTypes = Array<DataFlowIR.Type>(allDeclaredTypes.size) { DataFlowIR.Type.Virtual }
-    for (type in allDeclaredTypes)
-        allTypes[type.index] = type
-    val typeHierarchy = DevirtualizationAnalysis.DevirtualizationAnalysisImpl.TypeHierarchyImpl(allTypes)
-
-    val emptyDevirtualizationAnalysisResult = DevirtualizationAnalysis.AnalysisResult(typeHierarchy)
-    runPhase(RemoveRedundantCallsToStaticInitializersPhase,
-            RedundantCallsInput(moduleDFG, emptyDevirtualizationAnalysisResult, module),
-            disable = !enablePreCodegenInliner)
-    runPhase(PreCodegenInlinerPhase,
-            PreCodegenInlinerInput(module, moduleDFG, emptyDevirtualizationAnalysisResult),
-            disable = !enablePreCodegenInliner)
-    val devirtualizationAnalysisResults = runPhase(DevirtualizationAnalysisPhase,
-            DevirtualizationAnalysisInput(module, moduleDFG),
-            disable = !optimize)
-    runPhase(RemoveRedundantCallsToStaticInitializersPhase,
-            RedundantCallsInput(moduleDFG, devirtualizationAnalysisResults, module),
-            disable = enablePreCodegenInliner)
+    runPhase(RemoveRedundantCallsToStaticInitializersPhase, RedundantCallsInput(moduleDFG, module), disable = !enablePreCodegenInliner)
+    runPhase(PreCodegenInlinerPhase, PreCodegenInlinerInput(module, moduleDFG), disable = !enablePreCodegenInliner)
+    runPhase(DevirtualizationAnalysisPhase, DevirtualizationAnalysisInput(module, moduleDFG), disable = !optimize)
+    runPhase(RemoveRedundantCallsToStaticInitializersPhase, RedundantCallsInput(moduleDFG, module), disable = enablePreCodegenInliner)
     runPhase(DevirtualizationPhase, DevirtualizationInput(module, moduleDFG), disable = !optimize)
     module.files.forEach {
         runPhase(RedundantCoercionsCleaningPhase, it)
         // depends on redundantCoercionsCleaningPhase
         runPhase(UnboxInlinePhase, it, disable = !optimize)
     }
-    runPhase(PreCodegenInlinerPhase,
-            PreCodegenInlinerInput(module, moduleDFG, devirtualizationAnalysisResults),
-            disable = !enablePreCodegenInliner)
-    val dceResult = runPhase(DCEPhase, DCEInput(module, moduleDFG, devirtualizationAnalysisResults), disable = !optimize)
+    runPhase(PreCodegenInlinerPhase, PreCodegenInlinerInput(module, moduleDFG), disable = !enablePreCodegenInliner)
+    val dceResult = runPhase(DCEPhase, DCEInput(module, moduleDFG), disable = !optimize)
     module.files.forEach {
         runPhase(CoroutinesVarSpillingPhase, it)
     }
     runPhase(CreateLLVMDeclarationsPhase, module)
     runPhase(GHAPhase, module, disable = !optimize)
     runPhase(RTTIPhase, RTTIInput(module, dceResult))
-    val lifetimes = runPhase(EscapeAnalysisPhase,
-            EscapeAnalysisInput(module, moduleDFG, devirtualizationAnalysisResults),
-            disable = !optimize)
+    val lifetimes = runPhase(EscapeAnalysisPhase, EscapeAnalysisInput(module, moduleDFG), disable = !optimize)
     runPhase(CodegenPhase, CodegenInput(module, lifetimes))
 }
-
- */
 
 private fun PhaseEngine<NativeGenerationState>.findDependenciesToCompile(): List<IrModuleFragment> {
     return context.config.librariesWithDependencies()
