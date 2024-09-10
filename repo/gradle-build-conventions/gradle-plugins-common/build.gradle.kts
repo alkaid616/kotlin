@@ -1,4 +1,5 @@
 plugins {
+    `kotlin-dsl`
     id("org.jetbrains.kotlin.jvm")
 }
 
@@ -11,5 +12,10 @@ kotlin {
 }
 
 repositories {
+    maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/kotlin-dependencies")
     mavenCentral()
+}
+
+dependencies {
+    implementation("org.jetbrains.kotlin:kotlin-build-gradle-plugin:${kotlinBuildProperties.buildGradlePluginVersion}")
 }
