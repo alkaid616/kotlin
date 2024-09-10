@@ -921,7 +921,7 @@ abstract class AbstractRawFirBuilder<T>(val baseSession: FirSession, val context
             ) { actualReceiver ->
                 // Disable `set` resolution for `(c?.p) += ...` where `p` has an extension operator `plus()`.
                 if (isLhsParenthesized && prohibitSetCallsForParenthesizedLhs) {
-                    generateAssignmentOperatorCall(operation, baseSource, receiverToUse, buildUnaryArgumentList(rhsExpression), annotations)
+                    generateAssignmentOperatorCall(operation, baseSource, receiverToUse, rhsExpression, annotations)
                 } else {
                     buildAugmentedAssignment {
                         source = baseSource
@@ -1001,13 +1001,11 @@ abstract class AbstractRawFirBuilder<T>(val baseSession: FirSession, val context
         // as some other sort of `plus` + set, thus we leave only `plusAssign` form.
         // Also, disable `set` resolution for `(a[0]) += ...` where `a: Array<A>`.
         if (receiver is FirSafeCallExpression || isLhsParenthesized && prohibitSetCallsForParenthesizedLhs) {
-            val arguments = buildUnaryArgumentList(
-                rhs?.convert() ?: buildErrorExpression(
-                    null,
-                    ConeSyntaxDiagnostic("No value for array set")
-                )
+            val argument = rhs?.convert() ?: buildErrorExpression(
+                null,
+                ConeSyntaxDiagnostic("No value for array set")
             )
-            return generateAssignmentOperatorCall(operation, baseSource, receiver, arguments, annotations)
+            return generateAssignmentOperatorCall(operation, baseSource, receiver, argument, annotations)
         }
 
         require(receiver is FirFunctionCall) {
@@ -1031,13 +1029,13 @@ abstract class AbstractRawFirBuilder<T>(val baseSession: FirSession, val context
         operation: FirOperation,
         source: KtSourceElement?,
         receiver: FirExpression?,
-        arguments: FirArgumentList,
+        rhsExpression: FirExpression,
         annotations: List<FirAnnotation>,
     ): FirFunctionCall {
         return buildFunctionCall {
             this.source = source
             explicitReceiver = receiver
-            argumentList = arguments
+            argumentList = buildUnaryArgumentList(rhsExpression)
 
             calleeReference = buildSimpleNamedReference {
                 this.source = source
