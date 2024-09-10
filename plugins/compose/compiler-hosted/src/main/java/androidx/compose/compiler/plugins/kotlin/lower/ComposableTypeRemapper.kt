@@ -356,33 +356,6 @@ internal class DeepCopyIrTreeWithRemappedComposableTypes(
             copyRemappedTypeArgumentsFrom(expression)
         }.copyAttributes(expression)
     }
-
-    /* copied verbatim from DeepCopyIrTreeWithSymbols */
-    private fun IrMemberAccessExpression<*>.copyRemappedTypeArgumentsFrom(
-        other: IrMemberAccessExpression<*>
-    ) {
-        assert(typeArgumentsCount == other.typeArgumentsCount) {
-            "Mismatching type arguments: $typeArgumentsCount vs ${other.typeArgumentsCount} "
-        }
-        for (i in 0 until typeArgumentsCount) {
-            putTypeArgument(i, other.getTypeArgument(i)?.remapType())
-        }
-    }
-
-    /* copied verbatim from DeepCopyIrTreeWithSymbols */
-    private fun <T : IrMemberAccessExpression<*>> T.transformValueArguments(original: T) {
-        transformReceiverArguments(original)
-        for (i in 0 until original.valueArgumentsCount) {
-            putValueArgument(i, original.getValueArgument(i)?.transform())
-        }
-    }
-
-    /* copied verbatim from DeepCopyIrTreeWithSymbols */
-    private fun <T : IrMemberAccessExpression<*>> T.transformReceiverArguments(original: T): T =
-        apply {
-            dispatchReceiver = original.dispatchReceiver?.transform()
-            extensionReceiver = original.extensionReceiver?.transform()
-        }
 }
 
 class ComposerTypeRemapper(
