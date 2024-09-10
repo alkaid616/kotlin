@@ -3,5 +3,5 @@
 @RequiresOptIn
 annotation class ApiMarker
 
-@<!OPT_IN_USAGE_ERROR!>SubclassOptInRequired<!>(ApiMarker::class)
+@SubclassOptInRequired(ApiMarker::class)
 open class OpenKlass

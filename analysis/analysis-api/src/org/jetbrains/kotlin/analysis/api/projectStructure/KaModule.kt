@@ -24,7 +24,6 @@ import java.nio.file.Path
  * [KaModule] is a Source Set (or considering a new project model naming a Fragment).
  * Some examples of a module: main source set, test source set, library, JDK.
  */
-@OptIn(ExperimentalSubclassOptIn::class)
 @SubclassOptInRequired(markerClass = KaPlatformInterface::class)
 public interface KaModule {
     /**
@@ -94,7 +93,6 @@ public interface KaModule {
  *
  * Generally, a main or test Source Set.
  */
-@OptIn(ExperimentalSubclassOptIn::class)
 @SubclassOptInRequired(markerClass = KaPlatformInterface::class)
 public interface KaSourceModule : KaModule {
     public val name: String
@@ -125,7 +123,6 @@ public interface KaSourceModule : KaModule {
 /**
  * A module which represents a binary library, e.g. JAR or KLIB.
  */
-@OptIn(ExperimentalSubclassOptIn::class)
 @SubclassOptInRequired(markerClass = KaPlatformInterface::class)
 public interface KaLibraryModule : KaModule {
     public val libraryName: String
@@ -169,7 +166,6 @@ public interface KaLibraryModule : KaModule {
 /**
  * Sources for some [KaLibraryModule].
  */
-@OptIn(ExperimentalSubclassOptIn::class)
 @SubclassOptInRequired(markerClass = KaPlatformInterface::class)
 public interface KaLibrarySourceModule : KaModule {
     public val libraryName: String
@@ -203,7 +199,6 @@ public interface KaBuiltinsModule : KaModule {
  * A module for a Kotlin script file.
  */
 @KaExperimentalApi
-@OptIn(ExperimentalSubclassOptIn::class)
 @SubclassOptInRequired(markerClass = KaPlatformInterface::class)
 public interface KaScriptModule : KaModule {
     /**

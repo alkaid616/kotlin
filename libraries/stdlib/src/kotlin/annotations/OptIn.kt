@@ -175,7 +175,7 @@ public annotation class ExperimentalSubclassOptIn
 @Target(CLASS)
 @Retention(BINARY)
 @SinceKotlin("1.8")
-@ExperimentalSubclassOptIn
+@WasExperimental(ExperimentalSubclassOptIn::class)
 public annotation class SubclassOptInRequired(
     val markerClass: KClass<out Annotation>
 )
