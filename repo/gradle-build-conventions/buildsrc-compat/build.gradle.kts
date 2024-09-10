@@ -94,6 +94,8 @@ java {
 }
 
 dependencies {
+    api(project(":gradle-plugins-common"))
+    
     implementation(kotlin("stdlib", embeddedKotlinVersion))
     implementation("org.jetbrains.kotlin:kotlin-build-gradle-plugin:${kotlinBuildProperties.buildGradlePluginVersion}")
     implementation(libs.gradle.pluginPublish.gradlePlugin)
