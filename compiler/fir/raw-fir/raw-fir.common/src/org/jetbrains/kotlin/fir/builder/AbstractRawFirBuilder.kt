@@ -909,7 +909,7 @@ abstract class AbstractRawFirBuilder<T>(val baseSession: FirSession, val context
                     )
                 }
 
-            val areParenthesizedLhsProhibited = this@AbstractRawFirBuilder.baseSession.languageVersionSettings.supportsFeature(
+            val prohibitSetCallsForParenthesizedLhs = this@AbstractRawFirBuilder.baseSession.languageVersionSettings.supportsFeature(
                 LanguageFeature.ParenthesizedLhsInAssignments
             )
 
@@ -920,7 +920,7 @@ abstract class AbstractRawFirBuilder<T>(val baseSession: FirSession, val context
                 sourceElementForErrorIfSafeCallSelectorIsNotExpression = null
             ) { actualReceiver ->
                 // Disable `set` resolution for `(c?.p) += ...` where `p` has an extension operator `plus()`.
-                if (isLhsParenthesized && areParenthesizedLhsProhibited) {
+                if (isLhsParenthesized && prohibitSetCallsForParenthesizedLhs) {
                     generateAssignmentOperatorCall(operation, baseSource, receiverToUse, buildUnaryArgumentList(rhsExpression), annotations)
                 } else {
                     buildAugmentedAssignment {
@@ -992,7 +992,7 @@ abstract class AbstractRawFirBuilder<T>(val baseSession: FirSession, val context
         convert: T.() -> FirExpression,
         isLhsParenthesized: Boolean,
     ): FirStatement {
-        val areParenthesizedLhsProhibited = this@AbstractRawFirBuilder.baseSession.languageVersionSettings.supportsFeature(
+        val prohibitSetCallsForParenthesizedLhs = this@AbstractRawFirBuilder.baseSession.languageVersionSettings.supportsFeature(
             LanguageFeature.ParenthesizedLhsInAssignments
         )
 
@@ -1000,7 +1000,7 @@ abstract class AbstractRawFirBuilder<T>(val baseSession: FirSession, val context
         // Here, we explicitly declare that it can't be desugared as `a?.{ b[3] = b[3] + 1 }` or
         // as some other sort of `plus` + set, thus we leave only `plusAssign` form.
         // Also, disable `set` resolution for `(a[0]) += ...` where `a: Array<A>`.
-        if (receiver is FirSafeCallExpression || isLhsParenthesized && areParenthesizedLhsProhibited) {
+        if (receiver is FirSafeCallExpression || isLhsParenthesized && prohibitSetCallsForParenthesizedLhs) {
             val arguments = buildUnaryArgumentList(
                 rhs?.convert() ?: buildErrorExpression(
                     null,
