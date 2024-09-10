@@ -15,6 +15,7 @@ import org.jetbrains.kotlin.backend.common.validateIr
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.config.AnalysisFlags
 import org.jetbrains.kotlin.config.IrVerificationMode
+import org.jetbrains.kotlin.config.LanguageFeature
 import org.jetbrains.kotlin.diagnostics.impl.BaseDiagnosticsCollector
 import org.jetbrains.kotlin.fir.FirModuleData
 import org.jetbrains.kotlin.fir.FirSession
@@ -453,6 +454,7 @@ private fun IrPluginContext.runMandatoryIrValidation(
                 checkTreeConsistency = false,
                 // Cross-file field accesses, though, do result in invalid KLIBs, so report them as early as possible.
                 checkCrossFileFieldUsage = true,
+                checkAllKotlinFieldsArePrivate = !fir2IrConfiguration.languageVersionSettings.supportsFeature(LanguageFeature.ExplicitBackingFields),
             )
         )
     }
