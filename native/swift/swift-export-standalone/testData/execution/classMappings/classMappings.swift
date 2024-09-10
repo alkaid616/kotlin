@@ -10,32 +10,27 @@ func testType<T: KotlinBase>(_ name: String, _ type: T.Type) throws {
 }
 
 func testAnyClass() throws {
-    try assertFalse(isAnyClassNameNull())
-    try testType(getAnyClassName(), KotlinBase.self)
+    try testType(getAnyClassName()!, KotlinBase.self)
 }
 
 func testFinalClass() throws {
-    try assertFalse(isFinalClassNameNull())
-    try testType(getFinalClassName(), FinalClass.self)
+    try testType(getFinalClassName()!, FinalClass.self)
 }
 
 func testNestedFinalClass() throws {
-    try assertFalse(isNestedFinalClassNameNull())
-    try testType(getNestedFinalClassName(), FinalClass.NestedFinalClass.self)
+    try testType(getNestedFinalClassName()!, FinalClass.NestedFinalClass.self)
 }
 
 func testNamespacedFinalClass() throws {
-    try assertFalse(namespace.isNamespacedFinalClassNameNull())
-    try testType(namespace.getNamespacedFinalClassName(), namespace.NamespacedFinalClass.self)
+    try testType(namespace.getNamespacedFinalClassName()!, namespace.NamespacedFinalClass.self)
 }
 
 func testOpenClass() throws {
-    try assertFalse(isOpenClassNameNull())
-    try testType(getOpenClassName(), OpenClass.self)
+    try testType(getOpenClassName()!, OpenClass.self)
 }
 
 func testPrivateClass() throws {
-    try assertTrue(isPrivateClassNameNull())
+    try assertNil(getPrivateClassName())
 }
 
 class ClassMappingsTests : TestProvider {
