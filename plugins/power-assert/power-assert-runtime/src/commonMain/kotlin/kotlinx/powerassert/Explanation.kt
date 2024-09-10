@@ -5,11 +5,8 @@
 
 package kotlinx.powerassert
 
-public class VariableDiagram(
-    public val source: String,
-    public val assignment: Assignment,
-) {
-    public class Assignment(
-        public val expressions: List<Expression>,
-    )
+// TODO include startOffset? row/column? how does that impact offsets in expressions?
+public abstract class Explanation internal constructor() {
+    public abstract val source: String
+    public abstract val expressions: List<Expression>
 }

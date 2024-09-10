@@ -12,6 +12,10 @@ public open class Expression(
     public val value: Any?,
 )
 
+public interface ExplainedExpression {
+    public val explanation: Explanation
+}
+
 public class EqualityExpression(
     startOffset: Int,
     endOffset: Int,
@@ -26,5 +30,5 @@ public class VariableAccessExpression(
     endOffset: Int,
     displayOffset: Int,
     value: Any?,
-    public val diagram: VariableDiagram?,
-) : Expression(startOffset, endOffset, displayOffset, value)
+    public override val explanation: VariableExplanation,
+) : Expression(startOffset, endOffset, displayOffset, value), ExplainedExpression

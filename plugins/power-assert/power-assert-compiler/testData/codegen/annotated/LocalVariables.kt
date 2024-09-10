@@ -1,6 +1,6 @@
 // DUMP_KT_IR
 
-import kotlinx.powerassert.Explain
+import kotlinx.powerassert.*
 
 fun box(): String {
     return test1() +

@@ -1,6 +1,7 @@
-fun describe$powerassert(value: Any, $diagram: CallDiagram): String? {
+@JvmSynthetic
+fun describe$explained(value: Any, $explanation: CallExplanation): String? {
   return { // BLOCK
-    val tmp_0: CallDiagram? = $diagram
+    val tmp_0: CallExplanation? = $explanation
     when {
       EQEQ(arg0 = tmp_0, arg1 = null) -> null
       else -> tmp_0.toDefaultMessage()
@@ -12,11 +13,11 @@ fun box(): String {
   val reallyLongList: List<String> = listOf<String>(elements = ["a", "b"])
   return { // BLOCK
     val tmp_1: String? = { // BLOCK
-      val tmp0_PowerAssertSynthesized: List<String> = reallyLongList
-      val tmp1_PowerAssertSynthesized: List<String> = tmp0_PowerAssertSynthesized.reversed<String>()
-      val tmp2_PowerAssertSynthesized: List<String> = emptyList<String>()
-      val tmp3_PowerAssertSynthesized: Boolean = EQEQ(arg0 = tmp1_PowerAssertSynthesized, arg1 = tmp2_PowerAssertSynthesized)
-      describe$powerassert(value = tmp3_PowerAssertSynthesized, $diagram = CallDiagram(source = "describe(reallyLongList.reversed() == emptyList<String>())", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "value", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 9, endOffset = 23, displayOffset = 9, value = tmp0_PowerAssertSynthesized), Expression(startOffset = 24, endOffset = 34, displayOffset = 24, value = tmp1_PowerAssertSynthesized), Expression(startOffset = 38, endOffset = 57, displayOffset = 38, value = tmp2_PowerAssertSynthesized), EqualityExpression(startOffset = 9, endOffset = 57, displayOffset = 35, value = tmp3_PowerAssertSynthesized, lhs = tmp1_PowerAssertSynthesized, rhs = tmp2_PowerAssertSynthesized)])))])))
+      val tmp0_Explain: List<String> = reallyLongList
+      val tmp1_Explain: List<String> = tmp0_Explain.reversed<String>()
+      val tmp2_Explain: List<String> = emptyList<String>()
+      val tmp3_Explain: Boolean = EQEQ(arg0 = tmp1_Explain, arg1 = tmp2_Explain)
+      describe$explained(value = tmp3_Explain, $explanation = CallExplanation(source = "describe(reallyLongList.reversed() == emptyList<String>())", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "value", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 9, endOffset = 23, displayOffset = 9, value = tmp0_Explain), Expression(startOffset = 24, endOffset = 34, displayOffset = 24, value = tmp1_Explain), Expression(startOffset = 38, endOffset = 57, displayOffset = 38, value = tmp2_Explain), EqualityExpression(startOffset = 9, endOffset = 57, displayOffset = 35, value = tmp3_Explain, lhs = tmp1_Explain, rhs = tmp2_Explain)])))])))
     }
     when {
       EQEQ(arg0 = tmp_1, arg1 = null) -> "FAIL"
@@ -25,10 +26,10 @@ fun box(): String {
   }
 }
 
-@PowerAssert
+@ExplainCall
 fun describe(value: Any): String? {
   return { // BLOCK
-    val tmp_2: CallDiagram? = null
+    val tmp_2: CallExplanation? = null
     when {
       EQEQ(arg0 = tmp_2, arg1 = null) -> null
       else -> tmp_2.toDefaultMessage()

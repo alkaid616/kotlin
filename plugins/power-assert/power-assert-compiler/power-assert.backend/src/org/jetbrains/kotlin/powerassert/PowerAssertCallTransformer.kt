@@ -23,7 +23,6 @@ import org.jetbrains.kotlin.backend.common.IrElementTransformerVoidWithContext
 import org.jetbrains.kotlin.backend.common.ScopeWithIr
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
-import org.jetbrains.kotlin.backend.jvm.ir.isInvokeSuspendOfLambda
 import org.jetbrains.kotlin.backend.jvm.ir.parentClassId
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
@@ -36,8 +35,6 @@ import org.jetbrains.kotlin.ir.declarations.*
 import org.jetbrains.kotlin.ir.expressions.IrBlockBody
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
-import org.jetbrains.kotlin.ir.expressions.impl.IrConstructorCallImpl
-import org.jetbrains.kotlin.ir.expressions.impl.fromSymbolOwner
 import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
 import org.jetbrains.kotlin.ir.symbols.IrTypeParameterSymbol
 import org.jetbrains.kotlin.ir.types.*
@@ -45,6 +42,7 @@ import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.powerassert.builder.call.CallBuilder
 import org.jetbrains.kotlin.powerassert.builder.call.LambdaCallBuilder
 import org.jetbrains.kotlin.powerassert.builder.call.SamConversionLambdaCallBuilder
@@ -57,9 +55,11 @@ class PowerAssertCallTransformer(
     private val context: IrPluginContext,
     private val messageCollector: MessageCollector,
     private val functions: Set<FqName>,
-    private val transformed: Map<IrSimpleFunctionSymbol, IrSimpleFunctionSymbol>,
+    private val builtIns: PowerAssertBuiltIns,
+    private val factory: ExplainCallFunctionFactory,
 ) : IrElementTransformerVoidWithContext() {
     private val irTypeSystemContext = IrTypeSystemContextImpl(context.irBuiltIns)
+    private val callDiagramFactory = CallDiagramFactory(builtIns)
 
     private class PowerAssertScope(scope: Scope, irElement: IrElement) : ScopeWithIr(scope, irElement) {
         val variables = mutableMapOf<IrVariable, IrVariable>()
@@ -86,25 +86,25 @@ class PowerAssertCallTransformer(
     }
 
     override fun visitVariable(declaration: IrVariable): IrStatement {
-        if (
-            !declaration.hasAnnotation(ExplainAnnotation) &&
-            (declaration.parent as? IrAnnotationContainer)?.hasAnnotation(ExplainAnnotation) != true
-            // TODO inherit through lambda type argument?
-        ) return super.visitVariable(declaration)
+        declaration.transformChildrenVoid()
 
-        (declaration.parent as IrFunction).isInvokeSuspendOfLambda()
+        if (
+            !declaration.hasAnnotation(builtIns.explainClass) &&
+            (declaration.parent as? IrAnnotationContainer)?.hasAnnotation(builtIns.explainClass) != true
+            // TODO inherit through lambda type argument?
+        ) return declaration
 
         // TODO FIR checks
         if (declaration.initializer == null) {
-            messageCollector.warn(element = declaration, message = "Variable annotated with @PowerAssert must have an initializer.")
-            return super.visitVariable(declaration)
+            messageCollector.warn(element = declaration, message = "Variable annotated with @Explain must have an initializer.")
+            return declaration
         }
         if (declaration.isVar) {
-            messageCollector.warn(element = declaration, message = "Variable annotated with @PowerAssert must be val.")
-            return super.visitVariable(declaration)
+            messageCollector.warn(element = declaration, message = "Variable annotated with @Explain must be val.")
+            return declaration
         }
 
-        val diagramVariable = buildForAnnotated(declaration) ?: return super.visitVariable(declaration)
+        val diagramVariable = buildForAnnotated(declaration) ?: return declaration
 
         val variables = (currentScope as PowerAssertScope).variables
         variables.put(declaration, diagramVariable)
@@ -112,16 +112,15 @@ class PowerAssertCallTransformer(
     }
 
     override fun visitCall(expression: IrCall): IrExpression {
-        val result = super.visitCall(expression)
+        expression.transformChildrenVoid()
 
-        val call = result as? IrCall ?: return result
-        val function = call.symbol.owner
+        val function = expression.symbol.owner
         val fqName = function.kotlinFqName
         return when {
-            function.valueParameters.isEmpty() -> result
-            function.hasAnnotation(PowerAssertAnnotation) -> buildForAnnotated(call, function)
-            fqName in functions -> buildForOverride(call, function)
-            else -> result
+            function.valueParameters.isEmpty() -> expression
+            function.hasAnnotation(builtIns.explainCallClass) -> buildForAnnotated(expression, function)
+            fqName in functions -> buildForOverride(expression, function)
+            else -> expression
         }
     }
 
@@ -129,10 +128,7 @@ class PowerAssertCallTransformer(
         originalCall: IrCall,
         function: IrSimpleFunction,
     ): IrExpression {
-        // TODO !!! transformed may be empty if incremental complication did not include the original function !!!
-        //  how does this work for function with default parameters? there must be a better way to find the synthetic function...
-        val synthetic = transformed[function.symbol]
-            ?: context.referenceFunctions(function.callableId).singleOrNull { it.isSyntheticFor(function) }
+        val synthetic = factory.find(function)
         if (synthetic == null) {
             messageCollector.warn(
                 element = originalCall,
@@ -142,7 +138,7 @@ class PowerAssertCallTransformer(
         }
 
         val variableDiagrams = allScopes.mapNotNull { it as? PowerAssertScope }.flatMap { it.variables.entries }.associate { it.toPair() }
-        val diagramBuilder = CallDiagramDiagramBuilder(CallDiagramFactory(context), sourceFile, originalCall, variableDiagrams)
+        val diagramBuilder = CallDiagramDiagramBuilder(callDiagramFactory, sourceFile, originalCall, variableDiagrams)
         val callBuilder = SimpleCallBuilder(synthetic, originalCall)
         return buildPowerAssertCall(originalCall, function, callBuilder, diagramBuilder)
     }
@@ -150,7 +146,6 @@ class PowerAssertCallTransformer(
     private fun buildForAnnotated(
         variable: IrVariable,
     ): IrVariable? {
-        val factory = CallDiagramFactory(context)
         val initializer = variable.initializer!!
 
         val expressionRoot = buildTree(parameter = null, initializer).child
@@ -163,16 +158,16 @@ class PowerAssertCallTransformer(
         val builder = DeclarationIrBuilder(context, currentScope.scope.scopeOwnerSymbol, initializer.startOffset, initializer.endOffset)
 
         val diagramVariable = currentScope.scope.createTemporaryVariableDeclaration(
-            nameHint = "PowerAssertVariableDiagram",
-            irType = factory.variableDiagramType,
-            origin = EXPLAIN_DIAGRAM,
+            nameHint = variable.name.asString() + "Explanation",
+            irType = builtIns.variableExplanationType,
+            origin = EXPLANATION,
             startOffset = UNDEFINED_OFFSET,
             endOffset = UNDEFINED_OFFSET,
         )
 
         val variableDiagrams = allScopes.mapNotNull { it as? PowerAssertScope }.flatMap { it.variables.entries }.associate { it.toPair() }
         variable.initializer = builder.buildDiagramNesting(sourceFile, expressionRoot) { argument, newVariables ->
-            +irSet(diagramVariable, builder.irVariableDiagram(factory, sourceFile, variable, newVariables, variableDiagrams))
+            +irSet(diagramVariable, builder.irVariableDiagram(callDiagramFactory, sourceFile, variable, newVariables, variableDiagrams))
             argument
         }
 
@@ -206,10 +201,9 @@ class PowerAssertCallTransformer(
             function.valueParameters.size -> originalCall.getValueArgument(originalCall.valueArgumentsCount - 1)
             else -> null
         }
-        val factory = CallDiagramFactory(context)
         val variableDiagrams = allScopes.mapNotNull { it as? PowerAssertScope }.flatMap { it.variables.entries }.associate { it.toPair() }
-        val diagramBuilder = CallDiagramDiagramBuilder(factory, sourceFile, originalCall, variableDiagrams)
-        val stringBuilder = StringDiagramBuilder(factory, function, messageArgument, diagramBuilder)
+        val diagramBuilder = CallDiagramDiagramBuilder(callDiagramFactory, sourceFile, originalCall, variableDiagrams)
+        val stringBuilder = StringDiagramBuilder(callDiagramFactory, function, messageArgument, diagramBuilder)
         return buildPowerAssertCall(originalCall, function, callBuilder, stringBuilder)
     }
 
@@ -253,8 +247,8 @@ class PowerAssertCallTransformer(
     private fun getRootNode(parameter: IrValueParameter, argument: IrExpression?): RootNode<IrValueParameter> {
         // Check if the parameter or parameter type should be ignored.
         if (
-            parameter.hasAnnotation(PowerAssertIgnoreAnnotation) ||
-            parameter.type.getClass()?.hasAnnotation(PowerAssertIgnoreAnnotation) == true
+            parameter.hasAnnotation(builtIns.explainIgnoreClass) ||
+            parameter.type.getClass()?.hasAnnotation(builtIns.explainIgnoreClass) == true
         ) return RootNode(parameter)
 
         return buildTree(parameter, argument)
@@ -342,19 +336,6 @@ class PowerAssertCallTransformer(
                 else -> null
             }
         }
-    }
-
-    private fun IrSimpleFunctionSymbol.isSyntheticFor(function: IrSimpleFunction): Boolean {
-        val owner = owner
-        if (function.dispatchReceiverParameter?.type != owner.dispatchReceiverParameter?.type) return false
-        if (function.extensionReceiverParameter?.type != owner.extensionReceiverParameter?.type) return false
-
-        if (function.valueParameters.size != owner.valueParameters.size - 1) return false
-        for (index in function.valueParameters.indices) {
-            if (function.valueParameters[index].type != owner.valueParameters[index].type) return false
-        }
-
-        return owner.valueParameters.last().type.classFqName == CallDiagramFactory.classIdCallDiagram.asSingleFqName()
     }
 
     private fun isStringFunction(type: IrType): Boolean =

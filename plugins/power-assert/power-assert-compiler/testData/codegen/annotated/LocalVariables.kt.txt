@@ -4,34 +4,34 @@ fun box(): String {
 
 fun test1(): String {
   return expectThrowableMessage(block = local fun <anonymous>() {
-    val tmp0_PowerAssertVariableDiagram: VariableDiagram
-    val tmp1_PowerAssertVariableDiagram: VariableDiagram
-    val tmp2_PowerAssertVariableDiagram: VariableDiagram
+    val tmp0_worldExplanation: VariableExplanation
+    val tmp1_expectedExplanation: VariableExplanation
+    val tmp2_actualExplanation: VariableExplanation
     @Explain
     val hello: String = "Hello"
     @Explain
     val world: String = { // BLOCK
-      val tmp0_PowerAssertSynthesized: String = "World".substring(startIndex = 1, endIndex = 4)
-      tmp0_PowerAssertVariableDiagram = VariableDiagram(source = "@Explain val world = \"World\".substring(1, 4)", assignment = Assignment(expressions = listOf</* null */>(elements = [Expression(startOffset = 29, endOffset = 44, displayOffset = 29, value = tmp0_PowerAssertSynthesized)])))
-      tmp0_PowerAssertSynthesized
+      val tmp0_Explain: String = "World".substring(startIndex = 1, endIndex = 4)
+      tmp0_worldExplanation = VariableExplanation(source = "@Explain val world = \"World\".substring(1, 4)", initializer = Initializer(expressions = listOf</* null */>(elements = [Expression(startOffset = 29, endOffset = 44, displayOffset = 29, value = tmp0_Explain)])))
+      tmp0_Explain
     }
     @Explain
     val expected: Int = { // BLOCK
-      val tmp0_PowerAssertSynthesized: String = hello
-      val tmp1_PowerAssertSynthesized: Int = tmp0_PowerAssertSynthesized.<get-length>()
-      tmp1_PowerAssertVariableDiagram = VariableDiagram(source = "@Explain\nval expected =\n    hello.length", assignment = Assignment(expressions = listOf</* null */>(elements = [Expression(startOffset = 28, endOffset = 33, displayOffset = 28, value = tmp0_PowerAssertSynthesized), Expression(startOffset = 34, endOffset = 40, displayOffset = 34, value = tmp1_PowerAssertSynthesized)])))
-      tmp1_PowerAssertSynthesized
+      val tmp0_Explain: String = hello
+      val tmp1_Explain: Int = tmp0_Explain.<get-length>()
+      tmp1_expectedExplanation = VariableExplanation(source = "@Explain\nval expected =\n    hello.length", initializer = Initializer(expressions = listOf</* null */>(elements = [Expression(startOffset = 28, endOffset = 33, displayOffset = 28, value = tmp0_Explain), Expression(startOffset = 34, endOffset = 40, displayOffset = 34, value = tmp1_Explain)])))
+      tmp1_Explain
     }
     @Explain
     val actual: Int = { // BLOCK
-      val tmp0_PowerAssertSynthesized: Int = world.<get-length>()
-      tmp2_PowerAssertVariableDiagram = VariableDiagram(source = "@Explain val actual = world.length", assignment = Assignment(expressions = listOf</* null */>(elements = [VariableAccessExpression(startOffset = 22, endOffset = 27, displayOffset = 22, value = world, diagram = tmp0_PowerAssertVariableDiagram), Expression(startOffset = 28, endOffset = 34, displayOffset = 28, value = tmp0_PowerAssertSynthesized)])))
-      tmp0_PowerAssertSynthesized
+      val tmp0_Explain: Int = world.<get-length>()
+      tmp2_actualExplanation = VariableExplanation(source = "@Explain val actual = world.length", initializer = Initializer(expressions = listOf</* null */>(elements = [VariableAccessExpression(startOffset = 22, endOffset = 27, displayOffset = 22, value = world, explanation = tmp0_worldExplanation), Expression(startOffset = 28, endOffset = 34, displayOffset = 28, value = tmp0_Explain)])))
+      tmp0_Explain
     }
     { // BLOCK
-      val tmp0_PowerAssertSynthesized: Boolean = EQEQ(arg0 = expected, arg1 = actual)
-      assert(value = tmp0_PowerAssertSynthesized, lazyMessage = local fun <anonymous>(): String {
-        return "\n" + CallDiagram(source = "assert(expected == actual)", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "value", second = ValueParameter(expressions = listOf</* null */>(elements = [VariableAccessExpression(startOffset = 7, endOffset = 15, displayOffset = 7, value = expected, diagram = tmp1_PowerAssertVariableDiagram), VariableAccessExpression(startOffset = 19, endOffset = 25, displayOffset = 19, value = actual, diagram = tmp2_PowerAssertVariableDiagram), EqualityExpression(startOffset = 7, endOffset = 25, displayOffset = 16, value = tmp0_PowerAssertSynthesized, lhs = expected, rhs = actual)])))])).toDefaultMessage()
+      val tmp0_Explain: Boolean = EQEQ(arg0 = expected, arg1 = actual)
+      assert(value = tmp0_Explain, lazyMessage = local fun <anonymous>(): String {
+        return "\n" + CallExplanation(source = "assert(expected == actual)", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "value", second = ValueParameter(expressions = listOf</* null */>(elements = [VariableAccessExpression(startOffset = 7, endOffset = 15, displayOffset = 7, value = expected, explanation = tmp1_expectedExplanation), VariableAccessExpression(startOffset = 19, endOffset = 25, displayOffset = 19, value = actual, explanation = tmp2_actualExplanation), EqualityExpression(startOffset = 7, endOffset = 25, displayOffset = 16, value = tmp0_Explain, lhs = expected, rhs = actual)])))])).toDefaultMessage()
       }
 )
     }
@@ -48,23 +48,23 @@ fun test2(): String {
 
 @Explain
 fun test2_run() {
-  val tmp0_PowerAssertVariableDiagram: VariableDiagram
-  val tmp1_PowerAssertVariableDiagram: VariableDiagram
+  val tmp0_expectedExplanation: VariableExplanation
+  val tmp1_actualExplanation: VariableExplanation
   val expected: Int = { // BLOCK
-    val tmp0_PowerAssertSynthesized: Int = "Hello".<get-length>()
-    tmp0_PowerAssertVariableDiagram = VariableDiagram(source = "expected = \"Hello\".length", assignment = Assignment(expressions = listOf</* null */>(elements = [Expression(startOffset = 19, endOffset = 25, displayOffset = 19, value = tmp0_PowerAssertSynthesized)])))
-    tmp0_PowerAssertSynthesized
+    val tmp0_Explain: Int = "Hello".<get-length>()
+    tmp0_expectedExplanation = VariableExplanation(source = "expected = \"Hello\".length", initializer = Initializer(expressions = listOf</* null */>(elements = [Expression(startOffset = 19, endOffset = 25, displayOffset = 19, value = tmp0_Explain)])))
+    tmp0_Explain
   }
   val actual: Int = { // BLOCK
-    val tmp0_PowerAssertSynthesized: String = "World".substring(startIndex = 1, endIndex = 4)
-    val tmp1_PowerAssertSynthesized: Int = tmp0_PowerAssertSynthesized.<get-length>()
-    tmp1_PowerAssertVariableDiagram = VariableDiagram(source = "actual = \"World\".substring(1, 4).length", assignment = Assignment(expressions = listOf</* null */>(elements = [Expression(startOffset = 17, endOffset = 32, displayOffset = 17, value = tmp0_PowerAssertSynthesized), Expression(startOffset = 33, endOffset = 39, displayOffset = 33, value = tmp1_PowerAssertSynthesized)])))
-    tmp1_PowerAssertSynthesized
+    val tmp0_Explain: String = "World".substring(startIndex = 1, endIndex = 4)
+    val tmp1_Explain: Int = tmp0_Explain.<get-length>()
+    tmp1_actualExplanation = VariableExplanation(source = "actual = \"World\".substring(1, 4).length", initializer = Initializer(expressions = listOf</* null */>(elements = [Expression(startOffset = 17, endOffset = 32, displayOffset = 17, value = tmp0_Explain), Expression(startOffset = 33, endOffset = 39, displayOffset = 33, value = tmp1_Explain)])))
+    tmp1_Explain
   }
   { // BLOCK
-    val tmp0_PowerAssertSynthesized: Boolean = EQEQ(arg0 = expected, arg1 = actual)
-    assert(value = tmp0_PowerAssertSynthesized, lazyMessage = local fun <anonymous>(): String {
-      return "\n" + CallDiagram(source = "assert(expected == actual)", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "value", second = ValueParameter(expressions = listOf</* null */>(elements = [VariableAccessExpression(startOffset = 7, endOffset = 15, displayOffset = 7, value = expected, diagram = tmp0_PowerAssertVariableDiagram), VariableAccessExpression(startOffset = 19, endOffset = 25, displayOffset = 19, value = actual, diagram = tmp1_PowerAssertVariableDiagram), EqualityExpression(startOffset = 7, endOffset = 25, displayOffset = 16, value = tmp0_PowerAssertSynthesized, lhs = expected, rhs = actual)])))])).toDefaultMessage()
+    val tmp0_Explain: Boolean = EQEQ(arg0 = expected, arg1 = actual)
+    assert(value = tmp0_Explain, lazyMessage = local fun <anonymous>(): String {
+      return "\n" + CallExplanation(source = "assert(expected == actual)", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "value", second = ValueParameter(expressions = listOf</* null */>(elements = [VariableAccessExpression(startOffset = 7, endOffset = 15, displayOffset = 7, value = expected, explanation = tmp0_expectedExplanation), VariableAccessExpression(startOffset = 19, endOffset = 25, displayOffset = 19, value = actual, explanation = tmp1_actualExplanation), EqualityExpression(startOffset = 7, endOffset = 25, displayOffset = 16, value = tmp0_Explain, lhs = expected, rhs = actual)])))])).toDefaultMessage()
     }
 )
   }

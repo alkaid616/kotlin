@@ -1,13 +1,11 @@
 // DUMP_KT_IR
 
-import kotlinx.powerassert.PowerAssert
-import kotlinx.powerassert.CallDiagram
-import kotlinx.powerassert.toDefaultMessage
+import kotlinx.powerassert.*
 
-@PowerAssert
-fun assertEquals(expected: Any?, actual: Any?, @PowerAssert.Ignore message: String? = null) {
+@ExplainCall
+fun assertEquals(expected: Any?, actual: Any?, @ExplainIgnore message: String? = null) {
     if (actual != expected) {
-        val diagram = PowerAssert.diagram ?: error("no power-assert")
+        val diagram = ExplainCall.explanation ?: error("no power-assert")
         throw AssertionError("\n" + diagram.toDefaultMessage())
     }
 }

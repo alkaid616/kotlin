@@ -1,3 +1,6 @@
+// MODULE: lib
+// FILE: A.kt
+
 @JvmSynthetic
 fun describe$explained(value: Any, $explanation: CallExplanation): String? {
   return { // BLOCK
@@ -9,10 +12,24 @@ fun describe$explained(value: Any, $explanation: CallExplanation): String? {
   }
 }
 
+@ExplainCall
+fun describe(value: Any): String? {
+  return { // BLOCK
+    val tmp_1: CallExplanation? = null
+    when {
+      EQEQ(arg0 = tmp_1, arg1 = null) -> null
+      else -> tmp_1.toDefaultMessage()
+    }
+  }
+}
+
+// MODULE: main
+// FILE: B.kt
+
 fun box(): String {
   val reallyLongList: List<String> = listOf<String>(elements = ["a", "b"])
   return { // BLOCK
-    val tmp_1: String? = { // BLOCK
+    val tmp_0: String? = { // BLOCK
       val tmp0_Explain: List<String> = reallyLongList
       val tmp1_Explain: List<String> = tmp0_Explain.reversed<String>()
       val tmp2_Explain: List<String> = emptyList<String>()
@@ -20,20 +37,8 @@ fun box(): String {
       describe$explained(value = tmp3_Explain, $explanation = CallExplanation(source = "describe(reallyLongList.reversed() == emptyList<String>())", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "value", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 9, endOffset = 23, displayOffset = 9, value = tmp0_Explain), Expression(startOffset = 24, endOffset = 34, displayOffset = 24, value = tmp1_Explain), Expression(startOffset = 38, endOffset = 57, displayOffset = 38, value = tmp2_Explain), EqualityExpression(startOffset = 9, endOffset = 57, displayOffset = 35, value = tmp3_Explain, lhs = tmp1_Explain, rhs = tmp2_Explain)])))])))
     }
     when {
-      EQEQ(arg0 = tmp_1, arg1 = null) -> "FAIL"
-      else -> tmp_1
+      EQEQ(arg0 = tmp_0, arg1 = null) -> "FAIL"
+      else -> tmp_0
     }
   }
 }
-
-@ExplainCall
-fun describe(value: Any): String? {
-  return { // BLOCK
-    val tmp_2: CallExplanation? = null
-    when {
-      EQEQ(arg0 = tmp_2, arg1 = null) -> null
-      else -> tmp_2.toDefaultMessage()
-    }
-  }
-}
-

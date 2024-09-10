@@ -1,20 +1,17 @@
-import kotlinx.powerassert.Explain
-import kotlinx.powerassert.PowerAssert
-import kotlinx.powerassert.CallDiagram
-import kotlinx.powerassert.toDefaultMessage
+import kotlinx.powerassert.*
 
-@PowerAssert.Ignore
-class AssertBuilder(val actual: Any?, val actualDiagram: CallDiagram)
+@ExplainIgnore
+class AssertBuilder(val actual: Any?, val actualDiagram: CallExplanation)
 
-@PowerAssert
+@ExplainCall
 fun assertThat(actual: Any?): AssertBuilder {
-    return AssertBuilder(actual, PowerAssert.diagram ?: error("no power-assert: assertThat"))
+    return AssertBuilder(actual, ExplainCall.explanation ?: error("no power-assert: assertThat"))
 }
 
-@PowerAssert
+@ExplainCall
 fun AssertBuilder.isEqualTo(expected: Any?) {
     if (actual != expected) {
-        val expectedDiagram = PowerAssert.diagram ?: error("no power-assert: isEqualTo")
+        val expectedDiagram = ExplainCall.explanation ?: error("no power-assert: isEqualTo")
         throw AssertionError(buildString {
             appendLine()
             appendLine("Expected:")

@@ -5,18 +5,18 @@ fun box(): String {
 fun test1(a: Any): String {
   return expectThrowableMessage(block = local fun <anonymous>() {
     { // BLOCK
-      val tmp0_PowerAssertSynthesized: Any = a
-      val tmp1_PowerAssertSynthesized: String? = tmp0_PowerAssertSynthesized as? String
-      val tmp2_PowerAssertSynthesized: Int? = { // BLOCK
-        val tmp_0: String? = tmp1_PowerAssertSynthesized
+      val tmp0_Explain: Any = a
+      val tmp1_Explain: String? = tmp0_Explain as? String
+      val tmp2_Explain: Int? = { // BLOCK
+        val tmp_0: String? = tmp1_Explain
         when {
           EQEQ(arg0 = tmp_0, arg1 = null) -> null
           else -> tmp_0.<get-length>()
         }
       }
-      val tmp3_PowerAssertSynthesized: Boolean = EQEQ(arg0 = tmp2_PowerAssertSynthesized, arg1 = 5)
-      assert(value = tmp3_PowerAssertSynthesized, lazyMessage = local fun <anonymous>(): String {
-        return "\n" + CallDiagram(source = "assert((a as? String)?.length == 5)", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "value", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 8, endOffset = 9, displayOffset = 8, value = tmp0_PowerAssertSynthesized), Expression(startOffset = 8, endOffset = 20, displayOffset = 10, value = tmp1_PowerAssertSynthesized), Expression(startOffset = 23, endOffset = 29, displayOffset = 23, value = tmp2_PowerAssertSynthesized), EqualityExpression(startOffset = 7, endOffset = 34, displayOffset = 30, value = tmp3_PowerAssertSynthesized, lhs = tmp2_PowerAssertSynthesized, rhs = 5)])))])).toDefaultMessage()
+      val tmp3_Explain: Boolean = EQEQ(arg0 = tmp2_Explain, arg1 = 5)
+      assert(value = tmp3_Explain, lazyMessage = local fun <anonymous>(): String {
+        return "\n" + CallExplanation(source = "assert((a as? String)?.length == 5)", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "value", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 8, endOffset = 9, displayOffset = 8, value = tmp0_Explain), Expression(startOffset = 8, endOffset = 20, displayOffset = 10, value = tmp1_Explain), Expression(startOffset = 23, endOffset = 29, displayOffset = 23, value = tmp2_Explain), EqualityExpression(startOffset = 7, endOffset = 34, displayOffset = 30, value = tmp3_Explain, lhs = tmp2_Explain, rhs = 5)])))])).toDefaultMessage()
       }
 )
     }
@@ -27,13 +27,13 @@ fun test1(a: Any): String {
 fun test2(a: Any): String {
   return expectThrowableMessage(block = local fun <anonymous>() {
     { // BLOCK
-      val tmp0_PowerAssertSynthesized: Any = a
-      val tmp1_PowerAssertSynthesized: String? = tmp0_PowerAssertSynthesized as? String
-      requireNotNull<String>(value = tmp1_PowerAssertSynthesized, lazyMessage = local fun <anonymous>(): String {
+      val tmp0_Explain: Any = a
+      val tmp1_Explain: String? = tmp0_Explain as? String
+      requireNotNull<String>(value = tmp1_Explain, lazyMessage = local fun <anonymous>(): String {
         return local fun <anonymous>(): Any {
           return ""
         }
-.invoke() + "\n" + CallDiagram(source = "requireNotNull(a as? String) { \"\" }", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "value", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 15, endOffset = 16, displayOffset = 15, value = tmp0_PowerAssertSynthesized), Expression(startOffset = 15, endOffset = 27, displayOffset = 17, value = tmp1_PowerAssertSynthesized)])))])).toDefaultMessage()
+.invoke() + "\n" + CallExplanation(source = "requireNotNull(a as? String) { \"\" }", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "value", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 15, endOffset = 16, displayOffset = 15, value = tmp0_Explain), Expression(startOffset = 15, endOffset = 27, displayOffset = 17, value = tmp1_Explain)])))])).toDefaultMessage()
       }
 )
     } /*~> Unit */

@@ -1,8 +1,9 @@
-fun assertEquals$powerassert(expected: Any?, actual: Any?, @Ignore message: String? = null, $diagram: CallDiagram) {
+@JvmSynthetic
+fun assertEquals$explained(expected: Any?, actual: Any?, @ExplainIgnore message: String? = null, $explanation: CallExplanation) {
   when {
     EQEQ(arg0 = actual, arg1 = expected).not() -> { // BLOCK
-      val diagram: CallDiagram = { // BLOCK
-        val tmp_0: CallDiagram? = $diagram
+      val diagram: CallExplanation = { // BLOCK
+        val tmp_0: CallExplanation? = $explanation
         when {
           EQEQ(arg0 = tmp_0, arg1 = null) -> error(message = "no power-assert")
           else -> tmp_0
@@ -13,12 +14,12 @@ fun assertEquals$powerassert(expected: Any?, actual: Any?, @Ignore message: Stri
   }
 }
 
-@PowerAssert
-fun assertEquals(expected: Any?, actual: Any?, @Ignore message: String? = null) {
+@ExplainCall
+fun assertEquals(expected: Any?, actual: Any?, @ExplainIgnore message: String? = null) {
   when {
     EQEQ(arg0 = actual, arg1 = expected).not() -> { // BLOCK
-      val diagram: CallDiagram = { // BLOCK
-        val tmp_1: CallDiagram? = null
+      val diagram: CallExplanation = { // BLOCK
+        val tmp_1: CallExplanation? = null
         when {
           EQEQ(arg0 = tmp_1, arg1 = null) -> error(message = "no power-assert")
           else -> tmp_1
@@ -36,11 +37,11 @@ fun box(): String {
 fun test1(): String {
   return expectThrowableMessage(block = local fun <anonymous>() {
     { // BLOCK
-      val tmp0_PowerAssertSynthesized: Int = "Hello".<get-length>()
+      val tmp0_Explain: Int = "Hello".<get-length>()
       { // BLOCK
-        val tmp1_PowerAssertSynthesized: String = "World".substring(startIndex = 1, endIndex = 4)
-        val tmp2_PowerAssertSynthesized: Int = tmp1_PowerAssertSynthesized.<get-length>()
-        assertEquals$powerassert(expected = tmp0_PowerAssertSynthesized, actual = tmp2_PowerAssertSynthesized, $diagram = CallDiagram(source = "assertEquals(\"Hello\".length, \"World\".substring(1, 4).length)", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "expected", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 21, endOffset = 27, displayOffset = 21, value = tmp0_PowerAssertSynthesized)]))), Pair</* null */, /* null */>(first = "actual", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 37, endOffset = 52, displayOffset = 37, value = tmp1_PowerAssertSynthesized), Expression(startOffset = 53, endOffset = 59, displayOffset = 53, value = tmp2_PowerAssertSynthesized)]))), Pair</* null */, /* null */>(first = "message", second = ValueParameter(expressions = listOf</* null */>(elements = [])))])))
+        val tmp1_Explain: String = "World".substring(startIndex = 1, endIndex = 4)
+        val tmp2_Explain: Int = tmp1_Explain.<get-length>()
+        assertEquals$explained(expected = tmp0_Explain, actual = tmp2_Explain, $explanation = CallExplanation(source = "assertEquals(\"Hello\".length, \"World\".substring(1, 4).length)", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "expected", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 21, endOffset = 27, displayOffset = 21, value = tmp0_Explain)]))), Pair</* null */, /* null */>(first = "actual", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 37, endOffset = 52, displayOffset = 37, value = tmp1_Explain), Expression(startOffset = 53, endOffset = 59, displayOffset = 53, value = tmp2_Explain)]))), Pair</* null */, /* null */>(first = "message", second = ValueParameter(expressions = listOf</* null */>(elements = [])))])))
       }
     }
   }
@@ -50,11 +51,11 @@ fun test1(): String {
 fun test2(): String {
   return expectThrowableMessage(block = local fun <anonymous>() {
     { // BLOCK
-      val tmp0_PowerAssertSynthesized: Int = "Hello".<get-length>()
+      val tmp0_Explain: Int = "Hello".<get-length>()
       { // BLOCK
-        val tmp1_PowerAssertSynthesized: String = "World".substring(startIndex = 1, endIndex = 4)
-        val tmp2_PowerAssertSynthesized: Int = tmp1_PowerAssertSynthesized.<get-length>()
-        assertEquals$powerassert(expected = tmp0_PowerAssertSynthesized, actual = tmp2_PowerAssertSynthesized, message = "Values are not equal!", $diagram = CallDiagram(source = "assertEquals(\"Hello\".length, \"World\".substring(1, 4).length, message = \"Values are not equal!\")", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "expected", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 21, endOffset = 27, displayOffset = 21, value = tmp0_PowerAssertSynthesized)]))), Pair</* null */, /* null */>(first = "actual", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 37, endOffset = 52, displayOffset = 37, value = tmp1_PowerAssertSynthesized), Expression(startOffset = 53, endOffset = 59, displayOffset = 53, value = tmp2_PowerAssertSynthesized)]))), Pair</* null */, /* null */>(first = "message", second = ValueParameter(expressions = listOf</* null */>(elements = [])))])))
+        val tmp1_Explain: String = "World".substring(startIndex = 1, endIndex = 4)
+        val tmp2_Explain: Int = tmp1_Explain.<get-length>()
+        assertEquals$explained(expected = tmp0_Explain, actual = tmp2_Explain, message = "Values are not equal!", $explanation = CallExplanation(source = "assertEquals(\"Hello\".length, \"World\".substring(1, 4).length, message = \"Values are not equal!\")", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "expected", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 21, endOffset = 27, displayOffset = 21, value = tmp0_Explain)]))), Pair</* null */, /* null */>(first = "actual", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 37, endOffset = 52, displayOffset = 37, value = tmp1_Explain), Expression(startOffset = 53, endOffset = 59, displayOffset = 53, value = tmp2_Explain)]))), Pair</* null */, /* null */>(first = "message", second = ValueParameter(expressions = listOf</* null */>(elements = [])))])))
       }
     }
   }
@@ -65,11 +66,11 @@ fun test3(): String {
   return expectThrowableMessage(block = local fun <anonymous>() {
     val message: String = "Values are not equal!"
     { // BLOCK
-      val tmp0_PowerAssertSynthesized: Int = "Hello".<get-length>()
+      val tmp0_Explain: Int = "Hello".<get-length>()
       { // BLOCK
-        val tmp1_PowerAssertSynthesized: String = "World".substring(startIndex = 1, endIndex = 4)
-        val tmp2_PowerAssertSynthesized: Int = tmp1_PowerAssertSynthesized.<get-length>()
-        assertEquals$powerassert(expected = tmp0_PowerAssertSynthesized, actual = tmp2_PowerAssertSynthesized, message = message, $diagram = CallDiagram(source = "assertEquals(\"Hello\".length, \"World\".substring(1, 4).length, message)", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "expected", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 21, endOffset = 27, displayOffset = 21, value = tmp0_PowerAssertSynthesized)]))), Pair</* null */, /* null */>(first = "actual", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 37, endOffset = 52, displayOffset = 37, value = tmp1_PowerAssertSynthesized), Expression(startOffset = 53, endOffset = 59, displayOffset = 53, value = tmp2_PowerAssertSynthesized)]))), Pair</* null */, /* null */>(first = "message", second = ValueParameter(expressions = listOf</* null */>(elements = [])))])))
+        val tmp1_Explain: String = "World".substring(startIndex = 1, endIndex = 4)
+        val tmp2_Explain: Int = tmp1_Explain.<get-length>()
+        assertEquals$explained(expected = tmp0_Explain, actual = tmp2_Explain, message = message, $explanation = CallExplanation(source = "assertEquals(\"Hello\".length, \"World\".substring(1, 4).length, message)", dispatchReceiver = Receiver(expressions = listOf</* null */>(elements = [])), extensionReceiver = Receiver(expressions = listOf</* null */>(elements = [])), valueParameters = mapOf</* null */, /* null */>(pairs = [Pair</* null */, /* null */>(first = "expected", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 21, endOffset = 27, displayOffset = 21, value = tmp0_Explain)]))), Pair</* null */, /* null */>(first = "actual", second = ValueParameter(expressions = listOf</* null */>(elements = [Expression(startOffset = 37, endOffset = 52, displayOffset = 37, value = tmp1_Explain), Expression(startOffset = 53, endOffset = 59, displayOffset = 53, value = tmp2_Explain)]))), Pair</* null */, /* null */>(first = "message", second = ValueParameter(expressions = listOf</* null */>(elements = [])))])))
       }
     }
   }

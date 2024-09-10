@@ -1,14 +1,13 @@
 // DUMP_KT_IR
 
-import kotlinx.powerassert.PowerAssert
-import kotlinx.powerassert.toDefaultMessage
+import kotlinx.powerassert.*
 
 fun box(): String {
     val reallyLongList = listOf("a", "b")
     return describe(reallyLongList.reversed() == emptyList<String>()) ?: "FAIL"
 }
 
-@PowerAssert
+@ExplainCall
 fun describe(value: Any): String? {
-    return PowerAssert.diagram?.toDefaultMessage()
+    return ExplainCall.explanation?.toDefaultMessage()
 }

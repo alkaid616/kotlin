@@ -21,6 +21,7 @@ package org.jetbrains.kotlin.powerassert.diagram
 
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
 import org.jetbrains.kotlin.ir.IrElement
+import org.jetbrains.kotlin.ir.PsiIrFileEntry
 import org.jetbrains.kotlin.ir.SourceRangeInfo
 import org.jetbrains.kotlin.ir.declarations.IrFile
 import org.jetbrains.kotlin.ir.declarations.path
@@ -37,6 +38,10 @@ data class SourceFile(
     }
 
     private val source: String = run {
+        when (val fe = irFile.fileEntry) {
+            is PsiIrFileEntry -> return@run fe.psiFile.text
+        }
+
         File(irFile.path).also { file ->
             if (file.exists()) {
                 return@run file.readText()

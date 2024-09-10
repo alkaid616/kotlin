@@ -93,6 +93,12 @@ public class IrBlackBoxCodegenTestForPowerAssertGenerated extends AbstractIrBlac
     public void testLocalVariables() {
       runTest("plugins/power-assert/power-assert-compiler/testData/codegen/annotated/LocalVariables.kt");
     }
+
+    @Test
+    @TestMetadata("modules.kt")
+    public void testModules() {
+      runTest("plugins/power-assert/power-assert-compiler/testData/codegen/annotated/modules.kt");
+    }
   }
 
   @Nested

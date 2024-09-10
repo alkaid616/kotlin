@@ -15,8 +15,6 @@ import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 import org.jetbrains.kotlin.ir.util.deepCopyWithSymbols
-import org.jetbrains.kotlin.ir.util.hasAnnotation
-import org.jetbrains.kotlin.powerassert.ExplainAnnotation
 import org.jetbrains.kotlin.powerassert.diagram.IrTemporaryVariable
 import org.jetbrains.kotlin.powerassert.diagram.SourceFile
 
