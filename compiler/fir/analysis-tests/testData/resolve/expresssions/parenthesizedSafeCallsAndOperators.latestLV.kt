@@ -30,8 +30,8 @@ fun huh(arg: Foo?) {
     (arg?.alias)[42] 
     (arg?.alias)[42] = arg
     (arg?.alias) += "" 
-    <!PARENTHESIZED_LHS_WARNING!>(arg?.<!VARIABLE_EXPECTED!>alias<!>)<!>++
-    ++<!PARENTHESIZED_LHS_WARNING!>(arg?.<!VARIABLE_EXPECTED!>alias<!>)<!>
+    <!PARENTHESIZED_LHS_ERROR!>(arg?.<!VARIABLE_EXPECTED!>alias<!>)<!>++
+    ++<!PARENTHESIZED_LHS_ERROR!>(arg?.<!VARIABLE_EXPECTED!>alias<!>)<!>
     (arg?.alias)("") 
     (arg?.alias)[42] += ""
     (arg?.alias[42]) += ""

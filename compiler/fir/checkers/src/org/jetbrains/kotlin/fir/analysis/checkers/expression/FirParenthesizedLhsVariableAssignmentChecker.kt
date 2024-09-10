@@ -5,8 +5,6 @@
 
 package org.jetbrains.kotlin.fir.analysis.checkers.expression
 
-import org.jetbrains.kotlin.KtFakeSourceElementKind
-import org.jetbrains.kotlin.KtSourceElement
 import org.jetbrains.kotlin.diagnostics.DiagnosticReporter
 import org.jetbrains.kotlin.diagnostics.reportOn
 import org.jetbrains.kotlin.fir.analysis.checkers.MppCheckerKind
@@ -23,18 +21,9 @@ object FirParenthesizedLhsVariableAssignmentChecker : FirVariableAssignmentCheck
         // - `(x) = ""` where `x: String`
         // - `(x) += ""` where `x: String`
         // - `(getInt()) += 343`
-        if (isLhsParenthesized && !expression.source.isDesugaredIncrementOrDecrement) {
+        // - `(a?.w)++` where `a: A?` with `var w: Int` - note: such cases are red code already as `VARIABLE_EXPECTED` or something else.
+        if (isLhsParenthesized) {
             reporter.reportOn(expression.lValue.source, FirErrors.PARENTHESIZED_LHS, context)
         }
     }
-
-    private val KtSourceElement?.isDesugaredIncrementOrDecrement: Boolean
-        get() = this?.kind in DESUGARED_INCREMENTS_AND_DECREMENTS
-
-    private val DESUGARED_INCREMENTS_AND_DECREMENTS = setOf(
-        KtFakeSourceElementKind.DesugaredPrefixInc,
-        KtFakeSourceElementKind.DesugaredPrefixDec,
-        KtFakeSourceElementKind.DesugaredPostfixInc,
-        KtFakeSourceElementKind.DesugaredPostfixDec,
-    )
 }

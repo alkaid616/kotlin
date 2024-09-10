@@ -87,13 +87,13 @@ class Test() {
         <!PARENTHESIZED_LHS_WARNING!>(f@ <!VARIABLE_EXPECTED!>getInt()<!>)<!> += 343
 
         <!VARIABLE_EXPECTED!>1<!>++
-        (r@ <!VARIABLE_EXPECTED!>1<!>)--
+        <!PARENTHESIZED_LHS_WARNING!>(r@ <!VARIABLE_EXPECTED!>1<!>)<!>--
 
         <!VARIABLE_EXPECTED!>getInt()<!>++
-        (m@ <!VARIABLE_EXPECTED!>getInt()<!>)--
+        <!PARENTHESIZED_LHS_WARNING!>(m@ <!VARIABLE_EXPECTED!>getInt()<!>)<!>--
 
         ++<!VARIABLE_EXPECTED!>2<!>
-        --(r@ <!VARIABLE_EXPECTED!>2<!>)
+        --<!PARENTHESIZED_LHS_WARNING!>(r@ <!VARIABLE_EXPECTED!>2<!>)<!>
 
         <!VARIABLE_EXPECTED!>this<!><!UNRESOLVED_REFERENCE!>++<!>
 
@@ -121,11 +121,11 @@ class Test() {
         <!VAL_REASSIGNMENT!>b<!> += 34
 
         a++
-        (@Ann l@ a)--
-        (a)++
+        <!PARENTHESIZED_LHS_WARNING!>(@Ann l@ a)<!>--
+        <!PARENTHESIZED_LHS_WARNING!>(a)<!>++
         --a
-        ++(@Ann l@ a)
-        --(a)
+        ++<!PARENTHESIZED_LHS_WARNING!>(@Ann l@ a)<!>
+        --<!PARENTHESIZED_LHS_WARNING!>(a)<!>
     }
 
     fun testVariables1() {
