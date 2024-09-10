@@ -222,6 +222,10 @@ fun PsiChildRange.trimWhiteSpaces(): PsiChildRange {
         last!!.siblings(forward = false).firstOrNull { it !is PsiWhiteSpace })
 }
 
+/**
+ * This function should only be called for a source element corresponding to
+ * a left-hand side of an assignment/`set` operator/assignment operator call.
+ */
 fun PsiElement.getOutermostParenthesizedAsAssignmentLhs(): PsiElement? =
     findLastABeforeB(
         this, { it.parent },
@@ -229,6 +233,10 @@ fun PsiElement.getOutermostParenthesizedAsAssignmentLhs(): PsiElement? =
         checkB = { it.elementType == KtNodeTypes.BINARY_EXPRESSION },
     )
 
+/**
+ * This function should only be called for a source element corresponding to
+ * a left-hand side of an assignment/`set` operator/assignment operator call.
+ */
 fun LighterASTNode.getOutermostParenthesizedAsAssignmentLhs(tree: FlyweightCapableTreeStructure<LighterASTNode>): LighterASTNode? =
     findLastABeforeB(
         this, { tree.getParent(it) },
@@ -236,6 +244,10 @@ fun LighterASTNode.getOutermostParenthesizedAsAssignmentLhs(tree: FlyweightCapab
         checkB = { it.tokenType == KtNodeTypes.BINARY_EXPRESSION },
     )
 
+/**
+ * This function should only be called for a source element corresponding to
+ * a left-hand side of an assignment/`set` operator/assignment operator call.
+ */
 fun KtSourceElement?.hasOutermostParenthesizedAsAssignmentLhs(): Boolean {
     if (this == null) {
         return false
