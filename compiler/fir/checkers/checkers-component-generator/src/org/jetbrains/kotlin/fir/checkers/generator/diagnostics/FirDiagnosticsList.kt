@@ -115,7 +115,7 @@ object DIAGNOSTICS_LIST : DiagnosticList("FirErrors") {
         val MISSING_CONSTRUCTOR_KEYWORD by error<PsiElement>()
         val REDUNDANT_INTERPOLATION_PREFIX by warning<PsiElement>()
         val PARENTHESIZED_LHS by deprecationError<PsiElement>(
-            LanguageFeature.ParenthesizedLhsInAssignments,
+            LanguageFeature.ForbidParenthesizedLhsInAssignments,
             PositioningStrategy.OUTERMOST_PARENTHESES_IN_ASSIGNMENT_LHS,
         )
     }

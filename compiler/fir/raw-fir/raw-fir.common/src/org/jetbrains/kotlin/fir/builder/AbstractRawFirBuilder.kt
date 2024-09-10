@@ -910,7 +910,7 @@ abstract class AbstractRawFirBuilder<T>(val baseSession: FirSession, val context
                 }
 
             val prohibitSetCallsForParenthesizedLhs = this@AbstractRawFirBuilder.baseSession.languageVersionSettings.supportsFeature(
-                LanguageFeature.ParenthesizedLhsInAssignments
+                LanguageFeature.ForbidParenthesizedLhsInAssignments
             )
 
             return buildPossiblyUnderSafeCall(
@@ -993,7 +993,7 @@ abstract class AbstractRawFirBuilder<T>(val baseSession: FirSession, val context
         isLhsParenthesized: Boolean,
     ): FirStatement {
         val prohibitSetCallsForParenthesizedLhs = this@AbstractRawFirBuilder.baseSession.languageVersionSettings.supportsFeature(
-            LanguageFeature.ParenthesizedLhsInAssignments
+            LanguageFeature.ForbidParenthesizedLhsInAssignments
         )
 
         // For case of LHS is a parenthesized safe call, like (a?.b[3]) += 1
