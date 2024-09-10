@@ -61,6 +61,34 @@ internal val DevirtualizationAnalysisPhase = createSimpleNamedCompilerPhase<Nati
         }
 )
 
+internal data class PreCodegenInlinerInput(
+        val irModule: IrModuleFragment,
+        val moduleDFG: ModuleDFG,
+        val devirtualizationAnalysisResult: DevirtualizationAnalysis.AnalysisResult,
+) : KotlinBackendIrHolder {
+    override val kotlinIr: IrElement
+        get() = irModule
+}
+
+internal val PreCodegenInlinerPhase = createSimpleNamedCompilerPhase<NativeGenerationState, PreCodegenInlinerInput>(
+        name = "PreCodegenInliner",
+        description = "Pre-codegen inliner",
+        preactions = getDefaultIrActions(),
+        postactions = getDefaultIrActions(),
+        op = { generationState, (irModule, moduleDFG, devirtualizationAnalysisResult) ->
+            val context = generationState.context
+            val callGraph = CallGraphBuilder(
+                    context,
+                    irModule,
+                    moduleDFG,
+                    devirtualizationAnalysisResult,
+                    devirtualizedCallSitesUnfoldFactor = -1,
+                    nonDevirtualizedCallSitesUnfoldFactor = -1,
+            ).build()
+            PreCodegenInliner(generationState, moduleDFG, callGraph).run()
+        }
+)
+
 internal data class DCEInput(
         val irModule: IrModuleFragment,
         val moduleDFG: ModuleDFG,
