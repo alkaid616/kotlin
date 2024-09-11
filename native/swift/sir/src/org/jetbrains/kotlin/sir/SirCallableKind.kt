@@ -13,16 +13,9 @@ enum class SirCallableKind {
 
 val SirCallable.kind: SirCallableKind
     get() = when (this) {
-        is SirGetter -> (parent as SirVariable).kind
-        is SirSetter -> (parent as SirVariable).kind
+        is SirSetter, is SirGetter -> (parent as SirVariable).kind
+        is SirFunction -> (this as SirClassMemberDeclaration).kind
         is SirInit -> SirCallableKind.CLASS_METHOD
-        is SirFunction -> if (parent is SirModule) {
-            SirCallableKind.FUNCTION
-        } else if (isInstance) {
-            SirCallableKind.INSTANCE_METHOD
-        } else {
-            SirCallableKind.CLASS_METHOD
-        }
     }
 
 val SirClassMemberDeclaration.kind: SirCallableKind

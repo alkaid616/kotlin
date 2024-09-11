@@ -1,5 +1,5 @@
 public class Foo {
-    public final func foo(
+    public static func foo(
         arg1: Swift.Int32
     ) -> Swift.Bool {
         return foo_wrapped(arg1)

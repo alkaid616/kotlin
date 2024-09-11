@@ -227,7 +227,7 @@ class SirAsSwiftSourcesPrinterTests {
                     declarations.add(
                         buildFunction {
                             origin = SirOrigin.Unknown
-                            isInstance = true
+                            isInstance = false
                             modality = SirClassModality.FINAL
                             visibility = SirVisibility.PUBLIC
                             name = "foo"

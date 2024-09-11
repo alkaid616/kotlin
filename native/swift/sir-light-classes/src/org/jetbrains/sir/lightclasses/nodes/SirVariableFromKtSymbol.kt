@@ -69,7 +69,7 @@ internal class SirVariableFromKtSymbol(
     }
 
     override val isOverride: Boolean
-        get() = false // TODO: Implement
+        get() = false // TODO: KT-66845
 
     override val isInstance: Boolean
         get() = !ktSymbol.isTopLevel
