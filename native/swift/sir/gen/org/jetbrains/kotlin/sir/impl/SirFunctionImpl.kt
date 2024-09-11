@@ -20,7 +20,7 @@ internal class SirFunctionImpl(
     override var body: SirFunctionBody?,
     override val isOverride: Boolean,
     override val isInstance: Boolean,
-    override val modality: SirClassModality,
+    override val modality: SirModality,
     override val name: String,
     override val parameters: MutableList<SirParameter>,
     override val returnType: SirType,

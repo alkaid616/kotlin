@@ -7,7 +7,6 @@ package org.jetbrains.sir.lightclasses.nodes
 
 import org.jetbrains.kotlin.analysis.api.projectStructure.KaModule
 import org.jetbrains.kotlin.analysis.api.symbols.KaFunctionSymbol
-import org.jetbrains.kotlin.analysis.api.symbols.KaSymbolModality
 import org.jetbrains.kotlin.analysis.api.symbols.isTopLevel
 import org.jetbrains.kotlin.sir.*
 import org.jetbrains.kotlin.sir.providers.SirSession
@@ -55,8 +54,8 @@ internal class SirFunctionFromKtSymbol(
     override val isInstance: Boolean
         get() = !ktSymbol.isTopLevel
 
-    override val modality: SirClassModality
-        get() = ktSymbol.modality.sirClassModality
+    override val modality: SirModality
+        get() = ktSymbol.modality.sirModality
 
     override val attributes: MutableList<SirAttribute> = mutableListOf()
 

@@ -36,7 +36,7 @@ class BuilderConfigurator(model: Model) : AbstractSwiftIrTreeBuilderConfigurator
         }
 
         configureFieldInAllLeafBuilders("modality") {
-            default(it, "SirClassModality.UNSPECIFIED")
+            default(it, "SirModality.UNSPECIFIED")
         }
 
         builder(setter) {

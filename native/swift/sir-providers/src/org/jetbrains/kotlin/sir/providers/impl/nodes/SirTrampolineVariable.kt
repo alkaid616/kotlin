@@ -21,7 +21,7 @@ public class SirTrampolineVariable(
     override val type: SirType get() = source.type
     override val isOverride: Boolean get() = false
     override val isInstance: Boolean get() = false
-    override val modality: SirClassModality get() = SirClassModality.UNSPECIFIED
+    override val modality: SirModality get() = SirModality.UNSPECIFIED
     override val attributes: MutableList<SirAttribute> get() = source.attributes
     override val getter: SirGetter by lazy {
         buildGetterCopy(source.getter) {

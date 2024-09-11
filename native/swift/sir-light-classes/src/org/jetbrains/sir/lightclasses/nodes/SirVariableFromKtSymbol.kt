@@ -6,7 +6,6 @@
 package org.jetbrains.sir.lightclasses.nodes
 
 import org.jetbrains.kotlin.analysis.api.projectStructure.KaModule
-import org.jetbrains.kotlin.analysis.api.symbols.KaSymbolModality
 import org.jetbrains.kotlin.analysis.api.symbols.KaVariableSymbol
 import org.jetbrains.kotlin.analysis.api.symbols.isTopLevel
 import org.jetbrains.kotlin.sir.*
@@ -70,6 +69,6 @@ internal class SirVariableFromKtSymbol(
     override val isInstance: Boolean
         get() = !ktSymbol.isTopLevel
 
-    override val modality: SirClassModality
-        get() = ktSymbol.modality.sirClassModality
+    override val modality: SirModality
+        get() = ktSymbol.modality.sirModality
 }

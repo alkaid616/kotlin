@@ -22,7 +22,7 @@ class SirVariableBuilder {
     val attributes: MutableList<SirAttribute> = mutableListOf()
     var isOverride: Boolean = false
     var isInstance: Boolean = true
-    var modality: SirClassModality = SirClassModality.UNSPECIFIED
+    var modality: SirModality = SirModality.UNSPECIFIED
     lateinit var name: String
     lateinit var type: SirType
     lateinit var getter: SirGetter

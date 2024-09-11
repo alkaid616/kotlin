@@ -19,5 +19,5 @@ sealed interface SirClassMemberDeclaration : SirDeclaration {
     override val attributes: MutableList<SirAttribute>
     val isOverride: Boolean
     val isInstance: Boolean
-    val modality: SirClassModality
+    val modality: SirModality
 }

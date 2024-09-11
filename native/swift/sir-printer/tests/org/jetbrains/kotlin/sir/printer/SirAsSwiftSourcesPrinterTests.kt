@@ -228,7 +228,7 @@ class SirAsSwiftSourcesPrinterTests {
                         buildFunction {
                             origin = SirOrigin.Unknown
                             isInstance = false
-                            modality = SirClassModality.FINAL
+                            modality = SirModality.FINAL
                             visibility = SirVisibility.PUBLIC
                             name = "foo"
                             parameters.add(
@@ -963,13 +963,13 @@ class SirAsSwiftSourcesPrinterTests {
                     name = "OPEN_PUBLIC"
                     origin = SirOrigin.Unknown
                     visibility = SirVisibility.PUBLIC
-                    modality = SirClassModality.OPEN
+                    modality = SirModality.OPEN
                 },
                 buildClass {
                     name = "FINAL_PUBLIC"
                     origin = SirOrigin.Unknown
                     visibility = SirVisibility.PUBLIC
-                    modality = SirClassModality.FINAL
+                    modality = SirModality.FINAL
                 },
                 buildClass {
                     name = "UNSPECIDIED_PUBLIC"
@@ -980,13 +980,13 @@ class SirAsSwiftSourcesPrinterTests {
                     name = "OPEN_INTERNAL"
                     origin = SirOrigin.Unknown
                     visibility = SirVisibility.INTERNAL
-                    modality = SirClassModality.OPEN
+                    modality = SirModality.OPEN
                 },
                 buildClass {
                     name = "FINAL_INTERNAL"
                     origin = SirOrigin.Unknown
                     visibility = SirVisibility.INTERNAL
-                    modality = SirClassModality.FINAL
+                    modality = SirModality.FINAL
                 },
                 buildClass {
                     name = "UNSPECIFIED_INTERNAL"

@@ -248,7 +248,7 @@ public class SirAsSwiftSourcesPrinter(
 
     private fun SirClassMemberDeclaration.printModifiers() {
         when (effectiveModality) {
-            SirClassModality.OPEN -> {
+            SirModality.OPEN -> {
                 if (visibility == SirVisibility.PUBLIC) {
                     print("open ")
                 } else {
@@ -260,18 +260,18 @@ public class SirAsSwiftSourcesPrinter(
                     print("class ")
                 }
             }
-            SirClassModality.FINAL -> {
+            SirModality.FINAL -> {
                 printVisibility()
                 if (callableKind == SirCallableKind.CLASS_METHOD) {
                     print("static ")
                 } else if (callableKind != SirCallableKind.FUNCTION) {
                     // to reduce noise we don't print 'final' when it's implied
-                    if ((parent as? SirClass)?.modality != SirClassModality.FINAL) {
+                    if ((parent as? SirClass)?.modality != SirModality.FINAL) {
                         print("final ")
                     }
                 }
             }
-            SirClassModality.UNSPECIFIED -> {
+            SirModality.UNSPECIFIED -> {
                 printVisibility()
                 if (callableKind == SirCallableKind.CLASS_METHOD) {
                     print("class ")
@@ -282,7 +282,7 @@ public class SirAsSwiftSourcesPrinter(
 
     private fun SirClass.printModifiers() {
         when (modality) {
-            SirClassModality.OPEN -> {
+            SirModality.OPEN -> {
                 if (visibility == SirVisibility.PUBLIC) {
                     print("open ")
                 } else {
@@ -291,11 +291,11 @@ public class SirAsSwiftSourcesPrinter(
                     printVisibility()
                 }
             }
-            SirClassModality.FINAL -> {
+            SirModality.FINAL -> {
                 printVisibility()
                 print("final ")
             }
-            SirClassModality.UNSPECIFIED -> {
+            SirModality.UNSPECIFIED -> {
                 printVisibility()
             }
         }

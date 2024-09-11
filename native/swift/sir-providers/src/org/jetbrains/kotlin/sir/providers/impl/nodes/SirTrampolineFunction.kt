@@ -20,7 +20,7 @@ public class SirTrampolineFunction(
     override val returnType: SirType get() = source.returnType
     override val isOverride: Boolean get() = false
     override val isInstance: Boolean get() = false
-    override val modality: SirClassModality get() = SirClassModality.UNSPECIFIED
+    override val modality: SirModality get() = SirModality.UNSPECIFIED
 
     override val attributes: MutableList<SirAttribute> get() = source.attributes
 

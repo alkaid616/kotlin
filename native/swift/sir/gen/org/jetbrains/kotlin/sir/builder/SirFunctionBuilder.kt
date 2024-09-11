@@ -23,7 +23,7 @@ class SirFunctionBuilder {
     var body: SirFunctionBody? = null
     var isOverride: Boolean = false
     var isInstance: Boolean = true
-    var modality: SirClassModality = SirClassModality.UNSPECIFIED
+    var modality: SirModality = SirModality.UNSPECIFIED
     lateinit var name: String
     val parameters: MutableList<SirParameter> = mutableListOf()
     lateinit var returnType: SirType
