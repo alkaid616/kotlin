@@ -19562,6 +19562,52 @@ public class LLFirPreresolvedReversedDiagnosticCompilerFE10TestDataTestGenerated
         }
 
         @Nested
+        @TestMetadata("compiler/testData/diagnostics/tests/inference/pcla/forceLambdaCompletionFromReturnStatement")
+        @TestDataPath("$PROJECT_ROOT")
+        public class ForceLambdaCompletionFromReturnStatement {
+          @Test
+          public void testAllFilesPresentInForceLambdaCompletionFromReturnStatement() {
+            KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/testData/diagnostics/tests/inference/pcla/forceLambdaCompletionFromReturnStatement"), Pattern.compile("^(.+)\\.(kt|kts)$"), Pattern.compile("^(.+)\\.(reversed|fir|ll|latestLV)\\.kts?$"), true);
+          }
+
+          @Test
+          @TestMetadata("differentBehaviorWhenSpecifiedArgument.kt")
+          public void testDifferentBehaviorWhenSpecifiedArgument() {
+            runTest("compiler/testData/diagnostics/tests/inference/pcla/forceLambdaCompletionFromReturnStatement/differentBehaviorWhenSpecifiedArgument.kt");
+          }
+
+          @Test
+          @TestMetadata("differentBehaviorWhenSpecifiedArgument20.kt")
+          public void testDifferentBehaviorWhenSpecifiedArgument20() {
+            runTest("compiler/testData/diagnostics/tests/inference/pcla/forceLambdaCompletionFromReturnStatement/differentBehaviorWhenSpecifiedArgument20.kt");
+          }
+
+          @Test
+          @TestMetadata("earlyReturn.kt")
+          public void testEarlyReturn() {
+            runTest("compiler/testData/diagnostics/tests/inference/pcla/forceLambdaCompletionFromReturnStatement/earlyReturn.kt");
+          }
+
+          @Test
+          @TestMetadata("earlyReturn20.kt")
+          public void testEarlyReturn20() {
+            runTest("compiler/testData/diagnostics/tests/inference/pcla/forceLambdaCompletionFromReturnStatement/earlyReturn20.kt");
+          }
+
+          @Test
+          @TestMetadata("multiLambdas.kt")
+          public void testMultiLambdas() {
+            runTest("compiler/testData/diagnostics/tests/inference/pcla/forceLambdaCompletionFromReturnStatement/multiLambdas.kt");
+          }
+
+          @Test
+          @TestMetadata("multiLambdas20.kt")
+          public void testMultiLambdas20() {
+            runTest("compiler/testData/diagnostics/tests/inference/pcla/forceLambdaCompletionFromReturnStatement/multiLambdas20.kt");
+          }
+        }
+
+        @Nested
         @TestMetadata("compiler/testData/diagnostics/tests/inference/pcla/issues")
         @TestDataPath("$PROJECT_ROOT")
         public class Issues {

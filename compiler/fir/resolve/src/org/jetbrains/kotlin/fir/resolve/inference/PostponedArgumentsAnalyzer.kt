@@ -5,7 +5,9 @@
 
 package org.jetbrains.kotlin.fir.resolve.inference
 
+import org.jetbrains.kotlin.config.LanguageFeature
 import org.jetbrains.kotlin.fir.expressions.FirExpression
+import org.jetbrains.kotlin.fir.languageVersionSettings
 import org.jetbrains.kotlin.fir.lookupTracker
 import org.jetbrains.kotlin.fir.recordTypeResolveAsLookup
 import org.jetbrains.kotlin.fir.references.builder.buildErrorNamedReference
@@ -135,8 +137,12 @@ class PostponedArgumentsAnalyzer(
         val parameters = lambda.parameterTypes.map(::substitute)
         val rawReturnType = lambda.returnType
 
+        // TODO: Write an explanatory comment
+        val forceLambdasResolutionInReturnStatementForPCLA =
+            withPCLASession && resolutionContext.session.languageVersionSettings.supportsFeature(LanguageFeature.PCLAEnhancementsIn21)
+
         val expectedTypeForReturnArguments = when {
-            c.canBeProper(rawReturnType) || withPCLASession -> substitute(rawReturnType)
+            c.canBeProper(rawReturnType) || forceLambdasResolutionInReturnStatementForPCLA -> substitute(rawReturnType)
 
             // For Unit-coercion
             !rawReturnType.isMarkedNullable && c.hasUpperOrEqualUnitConstraint(rawReturnType) -> unitType

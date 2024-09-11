@@ -7,6 +7,7 @@ package org.jetbrains.kotlin.fir.resolve.inference
 
 import org.jetbrains.kotlin.KtFakeSourceElementKind
 import org.jetbrains.kotlin.builtins.StandardNames
+import org.jetbrains.kotlin.config.LanguageFeature
 import org.jetbrains.kotlin.fakeElement
 import org.jetbrains.kotlin.fir.*
 import org.jetbrains.kotlin.fir.declarations.FirAnonymousFunction
@@ -146,6 +147,9 @@ class FirCallCompleter(
     private fun checkStorageConstraintsAfterFullCompletion(storage: ConstraintStorage) {
         // Fast path for sake of optimization
         if (storage.notFixedTypeVariables.isEmpty()) return
+
+        // We unmuted assertion only since 2.1, together with a fix for KT-69040å
+        if (!session.languageVersionSettings.supportsFeature(LanguageFeature.PCLAEnhancementsIn21)) return
 
         val notFixedTypeVariablesBasedOnTypeParameters = storage.notFixedTypeVariables.filter {
             it.value.typeVariable is ConeTypeParameterBasedTypeVariable
