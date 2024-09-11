@@ -76,7 +76,7 @@ internal class BridgeGeneratorImpl(private val typeNamer: SirTypeNamer) : Bridge
 
     private fun generateTypeBindingBridge(request: TypeBindingBridgeRequest): TypeBindingBridge {
         val annotationName = "kotlin.native.internal.objc.BindClassToObjCName"
-        val kotlinType = request.kotlinTypeFqName.joinToString(separator = ".")
+        val kotlinType = typeNamer.kotlinFqName(SirNominalType(request.sirClass))
         val swiftName = request.sirClass.mangledName
         return TypeBindingBridge(
             kotlinFileAnnotation = "$annotationName($kotlinType::class, \"$swiftName\")"

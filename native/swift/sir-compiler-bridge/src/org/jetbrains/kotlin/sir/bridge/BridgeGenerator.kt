@@ -69,10 +69,9 @@ public class KotlinFunctionBridge(
 )
 
 /**
- * A mapping from [Kotlin type name][kotlinTypeFqName] to corresponding [Swift class][sirClass].
+ * A mapping from Kotlin class to a corresponding [Swift class][sirClass].
  */
 public class TypeBindingBridgeRequest(
-    public val kotlinTypeFqName: List<String>,
     public val sirClass: SirClass,
 ) : BridgeRequest
 

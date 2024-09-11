@@ -12,10 +12,8 @@ import org.jetbrains.kotlin.sir.bridge.TypeBindingBridgeRequest
 import org.jetbrains.kotlin.sir.providers.source.KotlinSource
 
 internal fun SirClass.constructTypeBindingBridgeRequests(generator: BridgeGenerator): List<TypeBindingBridgeRequest> {
-    val fqName = ((origin as? KotlinSource)?.symbol as? KaNamedClassSymbol)
-        ?.classId?.asSingleFqName()
-        ?.pathSegments()?.map { it.toString() }
-        ?: return emptyList()
+    // `SirClass` must be generated from Kotlin sources, and be a named class.
+    (origin as? KotlinSource)?.symbol as? KaNamedClassSymbol ?: return emptyList()
 
-    return listOf(TypeBindingBridgeRequest(fqName, this))
+    return listOf(TypeBindingBridgeRequest(this))
 }
