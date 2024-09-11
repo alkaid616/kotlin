@@ -247,7 +247,7 @@ public class SirAsSwiftSourcesPrinter(
     )
 
     private fun SirClassMemberDeclaration.printModifiers() {
-        when (totalModality) {
+        when (effectiveModality) {
             SirClassModality.OPEN -> {
                 if (visibility == SirVisibility.PUBLIC) {
                     print("open ")

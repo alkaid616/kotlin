@@ -13,9 +13,9 @@ import org.jetbrains.kotlin.sir.*
 import org.jetbrains.kotlin.sir.providers.SirSession
 import org.jetbrains.kotlin.sir.providers.source.KotlinSource
 import org.jetbrains.sir.lightclasses.SirFromKtSymbol
+import org.jetbrains.sir.lightclasses.extensions.*
 import org.jetbrains.sir.lightclasses.extensions.documentation
 import org.jetbrains.sir.lightclasses.extensions.lazyWithSessions
-import org.jetbrains.sir.lightclasses.extensions.sirCallableKind
 import org.jetbrains.sir.lightclasses.extensions.withSessions
 import org.jetbrains.sir.lightclasses.utils.translateParameters
 import org.jetbrains.sir.lightclasses.utils.translateReturnType
@@ -56,11 +56,7 @@ internal class SirFunctionFromKtSymbol(
         get() = !ktSymbol.isTopLevel
 
     override val modality: SirClassModality
-        get() = when (ktSymbol.modality) {
-            KaSymbolModality.FINAL -> SirClassModality.FINAL
-            KaSymbolModality.SEALED -> SirClassModality.UNSPECIFIED
-            KaSymbolModality.OPEN, KaSymbolModality.ABSTRACT -> SirClassModality.OPEN
-        }
+        get() = ktSymbol.modality.sirClassModality
 
     override val attributes: MutableList<SirAttribute> = mutableListOf()
 
