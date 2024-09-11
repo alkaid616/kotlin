@@ -94,7 +94,6 @@ internal class SirClassFromKtSymbol(
 
     private fun kotlinBaseInitDeclaration(): SirDeclaration = buildInit {
         origin = SirOrigin.KotlinBaseInitOverride(`for` = KotlinSource(ktSymbol))
-        kind = SirCallableKind.CLASS_METHOD
         isFailable = false
         initKind = SirInitializerKind.ORDINARY
         isOverride = true
@@ -112,7 +111,6 @@ internal class SirClassFromKtSymbol(
             buildInit {
                 origin = SirOrigin.PrivateObjectInit(`for` = KotlinSource(ktSymbol))
                 visibility = SirVisibility.PRIVATE
-                kind = SirCallableKind.CLASS_METHOD
                 isFailable = false
                 initKind = SirInitializerKind.ORDINARY
                 isOverride = computeIsOverrideForDesignatedInit(this@SirClassFromKtSymbol, emptyList())
@@ -122,9 +120,9 @@ internal class SirClassFromKtSymbol(
                 visibility = SirVisibility.PUBLIC
                 type = SirNominalType(this@SirClassFromKtSymbol)
                 name = "shared"
-                getter = buildGetter {
-                    kind = SirCallableKind.STATIC_METHOD
-                }
+                isInstance = false
+                modality = SirClassModality.FINAL
+                getter = buildGetter {}
             }.also {
                 it.getter.parent = it
             }

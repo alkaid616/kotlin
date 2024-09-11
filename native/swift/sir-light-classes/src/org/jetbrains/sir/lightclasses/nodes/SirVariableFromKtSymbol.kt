@@ -6,7 +6,9 @@
 package org.jetbrains.sir.lightclasses.nodes
 
 import org.jetbrains.kotlin.analysis.api.projectStructure.KaModule
+import org.jetbrains.kotlin.analysis.api.symbols.KaSymbolModality
 import org.jetbrains.kotlin.analysis.api.symbols.KaVariableSymbol
+import org.jetbrains.kotlin.analysis.api.symbols.isTopLevel
 import org.jetbrains.kotlin.sir.*
 import org.jetbrains.kotlin.sir.builder.buildGetter
 import org.jetbrains.kotlin.sir.builder.buildSetter
@@ -37,17 +39,13 @@ internal class SirVariableFromKtSymbol(
         translateReturnType()
     }
     override val getter: SirGetter by lazy {
-        buildGetter {
-            kind = accessorKind
-        }.also {
+        buildGetter {}.also {
             it.parent = this@SirVariableFromKtSymbol
         }
     }
     override val setter: SirSetter? by lazy {
         if (!ktSymbol.isVal) {
-            buildSetter {
-                kind = accessorKind
-            }.also {
+            buildSetter {}.also {
                 it.parent = this@SirVariableFromKtSymbol
             }
         } else {
@@ -69,4 +67,17 @@ internal class SirVariableFromKtSymbol(
     private val accessorKind by lazy {
         ktSymbol.sirCallableKind
     }
+
+    override val isOverride: Boolean
+        get() = false // TODO: Implement
+
+    override val isInstance: Boolean
+        get() = !ktSymbol.isTopLevel
+
+    override val modality: SirClassModality
+        get() = when (ktSymbol.modality) {
+            KaSymbolModality.FINAL -> SirClassModality.FINAL
+            KaSymbolModality.SEALED -> SirClassModality.UNSPECIFIED
+            KaSymbolModality.OPEN, KaSymbolModality.ABSTRACT -> SirClassModality.OPEN
+        }
 }

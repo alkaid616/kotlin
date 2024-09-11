@@ -7,6 +7,8 @@ package org.jetbrains.sir.lightclasses.nodes
 
 import org.jetbrains.kotlin.analysis.api.projectStructure.KaModule
 import org.jetbrains.kotlin.analysis.api.symbols.KaFunctionSymbol
+import org.jetbrains.kotlin.analysis.api.symbols.KaSymbolModality
+import org.jetbrains.kotlin.analysis.api.symbols.isTopLevel
 import org.jetbrains.kotlin.sir.*
 import org.jetbrains.kotlin.sir.providers.SirSession
 import org.jetbrains.kotlin.sir.providers.source.KotlinSource
@@ -28,9 +30,6 @@ internal class SirFunctionFromKtSymbol(
     override val origin: SirOrigin by lazy {
         KotlinSource(ktSymbol)
     }
-    override val kind: SirCallableKind by lazy {
-        ktSymbol.sirCallableKind
-    }
     override val name: String by lazyWithSessions {
         ktSymbol.sirDeclarationName()
     }
@@ -49,6 +48,19 @@ internal class SirFunctionFromKtSymbol(
             ktSymbol.getSirParent(useSiteSession)
         }
         set(_) = Unit
+
+    override val isOverride: Boolean
+        get() = false // TODO: Implement
+
+    override val isInstance: Boolean
+        get() = !ktSymbol.isTopLevel
+
+    override val modality: SirClassModality
+        get() = when (ktSymbol.modality) {
+            KaSymbolModality.FINAL -> SirClassModality.FINAL
+            KaSymbolModality.SEALED -> SirClassModality.UNSPECIFIED
+            KaSymbolModality.OPEN, KaSymbolModality.ABSTRACT -> SirClassModality.OPEN
+        }
 
     override val attributes: MutableList<SirAttribute> = mutableListOf()
 

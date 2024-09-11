@@ -19,7 +19,7 @@ internal val KaCallableSymbol.sirCallableKind: SirCallableKind
             if (isRootPackage == true) {
                 SirCallableKind.FUNCTION
             } else {
-                SirCallableKind.STATIC_METHOD
+                SirCallableKind.CLASS_METHOD
             }
         }
         KaSymbolLocation.CLASS, KaSymbolLocation.PROPERTY,
