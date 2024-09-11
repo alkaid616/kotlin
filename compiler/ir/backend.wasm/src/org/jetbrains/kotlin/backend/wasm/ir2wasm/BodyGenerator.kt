@@ -922,10 +922,10 @@ class BodyGenerator(
     }
 
     override fun visitInlinedFunctionBlock(inlinedBlock: IrInlinedFunctionBlock, data: Nothing?) {
-        val inlineFunction = inlinedBlock.inlineFunction!!
+        val inlineFunction = inlinedBlock.inlineFunctionSymbol?.owner
         val correspondingProperty = (inlineFunction as? IrSimpleFunction)?.correspondingPropertySymbol
         val owner = correspondingProperty?.owner ?: inlineFunction
-        val name = owner.fqNameWhenAvailable?.asString() ?: owner.name.asString()
+        val name = owner?.fqNameWhenAvailable?.asString() ?: owner?.name?.asString() ?: "UNKNOWN"
 
         body.commentGroupStart { "Inlined call of `$name`" }
         super.visitInlinedFunctionBlock(inlinedBlock, data)

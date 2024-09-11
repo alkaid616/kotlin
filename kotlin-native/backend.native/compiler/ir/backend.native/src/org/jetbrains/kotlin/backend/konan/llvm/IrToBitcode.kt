@@ -344,8 +344,8 @@ internal class CodeGeneratorVisitor(
         val functionContext = findCodeContext(symbol.owner, currentCodeContext) {
             val declaration = (this as? FunctionScope)?.declaration
             val inlinedBlock = (this as? InlinedBlockScope)?.inlinedBlock
-            val inlinedFunction = inlinedBlock?.inlineFunction
-            declaration == it || inlinedFunction == it
+            val inlinedFunctionSymbol = inlinedBlock?.inlineFunctionSymbol
+            declaration == it || inlinedFunctionSymbol == it.symbol
         } ?: return null
 
         /**
