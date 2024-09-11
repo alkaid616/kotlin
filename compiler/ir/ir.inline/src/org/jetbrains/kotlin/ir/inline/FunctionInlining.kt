@@ -235,7 +235,7 @@ open class FunctionInlining(
                 startOffset = callSite.startOffset,
                 endOffset = callSite.endOffset,
                 type = callSite.type,
-                inlineFunction = callee.originalFunction,
+                inlineFunctionSymbol = callee.originalFunction.symbol,
                 origin = null,
                 statements = evaluationStatements + newStatements
             ).apply {
@@ -244,6 +244,8 @@ open class FunctionInlining(
                 this.inlineCall = callSite
                 @OptIn(JvmIrInlineExperimental::class)
                 this.inlinedElement = originalInlinedElement
+
+                this.inlineFunction = callee.originalFunction
             }
 
             // Note: here we wrap `IrInlinedFunctionBlock` inside `IrReturnableBlock` because such way it is easier to

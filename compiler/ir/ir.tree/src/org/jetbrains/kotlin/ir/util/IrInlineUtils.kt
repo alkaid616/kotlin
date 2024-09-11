@@ -28,6 +28,8 @@ var IrInlinedFunctionBlock.inlineCall: IrFunctionAccessExpression? by irAttribut
 @JvmIrInlineExperimental
 var IrInlinedFunctionBlock.inlinedElement: IrElement? by irAttribute(followAttributeOwner = true)
 
+var IrInlinedFunctionBlock.inlineFunction: IrFunction? by irAttribute(followAttributeOwner = true)
+
 @OptIn(JvmIrInlineExperimental::class)
 fun IrInlinedFunctionBlock.isFunctionInlining(): Boolean {
     return this.inlinedElement is IrFunction

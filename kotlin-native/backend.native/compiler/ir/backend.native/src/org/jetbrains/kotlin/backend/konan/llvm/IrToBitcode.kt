@@ -1987,7 +1987,7 @@ internal class CodeGeneratorVisitor(
 
     private inner class InlinedBlockScope(val inlinedBlock: IrInlinedFunctionBlock) :
             FileScope(inlinedBlock.inlineFunction.let {
-                require(it is IrSimpleFunction) { "Inline constructors should've been lowered: ${it.render()}" }
+                require(it is IrSimpleFunction) { "Inline constructors should've been lowered: ${it?.render()}" }
                 generationState.inlineFunctionOrigins[it]?.irFile ?: it.fileOrNull
             }
                     ?: (currentCodeContext.fileScope() as? FileScope)?.file
@@ -1995,7 +1995,7 @@ internal class CodeGeneratorVisitor(
 
         private val functionScope by lazy {
             inlinedBlock.inlineFunction.let {
-                require(it is IrSimpleFunction) { "Inline constructors should've been lowered: ${it.render()}" }
+                require(it is IrSimpleFunction) { "Inline constructors should've been lowered: ${it?.render()}" }
                 it.scope(file().fileEntry.line(generationState.inlineFunctionOrigins[it]?.startOffset ?: it.startOffset))
             }
         }
