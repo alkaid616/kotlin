@@ -3296,6 +3296,11 @@ open class PsiRawFirBuilder(
             }
         }
     }
+
+    override fun KtSourceElement.getReceiverOfIncrementOrDecrement(): KtSourceElement =
+        psi?.children?.first { it.elementType != KtNodeTypes.OPERATION_REFERENCE && it.elementType != WHITE_SPACE }
+            ?.toKtPsiSourceElement(kind)
+            ?: error("The callee is not an increment/decrement")
 }
 
 enum class BodyBuildingMode {

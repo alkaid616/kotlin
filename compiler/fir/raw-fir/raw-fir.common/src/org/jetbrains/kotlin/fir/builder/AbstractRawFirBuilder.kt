@@ -740,7 +740,7 @@ abstract class AbstractRawFirBuilder<T>(val baseSession: FirSession, val context
                     source = receiver.toFirSourceElement(sourceElementKind)
                     name = OperatorNameConventions.SET
                 }
-                explicitReceiver = generateResolvedAccessExpression(arrayVariable.source, arrayVariable)
+                explicitReceiver = generateResolvedAccessExpression(desugaredSource?.getReceiverOfIncrementOrDecrement(), arrayVariable)
                 argumentList = buildArgumentList {
                     for (indexVar in indexVariables) {
                         arguments += generateResolvedAccessExpression(indexVar.source, indexVar)
@@ -796,6 +796,12 @@ abstract class AbstractRawFirBuilder<T>(val baseSession: FirSession, val context
             }
         }
     }
+
+    /**
+     * This function should only be called for a source element corresponding to
+     * an increment or a decrement operator call.
+     */
+    protected abstract fun KtSourceElement.getReceiverOfIncrementOrDecrement(): KtSourceElement
 
     private fun buildBlockPossiblyUnderSafeCall(
         receiver: T?,

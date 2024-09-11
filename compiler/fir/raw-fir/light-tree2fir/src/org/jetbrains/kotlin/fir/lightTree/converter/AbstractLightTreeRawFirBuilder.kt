@@ -22,6 +22,7 @@ import org.jetbrains.kotlin.lexer.KtToken
 import org.jetbrains.kotlin.lexer.KtTokens.*
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.KtPsiUtil.unquoteIdentifier
+import org.jetbrains.kotlin.util.getChildren
 
 abstract class AbstractLightTreeRawFirBuilder(
     baseSession: FirSession,
@@ -190,4 +191,9 @@ abstract class AbstractLightTreeRawFirBuilder(
 
         return container
     }
+
+    override fun KtSourceElement.getReceiverOfIncrementOrDecrement(): KtSourceElement =
+        lighterASTNode.getChildren(treeStructure)
+            .first { it.elementType != KtNodeTypes.OPERATION_REFERENCE && it.elementType != WHITE_SPACE }
+            .toKtLightSourceElement(treeStructure, kind)
 }

@@ -28,6 +28,8 @@ object FirParenthesizedLhsSetOperatorChecker : FirFunctionCallChecker(MppChecker
             val source = expression.source?.takeIf { it.elementType == PARENTHESIZED }
             // For `(a[0]) += ""` where `a: Array<A>`
                 ?: (lastArgument as? FirFunctionCall)?.explicitReceiver?.source?.takeIf { it.elementType == PARENTHESIZED }
+                // For `(a[0])++` where `a` has `get`,`set` and `inc` operators
+                ?: (expression as? FirFunctionCall)?.explicitReceiver?.source?.takeIf { it.elementType == PARENTHESIZED }
                 ?: return
 
             reporter.reportOn(source, FirErrors.PARENTHESIZED_LHS, context)
@@ -44,5 +46,9 @@ object FirParenthesizedLhsSetOperatorChecker : FirFunctionCallChecker(MppChecker
         KtFakeSourceElementKind.DesugaredDivAssign,
         KtFakeSourceElementKind.DesugaredRemAssign,
         KtFakeSourceElementKind.ArrayAccessNameReference,
+        KtFakeSourceElementKind.DesugaredPrefixInc,
+        KtFakeSourceElementKind.DesugaredPrefixDec,
+        KtFakeSourceElementKind.DesugaredPostfixInc,
+        KtFakeSourceElementKind.DesugaredPostfixDec,
     )
 }

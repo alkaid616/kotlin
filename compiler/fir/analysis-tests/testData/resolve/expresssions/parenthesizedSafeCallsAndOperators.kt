@@ -35,6 +35,6 @@ fun huh(arg: Foo?) {
     (arg?.alias)("") 
     (arg?.alias)[42] += ""
     (arg?.alias[42]) += ""
-    (arg?.alias[42])++
-    ++(arg?.alias[42])
+    <!PARENTHESIZED_LHS_WARNING!>(arg?.alias[42])<!>++
+    ++<!PARENTHESIZED_LHS_WARNING!>(arg?.alias[42])<!>
 }

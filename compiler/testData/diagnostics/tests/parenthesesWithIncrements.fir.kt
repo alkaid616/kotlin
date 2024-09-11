@@ -11,8 +11,8 @@ object O {
 
 fun main() {
     var b = O
-    (b)++
+    <!PARENTHESIZED_LHS_WARNING!>(b)<!>++
 
-    (O[1])++
+    <!PARENTHESIZED_LHS_WARNING!>(O[1])<!>++
 }
 
