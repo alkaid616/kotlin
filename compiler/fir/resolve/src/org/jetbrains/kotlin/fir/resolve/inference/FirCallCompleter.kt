@@ -462,7 +462,16 @@ class FirCallCompleter(
             transformer.context.dropContextForAnonymousFunction(lambda)
 
             val returnArguments = components.dataFlowAnalyzer.returnExpressionsOfAnonymousFunction(lambda)
-                .map { ConeResolutionAtom.createRawAtom(it.expression) }
+                .map {
+                    when {
+                        // If return statements of lambda analyzed with an expected type (so, not in dependent mode)
+                        // There should be no complex atom left
+                        expectedReturnType != null && session.languageVersionSettings.supportsFeature(LanguageFeature.PCLAEnhancementsIn21) ->
+                            ConeSimpleLeafResolutionAtom(it.expression, allowUnresolvedExpression = false)
+                        else ->
+                            ConeResolutionAtom.createRawAtom(it.expression)
+                    }
+                }
 
             return ReturnArgumentsAnalysisResult(returnArguments, additionalConstraints)
         }

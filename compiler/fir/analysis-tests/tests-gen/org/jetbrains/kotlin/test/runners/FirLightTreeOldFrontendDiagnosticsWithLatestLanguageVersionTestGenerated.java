@@ -19599,6 +19599,18 @@ public class FirLightTreeOldFrontendDiagnosticsWithLatestLanguageVersionTestGene
           public void testMultiLambdas20() {
             runTest("compiler/testData/diagnostics/tests/inference/pcla/forceLambdaCompletionFromReturnStatement/multiLambdas20.kt");
           }
+
+          @Test
+          @TestMetadata("noPostponedAtomForNestedLambda.kt")
+          public void testNoPostponedAtomForNestedLambda() {
+            runTest("compiler/testData/diagnostics/tests/inference/pcla/forceLambdaCompletionFromReturnStatement/noPostponedAtomForNestedLambda.kt");
+          }
+
+          @Test
+          @TestMetadata("noPostponedAtomForNestedLambda20.kt")
+          public void testNoPostponedAtomForNestedLambda20() {
+            runTest("compiler/testData/diagnostics/tests/inference/pcla/forceLambdaCompletionFromReturnStatement/noPostponedAtomForNestedLambda20.kt");
+          }
         }
 
         @Nested
