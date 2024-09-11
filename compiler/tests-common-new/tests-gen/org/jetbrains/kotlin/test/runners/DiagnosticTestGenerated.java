@@ -45828,12 +45828,6 @@ public class DiagnosticTestGenerated extends AbstractDiagnosticTest {
         }
 
         @Test
-        @TestMetadata("Experimentality.kt")
-        public void testExperimentality() {
-          runTest("compiler/testData/diagnostics/testsWithStdLib/annotations/subclassOptInRequired/Experimentality.kt");
-        }
-
-        @Test
         @TestMetadata("IncorrectApplicability.kt")
         public void testIncorrectApplicability() {
           runTest("compiler/testData/diagnostics/testsWithStdLib/annotations/subclassOptInRequired/IncorrectApplicability.kt");
