@@ -10,3 +10,9 @@ enum class SirClassModality {
     FINAL,
     UNSPECIFIED,
 }
+
+val SirClassMemberDeclaration.totalModality: SirClassModality
+    get() = when ((this.parent as? SirClass)?.modality) {
+        SirClassModality.FINAL -> SirClassModality.FINAL
+        else -> this.modality
+    }

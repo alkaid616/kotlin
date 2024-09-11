@@ -23,6 +23,18 @@ class BuilderConfigurator(model: Model) : AbstractSwiftIrTreeBuilderConfigurator
             default(it, "SirVisibility.PUBLIC")
         }
 
+        configureFieldInAllLeafBuilders("isOverride") {
+            default(it, "false")
+        }
+
+        configureFieldInAllLeafBuilders("isInstance") {
+            default(it, "true")
+        }
+
+        configureFieldInAllLeafBuilders("isFinal") {
+            default(it, "false")
+        }
+
         configureFieldInAllLeafBuilders("modality") {
             default(it, "SirClassModality.UNSPECIFIED")
         }
