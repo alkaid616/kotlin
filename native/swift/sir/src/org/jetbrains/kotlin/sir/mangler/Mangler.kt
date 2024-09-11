@@ -29,6 +29,7 @@ import org.jetbrains.kotlin.sir.util.SirSwiftModule
  *
  * `name` must conform to `[_a-zA-Z][_$a-zA-Z0-9]*`.
  */
+// TODO(KT-71023): support unicode in identifiers
 @JvmInline
 private value class Identifier(val name: String)
 
@@ -87,8 +88,8 @@ public val SirType.mangledName: String
     get() = when (this) {
         is SirNominalType -> typeDeclaration.mangledName
         is SirExistentialType -> TODO()
-        is SirErrorType -> TODO()
-        is SirUnsupportedType -> TODO()
+        is SirErrorType -> error("SirErrorType is not represented in Swift")
+        is SirUnsupportedType -> error("SirUnsupportedType is not represented in Swift")
     }
 
 /**
