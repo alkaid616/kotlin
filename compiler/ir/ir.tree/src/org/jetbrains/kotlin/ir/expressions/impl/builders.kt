@@ -6,10 +6,7 @@
 package org.jetbrains.kotlin.ir.expressions.impl
 
 import org.jetbrains.kotlin.descriptors.SourceElement
-import org.jetbrains.kotlin.ir.IrElement
-import org.jetbrains.kotlin.ir.IrStatement
-import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
-import org.jetbrains.kotlin.ir.UNDEFINED_OFFSET
+import org.jetbrains.kotlin.ir.*
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.declarations.IrVariable
@@ -429,6 +426,7 @@ fun IrInlinedFunctionBlockImpl(
     endOffset: Int,
     type: IrType,
     inlineFunctionSymbol: IrFunctionSymbol?,
+    fileEntry: IrFileEntry,
     origin: IrStatementOrigin? = null,
 ) = IrInlinedFunctionBlockImpl(
     constructorIndicator = null,
@@ -436,6 +434,7 @@ fun IrInlinedFunctionBlockImpl(
     endOffset = endOffset,
     type = type,
     inlineFunctionSymbol = inlineFunctionSymbol,
+    fileEntry = fileEntry,
     origin = origin,
 )
 
@@ -444,6 +443,7 @@ fun IrInlinedFunctionBlockImpl(
     endOffset: Int,
     type: IrType,
     inlineFunctionSymbol: IrFunctionSymbol?,
+    fileEntry: IrFileEntry,
     origin: IrStatementOrigin?,
     statements: List<IrStatement>,
 ) = IrInlinedFunctionBlockImpl(
@@ -452,6 +452,7 @@ fun IrInlinedFunctionBlockImpl(
     endOffset = endOffset,
     type = type,
     inlineFunctionSymbol = inlineFunctionSymbol,
+    fileEntry = fileEntry,
     origin = origin,
 ).apply {
     this.statements.addAll(statements)
