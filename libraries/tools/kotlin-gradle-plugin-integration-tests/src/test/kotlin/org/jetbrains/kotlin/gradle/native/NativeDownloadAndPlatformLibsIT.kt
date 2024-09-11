@@ -243,7 +243,7 @@ class NativeDownloadAndPlatformLibsIT : KGPBaseTest() {
         nativeProject("native-download-maven", gradleVersion = gradleVersion) {
             val nativeOptions = defaultBuildOptions.nativeOptions.copy(
                 distributionType = "light",
-                version = TestVersions.Kotlin.STABLE_RELEASE,
+                version = TestVersions.Kotlin.CURRENT,
             )
             build(
                 "assemble",
