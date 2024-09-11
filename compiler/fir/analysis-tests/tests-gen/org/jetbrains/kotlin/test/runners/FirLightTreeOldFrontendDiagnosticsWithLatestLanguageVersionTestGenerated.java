@@ -1360,6 +1360,12 @@ public class FirLightTreeOldFrontendDiagnosticsWithLatestLanguageVersionTestGene
     }
 
     @Test
+    @TestMetadata("parenthesesWithIncrements.kt")
+    public void testParenthesesWithIncrements() {
+      runTest("compiler/testData/diagnostics/tests/parenthesesWithIncrements.kt");
+    }
+
+    @Test
     @TestMetadata("parenthesesWithIndexedAssignmentOrSetValCornerCases.kt")
     public void testParenthesesWithIndexedAssignmentOrSetValCornerCases() {
       runTest("compiler/testData/diagnostics/tests/parenthesesWithIndexedAssignmentOrSetValCornerCases.kt");
