@@ -1,4 +1,5 @@
 import gradle.GradlePluginVariant
+import org.jetbrains.kotlin.gradle.internal.builtins.StandardNames.FqNames.target
 
 plugins {
     id("gradle-plugin-common-configuration")
@@ -55,6 +56,11 @@ if (!kotlinBuildProperties.isInJpsBuildIdeaSync) {
 
                     runtimeOnly(libs.junit.jupiter.engine)
                 }
+
+                // For internal symbols visibility
+                val functionalTestCompilation = kotlin.target.compilations.getByName("functionalTest")
+                functionalTestCompilation.associateWith(kotlin.target.compilations.getByName("common"))
+                functionalTestCompilation.associateWith(kotlin.target.compilations.getByName(GradlePluginVariant.GRADLE_85.sourceSetName))
 
                 targets {
                     all {
