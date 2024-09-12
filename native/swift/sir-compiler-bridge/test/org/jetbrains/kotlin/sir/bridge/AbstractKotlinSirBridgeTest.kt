@@ -5,13 +5,11 @@
 
 package org.jetbrains.kotlin.sir.bridge
 
-import com.intellij.psi.impl.source.codeStyle.CodeEditUtil.addChild
 import com.intellij.testFramework.TestDataFile
 import org.jetbrains.kotlin.sir.*
 import org.jetbrains.kotlin.sir.builder.*
 import org.jetbrains.kotlin.sir.util.SirSwiftModule
 import org.jetbrains.kotlin.sir.util.addChild
-import org.jetbrains.kotlin.sir.util.attachDeclarations
 import org.jetbrains.kotlin.test.services.JUnit5Assertions
 import org.jetbrains.kotlin.test.util.KtTestUtil
 import java.io.File
@@ -118,8 +116,9 @@ private fun readRequestFromFile(file: File): BridgeRequest {
 
             buildModule {
                 name = "BridgeTest"
-                declarations.add(function)
-            }.attachDeclarations()
+            }.apply {
+                addChild { function }
+            }
 
             function
         }
@@ -137,8 +136,9 @@ private fun readRequestFromFile(file: File): BridgeRequest {
 
             buildModule {
                 name = "BridgeTest"
-                declarations.add(variable)
-            }.attachDeclarations()
+            }.apply {
+                addChild { variable }
+            }
 
             getter
         }

@@ -75,5 +75,3 @@ val SirFunction.swiftFqName: String
 
 val SirVariable.swiftFqName: String
     get() = swiftParentNamePrefix?.let { "$it.$name" } ?: name
-
-fun <T : SirDeclarationContainer> T.attachDeclarations(): T = also { declarations.forEach { it.parent = this } }

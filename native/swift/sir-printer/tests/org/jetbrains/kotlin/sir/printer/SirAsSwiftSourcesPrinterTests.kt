@@ -11,7 +11,6 @@ import org.jetbrains.kotlin.sir.builder.*
 import org.jetbrains.kotlin.sir.providers.utils.updateImports
 import org.jetbrains.kotlin.sir.util.SirSwiftModule
 import org.jetbrains.kotlin.sir.util.addChild
-import org.jetbrains.kotlin.sir.util.attachDeclarations
 import org.jetbrains.kotlin.test.services.JUnit5Assertions
 import org.jetbrains.kotlin.test.util.KtTestUtil
 import org.jetbrains.sir.printer.SirAsSwiftSourcesPrinter
@@ -1075,3 +1074,5 @@ class SirAsSwiftSourcesPrinterTests {
         )
     }
 }
+
+private fun <T : SirDeclarationContainer> T.attachDeclarations(): T = also { declarations.forEach { it.parent = this } }

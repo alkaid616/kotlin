@@ -31,10 +31,6 @@ class BuilderConfigurator(model: Model) : AbstractSwiftIrTreeBuilderConfigurator
             default(it, "true")
         }
 
-        configureFieldInAllLeafBuilders("isFinal") {
-            default(it, "false")
-        }
-
         configureFieldInAllLeafBuilders("modality") {
             default(it, "SirModality.UNSPECIFIED")
         }
