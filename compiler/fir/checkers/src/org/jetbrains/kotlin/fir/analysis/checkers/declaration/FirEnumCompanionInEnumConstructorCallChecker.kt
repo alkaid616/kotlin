@@ -13,20 +13,12 @@ import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.analysis.checkers.MppCheckerKind
 import org.jetbrains.kotlin.fir.analysis.checkers.context.CheckerContext
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors
-import org.jetbrains.kotlin.fir.declarations.FirAnonymousObject
 import org.jetbrains.kotlin.fir.declarations.FirClass
 import org.jetbrains.kotlin.fir.declarations.FirRegularClass
 import org.jetbrains.kotlin.fir.declarations.impl.FirPrimaryConstructor
-import org.jetbrains.kotlin.fir.expressions.FirExpression
-import org.jetbrains.kotlin.fir.expressions.FirResolvedQualifier
-import org.jetbrains.kotlin.fir.expressions.allReceiverExpressions
-import org.jetbrains.kotlin.fir.expressions.toReference
-import org.jetbrains.kotlin.fir.expressions.unwrapSmartcastExpression
+import org.jetbrains.kotlin.fir.expressions.*
 import org.jetbrains.kotlin.fir.references.FirThisReference
-import org.jetbrains.kotlin.fir.resolve.dfa.cfg.CFGNodeWithSubgraphs
-import org.jetbrains.kotlin.fir.resolve.dfa.cfg.ControlFlowGraph
-import org.jetbrains.kotlin.fir.resolve.dfa.cfg.FunctionCallExitNode
-import org.jetbrains.kotlin.fir.resolve.dfa.cfg.QualifiedAccessNode
+import org.jetbrains.kotlin.fir.resolve.dfa.cfg.*
 import org.jetbrains.kotlin.fir.resolve.dfa.controlFlowGraph
 import org.jetbrains.kotlin.fir.symbols.impl.FirRegularClassSymbol
 import org.jetbrains.kotlin.fir.types.resolvedType
@@ -58,40 +50,19 @@ object FirEnumCompanionInEnumConstructorCallChecker : FirClassChecker(MppChecker
         companionSymbol: FirRegularClassSymbol,
         context: CheckerContext,
         reporter: DiagnosticReporter
-    ) {
-        for (node in graph.nodes) {
-            if (node is CFGNodeWithSubgraphs) {
-                for (subGraph in node.subGraphs) {
-                    when (subGraph.kind) {
-                        ControlFlowGraph.Kind.AnonymousFunctionCalledInPlace,
-                        ControlFlowGraph.Kind.PropertyInitializer,
-                        ControlFlowGraph.Kind.ClassInitializer -> analyzeGraph(subGraph, companionSymbol, context, reporter)
-                        ControlFlowGraph.Kind.Class -> {
-                            if (subGraph.declaration is FirAnonymousObject) {
-                                analyzeGraph(subGraph, companionSymbol, context, reporter)
-                            }
-                        }
-                        else -> {}
-                    }
-                }
-            }
-            val qualifiedAccess = when (node) {
-                is QualifiedAccessNode -> node.fir
-                is FunctionCallExitNode -> node.fir
-                else -> continue
-            }
+    ) = graph.traverse(object : ControlFlowGraphVisitorVoid() {
+        override fun visitNode(node: CFGNode<*>) {}
+        override fun visitSubGraph(node: CFGNodeWithSubgraphs<*>, graph: ControlFlowGraph) = this.takeIf { graph.isInPlace }
+        override fun visitQualifiedAccessNode(node: QualifiedAccessNode) = visitQualifiedAccess(node.fir)
+        override fun visitFunctionCallExitNode(node: FunctionCallExitNode) = visitQualifiedAccess(node.fir)
+
+        private fun visitQualifiedAccess(qualifiedAccess: FirQualifiedAccessExpression) {
             val matchingReceiver = qualifiedAccess.allReceiverExpressions
-                .firstOrNull { it.unwrapSmartcastExpression().getClassSymbol(context.session) == companionSymbol }
-            if (matchingReceiver != null) {
-                reporter.reportOn(
-                    matchingReceiver.source ?: qualifiedAccess.source,
-                    FirErrors.UNINITIALIZED_ENUM_COMPANION,
-                    companionSymbol,
-                    context
-                )
-            }
+                .firstOrNull { it.unwrapSmartcastExpression().getClassSymbol(context.session) == companionSymbol } ?: return
+            val source = matchingReceiver.source ?: qualifiedAccess.source
+            reporter.reportOn(source, FirErrors.UNINITIALIZED_ENUM_COMPANION, companionSymbol, context)
         }
-    }
+    })
 
     private fun FirExpression.getClassSymbol(session: FirSession): FirRegularClassSymbol? {
         return when (this) {

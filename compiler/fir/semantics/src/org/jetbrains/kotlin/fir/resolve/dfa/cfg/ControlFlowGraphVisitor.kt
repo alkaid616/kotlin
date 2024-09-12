@@ -8,6 +8,9 @@ package org.jetbrains.kotlin.fir.resolve.dfa.cfg
 abstract class ControlFlowGraphVisitor<out R, in D> {
     abstract fun visitNode(node: CFGNode<*>, data: D): R
 
+    open fun visitSubGraph(node: CFGNodeWithSubgraphs<*>, data: D, graph: ControlFlowGraph): ControlFlowGraphVisitor<R, D>? = this
+    open fun visitSubGraphEnd() {}
+
     // ----------------------------------- Simple function -----------------------------------
 
     open fun visitFunctionEnterNode(node: FunctionEnterNode, data: D): R {

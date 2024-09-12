@@ -41,7 +41,9 @@ private fun <K : Any, V : Any> ControlFlowGraph.traverseOnce(
         }
         if (node is CFGNodeWithSubgraphs<*>) {
             node.subGraphs.forEach {
-                changed = changed or (visitor.visitSubGraph(node, it) && it.traverseOnce(visitor, nodeMap))
+                val subVisitor = visitor.visitSubGraph(node, newData, it) ?: return@forEach
+                changed = changed or it.traverseOnce(subVisitor, nodeMap)
+                subVisitor.visitSubGraphEnd()
             }
         }
     }

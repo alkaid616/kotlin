@@ -44,8 +44,12 @@ class PropertyInitializationInfoCollector(
 ) : EventCollectingControlFlowGraphVisitor<VariableInitializationEvent>() {
     // When looking for initializations of member properties, skip subgraphs of member functions;
     // all properties are assumed to be initialized there.
-    override fun visitSubGraph(node: CFGNodeWithSubgraphs<*>, graph: ControlFlowGraph): Boolean =
-        expectedReceiver == null || node !is ClassExitNode || node !== node.owner.exitNode
+    override fun visitSubGraph(
+        node: CFGNodeWithSubgraphs<*>,
+        data: PathAwarePropertyInitializationInfo,
+        graph: ControlFlowGraph
+    ): PropertyInitializationInfoCollector? =
+        this.takeIf { expectedReceiver == null || node !is ClassExitNode || node !== node.owner.exitNode }
 
     override fun visitVariableAssignmentNode(
         node: VariableAssignmentNode,

@@ -18,10 +18,7 @@ import org.jetbrains.kotlin.fir.analysis.checkers.context.CheckerContext
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors
 import org.jetbrains.kotlin.fir.expressions.calleeReference
 import org.jetbrains.kotlin.fir.references.toResolvedPropertySymbol
-import org.jetbrains.kotlin.fir.resolve.dfa.cfg.CFGNode
-import org.jetbrains.kotlin.fir.resolve.dfa.cfg.ControlFlowGraph
-import org.jetbrains.kotlin.fir.resolve.dfa.cfg.ControlFlowGraphVisitorVoid
-import org.jetbrains.kotlin.fir.resolve.dfa.cfg.VariableAssignmentNode
+import org.jetbrains.kotlin.fir.resolve.dfa.cfg.*
 import org.jetbrains.kotlin.fir.symbols.impl.FirPropertySymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirVariableSymbol
 import org.jetbrains.kotlin.util.getChildren
@@ -37,7 +34,7 @@ object CanBeValChecker : AbstractFirPropertyInitializationChecker(MppCheckerKind
                 val count = source.lighterASTNode.getChildren(source.treeStructure).count {
                     it.tokenType == KtNodeTypes.DESTRUCTURING_DECLARATION_ENTRY
                 }
-                // Weird way of writing `and { ... }` that will always call `next()` N times.
+                // Weird way of writing `all { ... }` that will always call `next()` N times.
                 (0 until count).fold(true) { acc, _ -> iterator.hasNext() && collector.canBeVal(iterator.next()) && acc }
             } else {
                 collector.canBeVal(symbol)
@@ -48,18 +45,26 @@ object CanBeValChecker : AbstractFirPropertyInitializationChecker(MppCheckerKind
         }
     }
 
-    private class ReassignedVariableCollector(val data: VariableInitializationInfoData) : ControlFlowGraphVisitorVoid() {
+    private class ReassignedVariableCollector(private val data: VariableInitializationInfoData) :
+        ControlFlowGraphVisitorVoidWithContext(data.graph) {
+
+        private val declaredIn = mutableMapOf<FirPropertySymbol, ControlFlowGraph>()
         private val reassigned = mutableSetOf<FirPropertySymbol>()
 
         override fun visitNode(node: CFGNode<*>) {}
+
+        override fun visitVariableDeclarationNode(node: VariableDeclarationNode) {
+            declaredIn[node.fir.symbol] = currentNonInPlaceGraph()
+        }
 
         override fun visitVariableAssignmentNode(node: VariableAssignmentNode) {
             val symbol = node.fir.calleeReference?.toResolvedPropertySymbol() ?: return
             if (symbol.isVar && symbol.source?.kind !is KtFakeSourceElementKind && symbol in data.properties) {
                 val isForInitialization = data.graph.kind == ControlFlowGraph.Kind.Class || data.graph.kind == ControlFlowGraph.Kind.File
-                if (!symbol.requiresInitialization(isForInitialization) || data.getValue(node).values.any { it[symbol]?.canBeRevisited() == true }) {
-                    reassigned.add(symbol)
-                }
+                val isReassigned = !symbol.requiresInitialization(isForInitialization) ||
+                        data.getValue(node).values.any { it[symbol]?.canBeRevisited() == true } ||
+                        declaredIn[symbol] != currentNonInPlaceGraph()
+                if (isReassigned) reassigned.add(symbol)
             }
         }
 

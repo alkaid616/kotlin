@@ -8,6 +8,8 @@ package org.jetbrains.kotlin.fir.resolve.dfa.cfg
 abstract class ControlFlowGraphVisitorVoid : ControlFlowGraphVisitor<Unit, Nothing?>() {
     abstract fun visitNode(node: CFGNode<*>)
 
+    open fun visitSubGraph(node: CFGNodeWithSubgraphs<*>, graph: ControlFlowGraph): ControlFlowGraphVisitorVoid? = this
+
     // ----------------------------------- Simple function -----------------------------------
 
     open fun visitFunctionEnterNode(node: FunctionEnterNode) {
@@ -280,6 +282,12 @@ abstract class ControlFlowGraphVisitorVoid : ControlFlowGraphVisitor<Unit, Nothi
     final override fun visitNode(node: CFGNode<*>, data: Nothing?) {
         visitNode(node)
     }
+
+    final override fun visitSubGraph(
+        node: CFGNodeWithSubgraphs<*>,
+        data: Nothing?,
+        graph: ControlFlowGraph
+    ): ControlFlowGraphVisitorVoid? = visitSubGraph(node, graph)
 
     // ----------------------------------- Simple function -----------------------------------
 

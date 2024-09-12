@@ -33,8 +33,11 @@ abstract class PathAwareControlFlowGraphVisitor<K : Any, V : Any> :
     fun mergeInfo(a: PathAwareControlFlowInfo<K, V>, b: PathAwareControlFlowInfo<K, V>, node: CFGNode<*>): PathAwareControlFlowInfo<K, V> =
         a.merge(b) { left, right -> mergeInfo(left, right, node) }
 
-    open fun visitSubGraph(node: CFGNodeWithSubgraphs<*>, graph: ControlFlowGraph): Boolean =
-        true // false to skip
+    override fun visitSubGraph(
+        node: CFGNodeWithSubgraphs<*>,
+        data: PathAwareControlFlowInfo<K, V>,
+        graph: ControlFlowGraph
+    ): PathAwareControlFlowGraphVisitor<K, V>? = this
 
     open fun visitEdge(
         from: CFGNode<*>,
