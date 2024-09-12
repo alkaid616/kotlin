@@ -62,8 +62,10 @@ internal class IrTypeParameterScopeValidator(private val reportError: ReportErro
             )
         }
 
-        override fun visitType(container: IrElement, type: IrType) {
-            visitTypeAccess(container, type)
+        override fun visitTypeRecursively(container: IrElement, type: IrType) {
+            ((type as? IrSimpleType)?.classifier as? IrTypeParameterSymbol)?.let {
+                checkTypeParameterReference(container, it)
+            }
         }
 
         override fun visitElement(element: IrElement) {

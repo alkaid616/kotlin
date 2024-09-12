@@ -38,11 +38,8 @@ internal class IrConstTypeAnnotationTransformer(
                     element.acceptChildren(this, data)
                 }
 
-                override fun visitType(container: IrElement, type: IrType, data: Data) {
+                override fun visitTypeRecursively(container: IrElement, type: IrType, data: Data) {
                     transformAnnotations(type)
-                    if (type is IrSimpleType) {
-                        type.arguments.mapNotNull { it.typeOrNull }.forEach { visitType(container, it, data) }
-                    }
                 }
             },
             data,
