@@ -5,7 +5,10 @@
 
 package org.jetbrains.kotlin.gradle
 
+import org.gradle.api.Action
 import org.gradle.util.GradleVersion
+import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension
+import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootPlugin
 import org.jetbrains.kotlin.gradle.testbase.*
 import org.jetbrains.kotlin.test.TestMetadata
 import org.junit.jupiter.api.DisplayName
@@ -45,8 +48,32 @@ class NodeJsGradlePluginIT : KGPBaseTest() {
                         .replace("the", "rootProject.the")
                         .replace("NodeJsPlugin", "NodeJsRootPlugin")
                         .replace("NodeJsEnvSpec", "NodeJsRootExtension")
-                        .replace("""version\.set\(("\d+\.\d+.\d+")\)""".toRegex(), "version = \"22.2.0\"")
+                        .replace("""version\.set\(("\d+\.\d+.\d+")\)""".toRegex(), "version = \"22.3.0\"")
                 }
+            }
+
+            build(":app1:jsNodeDevelopmentRun") {
+                assertOutputContains("Hello with version: v22.3.0")
+            }
+
+            build(":app2:jsNodeDevelopmentRun") {
+                assertOutputContains("Hello with version: v22.3.0")
+            }
+        }
+    }
+
+    @DisplayName("Set different Node.js versions in root project and subprojects")
+    @GradleTest
+    @TestMetadata("subprojects-nodejs-setup")
+    fun testDifferentVersionInRootProjectAndSubprojects(gradleVersion: GradleVersion) {
+        project(
+            "subprojects-nodejs-setup",
+            gradleVersion
+        ) {
+            buildScriptInjection {
+                project.rootProject.plugins.withType(NodeJsRootPlugin::class.java, Action {
+                    project.rootProject.extensions.getByType(NodeJsRootExtension::class.java).version = "22.3.0"
+                })
             }
 
             build(":app1:jsNodeDevelopmentRun") {
@@ -54,7 +81,7 @@ class NodeJsGradlePluginIT : KGPBaseTest() {
             }
 
             build(":app2:jsNodeDevelopmentRun") {
-                assertOutputContains("Hello with version: v22.2.0")
+                assertOutputContains("Hello with version: v22.1.0")
             }
         }
     }
