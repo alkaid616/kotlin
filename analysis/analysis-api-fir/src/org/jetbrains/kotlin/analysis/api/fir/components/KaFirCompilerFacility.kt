@@ -29,7 +29,6 @@ import org.jetbrains.kotlin.analysis.low.level.api.fir.projectStructure.llFirMod
 import org.jetbrains.kotlin.analysis.low.level.api.fir.sessions.LLFirSession
 import org.jetbrains.kotlin.analysis.low.level.api.fir.sessions.llFirSession
 import org.jetbrains.kotlin.analysis.low.level.api.fir.util.codeFragment
-import org.jetbrains.kotlin.analysis.low.level.api.fir.util.getContainingFile
 import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
 import org.jetbrains.kotlin.backend.common.phaser.PhaseConfig
 import org.jetbrains.kotlin.backend.jvm.*
@@ -46,8 +45,8 @@ import org.jetbrains.kotlin.diagnostics.DiagnosticReporterFactory
 import org.jetbrains.kotlin.diagnostics.KtPsiDiagnostic
 import org.jetbrains.kotlin.diagnostics.Severity
 import org.jetbrains.kotlin.diagnostics.impl.BaseDiagnosticsCollector
+import org.jetbrains.kotlin.diagnostics.impl.PendingDiagnosticsCollectorWithSuppress
 import org.jetbrains.kotlin.fileClasses.javaFileFacadeFqName
-import org.jetbrains.kotlin.fir.FirElement
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.analysis.diagnostics.toFirDiagnostics
 import org.jetbrains.kotlin.fir.backend.Fir2IrConfiguration
@@ -66,22 +65,16 @@ import org.jetbrains.kotlin.fir.declarations.FirFile
 import org.jetbrains.kotlin.fir.declarations.FirFunction
 import org.jetbrains.kotlin.fir.declarations.FirResolvePhase
 import org.jetbrains.kotlin.fir.declarations.utils.hasBody
-import org.jetbrains.kotlin.fir.declarations.utils.isInline
 import org.jetbrains.kotlin.fir.diagnostics.ConeSyntaxDiagnostic
-import org.jetbrains.kotlin.fir.expressions.FirCallableReferenceAccess
-import org.jetbrains.kotlin.fir.expressions.FirFunctionCall
 import org.jetbrains.kotlin.fir.languageVersionSettings
 import org.jetbrains.kotlin.fir.lazy.AbstractFir2IrLazyDeclaration
 import org.jetbrains.kotlin.fir.pipeline.*
 import org.jetbrains.kotlin.fir.psi
 import org.jetbrains.kotlin.fir.references.FirReference
 import org.jetbrains.kotlin.fir.references.FirThisReference
-import org.jetbrains.kotlin.fir.references.symbol
 import org.jetbrains.kotlin.fir.references.toResolvedSymbol
 import org.jetbrains.kotlin.fir.symbols.FirBasedSymbol
-import org.jetbrains.kotlin.fir.symbols.impl.FirNamedFunctionSymbol
 import org.jetbrains.kotlin.fir.symbols.lazyResolveToPhaseRecursively
-import org.jetbrains.kotlin.fir.visitors.FirVisitorVoid
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.PsiIrFileEntry
@@ -101,6 +94,7 @@ import org.jetbrains.kotlin.ir.util.classId
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitorVoid
 import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
 import org.jetbrains.kotlin.ir.visitors.acceptVoid
+import org.jetbrains.kotlin.load.kotlin.VirtualFileFinder
 import org.jetbrains.kotlin.load.kotlin.toSourceElement
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
@@ -189,27 +183,35 @@ internal class KaFirCompilerFacility(
 
         val irGeneratorExtensions = IrGenerationExtension.getInstances(project)
 
-        dependencyFiles
-            .map(::getFullyResolvedFirFile)
-            .groupBy { it.llFirSession }
-            .map { (dependencySession, dependencyFiles) ->
-                val dependencyConfiguration = configuration
-                    .copy()
-                    .apply {
-                        put(CommonConfigurationKeys.USE_FIR, true)
-                        put(CommonConfigurationKeys.LANGUAGE_VERSION_SETTINGS, dependencySession.languageVersionSettings)
-                    }
+        val inlineFuncDependencyByteArray = mutableMapOf<String, ByteArray>()
+        prebuiltDependencies?.classNameToByteArray?.let { inlineFuncDependencyByteArray.putAll(it) }
 
-                val dependencyFir2IrExtensions = JvmFir2IrExtensions(dependencyConfiguration, jvmIrDeserializer)
-                runFir2Ir(
-                    dependencySession, dependencyFiles, dependencyFir2IrExtensions,
-                    diagnosticReporter, dependencyConfiguration, irGeneratorExtensions
-                )
+        val filesNeedingByteArray = compilationPeerData.dependencyFilesContainingInlineFunction.filter { ktFile ->
+            ktFile.classPathForInlineCache() !in inlineFuncDependencyByteArray.keys
+        }
+
+        val (dependencyFilesNeedingByteArray, dependencyFilesNeedingOnlyResolution) = dependencyFiles.partition {
+            it in filesNeedingByteArray
+        }
+
+        runFir2IrForDependency(
+            dependencyFilesNeedingOnlyResolution, configuration, jvmIrDeserializer, diagnosticReporter, irGeneratorExtensions
+        )
+
+        val virtualFileFinder = VirtualFileFinder.getInstance(project)
+        dependencyFilesNeedingByteArray.forEach { dependencyFile ->
+            val className = dependencyFile.classPathForInlineCache()
+            val byteArray = virtualFileFinder.findVirtualFileWithHeader(dependencyFile.classId())?.contentsToByteArray()
+            if (byteArray != null) {
+                inlineFuncDependencyByteArray[className] = byteArray
+                return@forEach
             }
 
-        val inlineFuncDependencyByteArray = prebuiltDependencies?.classNameToByteArray ?: compileDependencyFilesContainingInline(
-            mainFirFile, dependencyFiles, configuration, target, allowedErrorFilter
-        )
+            val compileResult = compileUnsafe(dependencyFile, configuration, target, allowedErrorFilter, null)
+            val artifact = compileResult as? KaCompilationResult.Success ?: return@forEach
+            val compiledFile = artifact.output.firstOrNull { it.path == "$className.class" } ?: return@forEach
+            inlineFuncDependencyByteArray[className] = compiledFile.content
+        }
 
         val targetConfiguration = configuration
             .copy()
@@ -309,55 +311,41 @@ internal class KaFirCompilerFacility(
         }
     }
 
-    private fun collectInlineFuncInDependency(mainFirFile: FirFile, dependencyFiles: List<KtFile>): List<KtFile> {
-        val dependencyFilesContainingInline = mutableListOf<KtFile>()
-        mainFirFile.accept(object : FirVisitorVoid() {
-            override fun visitElement(element: FirElement) {
-                element.acceptChildren(this)
-            }
-
-            override fun visitFunctionCall(functionCall: FirFunctionCall) {
-                super.visitFunctionCall(functionCall)
-                val symbol = functionCall.calleeReference.symbol as? FirNamedFunctionSymbol ?: return
-                collectKtFileContainingInlineFunction(symbol.fir)
-            }
-
-            override fun visitCallableReferenceAccess(callableReferenceAccess: FirCallableReferenceAccess) {
-                super.visitCallableReferenceAccess(callableReferenceAccess)
-                val symbol = callableReferenceAccess.calleeReference.symbol as? FirNamedFunctionSymbol ?: return
-                collectKtFileContainingInlineFunction(symbol.fir)
-            }
-
-            private fun collectKtFileContainingInlineFunction(fir: FirFunction) {
-                if (fir.isInline) {
-                    fir.getContainingFile()?.psi?.let { psi ->
-                        if (psi is KtFile && psi in dependencyFiles) dependencyFilesContainingInline.add(psi)
-                    }
-                }
-            }
-        })
-        return dependencyFilesContainingInline
+    /**
+     * This function returns the path to class for [GenerationState.inlineCache] key. For example, the key for `Foo` class
+     * of `com.example.foo` package is `com/example/foo/Foo`. Since [javaFileFacadeFqName] for `Foo` class of
+     * `com.example.foo` package is `com.example.foo.FooKt`, this function replaces `.` to `/` and drops the last `Kt`.
+     */
+    private fun KtFile.classPathForInlineCache() = javaFileFacadeFqName.toString().replace(".", "/").let { fqName ->
+        assert(fqName.endsWith("Kt"))
+        fqName.substringBeforeLast("Kt")
     }
 
-    private fun compileDependencyFilesContainingInline(
-        mainFirFile: FirFile, dependencyFiles: List<KtFile>,
+    private fun KtFile.classId() = ClassId(FqName(this.packageFqName.asString()), FqName(this.name), false)
+
+    private fun runFir2IrForDependency(
+        dependencyFiles: List<KtFile>,
         configuration: CompilerConfiguration,
-        target: KaCompilerTarget,
-        allowedErrorFilter: (KaDiagnostic) -> Boolean,
-    ): Map<String, ByteArray> {
-        val dependencyFilesContainingInline = collectInlineFuncInDependency(mainFirFile, dependencyFiles)
-        val classNameToByteArray = mutableMapOf<String, ByteArray>()
-        dependencyFilesContainingInline.forEach { dependencyFile ->
-            val className = dependencyFile.javaFileFacadeFqName.toString().replace(".", "/").let {
-                if (it.endsWith("Kt")) it.substringBeforeLast("Kt")
-                else it
+        jvmIrDeserializer: JvmIrDeserializerImpl,
+        diagnosticReporter: PendingDiagnosticsCollectorWithSuppress,
+        irGeneratorExtensions: List<IrGenerationExtension>,
+    ) {
+        dependencyFiles.map(::getFullyResolvedFirFile).groupBy { it.llFirSession }.map { (dependencySession, dependencyFiles) ->
+            val dependencyConfiguration = configuration.copy().apply {
+                put(CommonConfigurationKeys.USE_FIR, true)
+                put(CommonConfigurationKeys.LANGUAGE_VERSION_SETTINGS, dependencySession.languageVersionSettings)
             }
-            val compileResult = compileUnsafe(dependencyFile, configuration, target, allowedErrorFilter, null)
-            val artifact = compileResult as? KaCompilationResult.Success ?: return@forEach
-            val compiledFile = artifact.output.firstOrNull { it.path == "$className.class" } ?: return@forEach
-            classNameToByteArray[className] = compiledFile.content
+
+            val dependencyFir2IrExtensions = JvmFir2IrExtensions(dependencyConfiguration, jvmIrDeserializer)
+            runFir2Ir(
+                dependencySession,
+                dependencyFiles,
+                dependencyFir2IrExtensions,
+                diagnosticReporter,
+                dependencyConfiguration,
+                irGeneratorExtensions
+            )
         }
-        return classNameToByteArray
     }
 
     private fun runFir2Ir(

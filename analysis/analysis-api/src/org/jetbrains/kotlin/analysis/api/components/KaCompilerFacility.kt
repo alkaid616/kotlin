@@ -164,7 +164,8 @@ public interface KaCompilerFacility {
      * @param prebuiltDependencies Optional parameter providing prebuilt inline function dependency byte-array.
      *  If this parameter is null, this function will internally generate JVM IR for dependency inline functions, which may  be heavy
      *  computation. Optionally, if the user of this API provides a non-null [prebuiltDependencies], this function will use it for
-     *  JVM IR generation for inline functions declared in dependencies.
+     *  JVM IR generation for inline functions declared in dependencies, and this function will generate required JVM IR for
+     *  dependency inline functions missing in [prebuiltDependencies].
      *
      * @return Compilation result.
      *
