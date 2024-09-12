@@ -30,7 +30,7 @@ public:
     // Starts the worker thread immediately.
     template <typename ContextFactory>
     explicit SingleThreadExecutor(ContextFactory&& contextFactory) noexcept :
-        thread_(&SingleThreadExecutor::runLoop<ContextFactory>, this, std::forward<ContextFactory>(contextFactory)) {}
+        thread_(std::string_view("Single thread executor"), &SingleThreadExecutor::runLoop<ContextFactory>, this, std::forward<ContextFactory>(contextFactory)) {}
 
     // Starts the worker thread immediately.
     SingleThreadExecutor() noexcept : SingleThreadExecutor([] { return Context(); }) {}
@@ -54,7 +54,7 @@ public:
     }
 
     // Id of the worker thread.
-    UtilityThread::id threadId() const noexcept { return thread_.get_id(); }
+    ScopedThread::id threadId() const noexcept { return thread_.get_id(); }
 
     // Schedule task execution on the worker thread. The returned future is resolved when the task has completed.
     // If `this` is destroyed before the task manages to complete, the returned future will fail with exception upon `.get()`.

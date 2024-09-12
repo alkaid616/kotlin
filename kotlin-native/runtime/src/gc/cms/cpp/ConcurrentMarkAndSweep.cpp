@@ -6,6 +6,7 @@
 #include "ConcurrentMarkAndSweep.hpp"
 
 #include <optional>
+#include <string_view>
 
 #include "AllocatorImpl.hpp"
 #include "CallsChecker.hpp"
@@ -25,7 +26,7 @@ namespace {
 
 template <typename Body>
 UtilityThread createGCThread(const char* name, Body&& body) {
-    return UtilityThread(UtilityThread::attributes().name(name), [name, body] {
+    return UtilityThread(std::string_view(name), [name, body] {
         RuntimeLogDebug({kTagGC}, "%s %" PRIuPTR " starts execution", name, konan::currentThreadId());
         body();
         RuntimeLogDebug({kTagGC}, "%s %" PRIuPTR " finishes execution", name, konan::currentThreadId());

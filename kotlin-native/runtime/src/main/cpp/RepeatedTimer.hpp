@@ -23,7 +23,7 @@ public:
     RepeatedTimer(std::string_view name, std::chrono::duration<Rep, Period> interval, F&& f) noexcept :
         interval_(interval),
         next_(Clock::now() + interval_),
-        thread_(UtilityThread::attributes().name(name), &RepeatedTimer::Run<F>, this, std::forward<F>(f)) {}
+        thread_(name, &RepeatedTimer::Run<F>, this, std::forward<F>(f)) {}
 
     template <typename Rep, typename Period, typename F>
     RepeatedTimer(std::chrono::duration<Rep, Period> interval, F&& f) noexcept :
