@@ -14,7 +14,7 @@ import org.jetbrains.kotlin.gradle.tasks.internal.CleanableStore
 import org.jetbrains.kotlin.gradle.utils.getFile
 
 /**
- * Spec to run Binaryen - optimizing tool for wasm files
+ * Specification for executing Binaryen, an optimization tool for wasm files.
  */
 @ExperimentalWasmDsl
 abstract class BinaryenRootEnvSpec : EnvSpec<BinaryenEnv>() {
