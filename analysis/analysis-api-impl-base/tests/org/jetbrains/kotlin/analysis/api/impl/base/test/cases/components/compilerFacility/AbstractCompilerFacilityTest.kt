@@ -176,6 +176,13 @@ abstract class AbstractCompilerFacilityTest : AbstractAnalysisApiBasedTest() {
         return filesContainingInlineFunction
     }
 
+    /**
+     * This function collects inline functions declared in source library modules of [mainFile] and
+     * compiler them to prepare the class path to [ByteArray] map. Its implementation is almost the
+     * same as `CompilationPeerCollectingVisitor`, but we can run this function out of
+     * [KaCompilerFacility.compile], so we can test whether the given [KaPrebuiltDependencies] to
+     * [KaCompilerFacility.compile] correctly handles the inline function dependencies or not.
+     */
     private fun compileDependencyFilesContainingInline(
         mainFile: KtFile, mainModule: KaSourceModule,
         configuration: CompilerConfiguration,
