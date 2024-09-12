@@ -38,8 +38,8 @@ class FusPluginIT : KGPBaseTest() {
                 "test-fus",
                 "-Pkotlin.session.logger.root.path=${projectPath.resolve(reportRelativePath).pathString}",
             ) {
-                validateFusReportFileContains(
-                    gradleVersion,
+                assertFilesCombinedContains(
+                    Files.list(projectPath.resolve("$reportRelativePath/kotlin-profile")).toList(),
                     "$metricName=$metricValue",
                     "BUILD FINISHED"
                 )
@@ -87,8 +87,8 @@ class FusPluginIT : KGPBaseTest() {
                 "-Pkotlin.session.logger.root.path=${projectPath.resolve(reportRelativePath).pathString}",
             ) {
                 assertConfigurationCacheStored()
-                validateFusReportFileContains(
-                    gradleVersion,
+                assertFilesCombinedContains(
+                    Files.list(projectPath.resolve("$reportRelativePath/kotlin-profile")).toList(),
                     "app=$executionTimeValue",
                     "lib=$executionTimeValue",
                     "$configurationTimeMetricName=app",
@@ -105,8 +105,9 @@ class FusPluginIT : KGPBaseTest() {
                 "-Pkotlin.session.logger.root.path=${projectPath.resolve(reportRelativePath).pathString}",
             ) {
                 assertConfigurationCacheReused()
-                validateFusReportFileContains(
-                    gradleVersion,
+
+                assertFilesCombinedContains(
+                    Files.list(projectPath.resolve("$reportRelativePath/kotlin-profile")).toList(),
                     "$configurationTimeMetricName=app",
                     "$configurationTimeMetricName=lib",
                     "BUILD FINISHED"
@@ -137,8 +138,8 @@ class FusPluginIT : KGPBaseTest() {
                 "-Pkotlin.session.logger.root.path=${projectPath.resolve(reportRelativePath).pathString}",
             ) {
                 //Metrics should not be overridden and both metrics should be in the file
-                validateFusReportFileContains(
-                    gradleVersion,
+                assertFilesCombinedContains(
+                    Files.list(projectPath.resolve("$reportRelativePath/kotlin-profile")).toList(),
                     "Build: ",
                     "$metricName=1",
                     "$metricName=2",
@@ -197,8 +198,8 @@ class FusPluginIT : KGPBaseTest() {
                 "-Pkotlin.session.logger.root.path=${projectPath.resolve(reportRelativePath).pathString}",
                 enableGradleDebug = true
             ) {
-                validateFusReportFileContains(
-                    gradleVersion,
+                 assertFilesCombinedContains(
+                     Files.list(projectPath.resolve("$reportRelativePath/kotlin-profile")).toList(),
                     "subProjectA=value",
                     "subProjectB=value",
                     "BUILD FINISHED"
@@ -211,33 +212,14 @@ class FusPluginIT : KGPBaseTest() {
                 "assemble",
                 "-Pkotlin.session.logger.root.path=${projectPath.resolve(reportRelativePath).pathString}",
             ) {
-                validateFusReportFileContains(
-                    gradleVersion,
+                assertFilesCombinedContains(
+                    Files.list(projectPath.resolve("$reportRelativePath/kotlin-profile")).toList(),
                     "subProjectA=value",
                     "subProjectB=value",
                     "BUILD FINISHED"
                 )
             }
             projectPath.resolve(reportRelativePath).toFile().deleteRecursively()
-        }
-    }
-
-    private fun TestProject.validateFusReportFileContains(
-        gradleVersion: GradleVersion,
-        vararg expectedText: String,
-    ) {
-        // Since Gradle 8.2 FlowAction is used and a single FUS file is created.
-        // For earlier versions [GradleBuildFusStatisticsService] creates a separate file
-        if (gradleVersion < GradleVersion.version("8.2")) {
-            assertFilesCombinedContains(
-                Files.list(projectPath.resolve("$reportRelativePath/kotlin-profile")).toList(),
-                *expectedText
-            )
-        } else {
-            assertFileContains(
-                projectPath.getSingleFileInDir("$reportRelativePath/kotlin-profile"),
-                *expectedText
-            )
         }
     }
 

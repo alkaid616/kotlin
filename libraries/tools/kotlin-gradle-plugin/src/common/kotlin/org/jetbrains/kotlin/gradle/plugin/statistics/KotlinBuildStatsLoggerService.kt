@@ -58,11 +58,10 @@ internal open class KotlinBuildStatsLoggerService(
         }
     }
 
-    internal fun reportBuildFinished(metricsContainer: NonSynchronizedMetricsContainer? = null, customMetrics: List<Metric> = emptyList()) {
+    internal fun reportBuildFinished(metricsContainer: NonSynchronizedMetricsContainer? = null) {
         runMetricMethodSafely(logger, "${KotlinBuildStatsLoggerService::class.java}.reportBuildFinish") {
             metricsContainer?.sendToConsumer(sessionLogger)
-
-            sessionLogger.finishBuildSession(customMetrics.map { it.toString() })
+            sessionLogger.finishBuildSession()
         }
     }
 }

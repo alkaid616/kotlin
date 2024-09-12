@@ -33,10 +33,6 @@ abstract class InternalGradleBuildFusStatisticsService :
 
     private val metrics = ConcurrentLinkedQueue<Metric>()
     private val log = Logging.getLogger(this.javaClass)
-
-    //It is not possible to rely on BuildUidService in close() method,
-    // so the buildId field is used for Gradle versions less than 8.2
-    // for older versions [BuildFinishFlowAction] is used
     private val buildId = parameters.buildUidService.get().buildId
 
     init {
@@ -51,23 +47,8 @@ abstract class InternalGradleBuildFusStatisticsService :
         if (parameters.useBuildFinishFlowAction.get()) {
             return
         }
-        val reportDir = File(parameters.fusStatisticsRootDirPath.get(), STATISTICS_FOLDER_NAME)
-        try {
-            Files.createDirectories(reportDir.toPath())
-        } catch (e: Exception) {
-            log.warn("Failed to create directory '$reportDir' for FUS report. FUS report won't be created", e)
-            return
-        }
-        val reportFile = reportDir.resolve(UUID.randomUUID().toString() + PROFILE_FILE_NAME_SUFFIX)
-        reportFile.createNewFile()
 
-        FileOutputStream(reportFile, true).bufferedWriter().use {
-            it.appendLine("Build: $buildId")
-            getAllReportedMetrics().forEach { reportedMetrics ->
-                it.appendLine("$reportedMetrics")
-            }
-            it.appendLine(BUILD_SESSION_SEPARATOR)
-        }
+        writeDownFusMetrics()
     }
 
     /**
@@ -101,9 +82,29 @@ abstract class InternalGradleBuildFusStatisticsService :
         metrics.add(Metric(name, value, uniqueId))
     }
 
+    internal fun writeDownFusMetrics() {
+        val reportDir = File(parameters.fusStatisticsRootDirPath.get(), STATISTICS_FOLDER_NAME)
+        try {
+            Files.createDirectories(reportDir.toPath())
+        } catch (e: Exception) {
+            log.warn("Failed to create directory '$reportDir' for FUS report. FUS report won't be created", e)
+            return
+        }
+        val reportFile = reportDir.resolve(UUID.randomUUID().toString() + PROFILE_FILE_NAME_SUFFIX)
+        reportFile.createNewFile()
+
+        FileOutputStream(reportFile, true).bufferedWriter().use {
+            it.appendLine("Build: $buildId")
+            getAllReportedMetrics().forEach { reportedMetrics ->
+                it.appendLine(reportedMetrics.toString())
+            }
+            it.appendLine(BUILD_SESSION_SEPARATOR)
+        }
+    }
+
     companion object {
         private const val STATISTICS_FOLDER_NAME = "kotlin-profile"
         private const val BUILD_SESSION_SEPARATOR = "BUILD FINISHED"
-        private const val PROFILE_FILE_NAME_SUFFIX = ".profile"
+        private const val PROFILE_FILE_NAME_SUFFIX = ".plugin-profile"
     }
 }

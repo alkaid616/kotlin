@@ -175,14 +175,14 @@ abstract class BuildFusService : BuildService<BuildFusService.Parameters>, AutoC
         log.kotlinDebug("Close ${this.javaClass.simpleName}")
     }
 
-    internal fun recordBuildFinished(buildFailed: Boolean, buildId: String, customMetrics: List<Metric> = emptyList()) {
+    internal fun recordBuildFinished(buildFailed: Boolean, buildId: String) {
         BuildFinishMetrics.collectMetrics(log, buildFailed, buildStartTime, projectEvaluatedTime, fusMetricsConsumer)
         parameters.configurationMetrics.orElse(emptyList()).get().forEach { it.addToConsumer(fusMetricsConsumer) }
         parameters.generalConfigurationMetrics.orNull?.addToConsumer(fusMetricsConsumer)
         parameters.buildStatisticsConfiguration.orNull?.also {
             val loggerService = KotlinBuildStatsLoggerService(it)
             loggerService.initSessionLogger(buildId)
-            loggerService.reportBuildFinished(fusMetricsConsumer, customMetrics)
+            loggerService.reportBuildFinished(fusMetricsConsumer)
         }
     }
 }
