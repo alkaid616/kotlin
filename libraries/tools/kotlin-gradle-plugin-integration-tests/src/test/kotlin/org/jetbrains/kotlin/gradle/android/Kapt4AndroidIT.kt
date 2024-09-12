@@ -5,7 +5,10 @@
 
 package org.jetbrains.kotlin.gradle.android
 
+import org.gradle.util.GradleVersion
 import org.jetbrains.kotlin.gradle.forceKapt4
+import org.jetbrains.kotlin.gradle.testbase.GradleAndroidTest
+import org.jetbrains.kotlin.gradle.testbase.JdkVersions
 import org.jetbrains.kotlin.gradle.testbase.TestProject
 import org.junit.jupiter.api.DisplayName
 
@@ -15,5 +18,15 @@ class Kapt4AndroidIT : Kapt3AndroidIT() {
 
     override fun TestProject.customizeProject() {
         forceKapt4()
+    }
+
+    @DisplayName("KT-71233 Kapt does not cause build to fail if no annotation processors are defined")
+    @GradleAndroidTest
+    override fun testNoProcessors(
+        gradleVersion: GradleVersion,
+        agpVersion: String,
+        jdkVersion: JdkVersions.ProvidedJdk,
+    ) {
+        super.testNoProcessors(gradleVersion, agpVersion, jdkVersion)
     }
 }
