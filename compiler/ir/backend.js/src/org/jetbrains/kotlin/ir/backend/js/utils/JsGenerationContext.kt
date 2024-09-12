@@ -5,7 +5,6 @@
 
 package org.jetbrains.kotlin.ir.backend.js.utils
 
-import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.IrFileEntry
 import org.jetbrains.kotlin.ir.backend.js.transformers.irToJs.getSourceLocation
@@ -13,7 +12,6 @@ import org.jetbrains.kotlin.ir.declarations.*
 import org.jetbrains.kotlin.ir.expressions.IrLoop
 import org.jetbrains.kotlin.ir.expressions.IrReturnableBlock
 import org.jetbrains.kotlin.ir.symbols.IrFunctionSymbol
-import org.jetbrains.kotlin.ir.util.getPackageFragment
 import org.jetbrains.kotlin.ir.util.irError
 import org.jetbrains.kotlin.ir.util.originalFunction
 import org.jetbrains.kotlin.js.backend.ast.JsLocation
@@ -31,7 +29,6 @@ val emptyScope: JsScope = object : JsScope("nil") {
 }
 
 class JsGenerationContext(
-    val currentModule: ModuleDescriptor?,
     val currentFileEntry: IrFileEntry,
     val currentFunction: IrFunction?,
     val staticContext: JsStaticContext,
@@ -42,14 +39,8 @@ class JsGenerationContext(
     private val startLocationCache = hashMapOf<Int, JsLocation>()
     private val endLocationCache = hashMapOf<Int, JsLocation>()
 
-    fun newFile(
-        module: ModuleDescriptor?,
-        fileEntry: IrFileEntry,
-        func: IrFunction? = null,
-        localNames: LocalNameGenerator? = null,
-    ): JsGenerationContext {
+    fun newFile(fileEntry: IrFileEntry, func: IrFunction? = null, localNames: LocalNameGenerator? = null): JsGenerationContext {
         return JsGenerationContext(
-            currentModule = module,
             currentFileEntry = fileEntry,
             currentFunction = func,
             staticContext = staticContext,
@@ -61,7 +52,6 @@ class JsGenerationContext(
 
     fun newDeclaration(func: IrFunction? = null, localNames: LocalNameGenerator? = null): JsGenerationContext {
         return JsGenerationContext(
-            currentModule = func?.getPackageFragment()?.moduleDescriptor,
             currentFileEntry = currentFileEntry,
             currentFunction = func,
             staticContext = staticContext,
