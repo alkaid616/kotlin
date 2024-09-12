@@ -22,6 +22,7 @@ class JvmIrInliner(context: JvmBackendContext) : FunctionInlining(
     context,
     inlineFunctionResolver = JvmInlineFunctionResolver(context),
     regenerateInlinedAnonymousObjects = true,
+    insertAdditionalImplicitCasts = false,
 ) {
     private val enabled = context.config.enableIrInliner
 
