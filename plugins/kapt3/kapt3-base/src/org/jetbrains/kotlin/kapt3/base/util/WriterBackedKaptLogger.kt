@@ -13,6 +13,8 @@ class WriterBackedKaptLogger(
     override val warnWriter: PrintWriter = if (isJava17OrLater()) infoWriter else PrintWriter(System.out),
     override val errorWriter: PrintWriter = PrintWriter(System.err)
 ) : KaptLogger {
+    override var hasErrors: Boolean = false
+
     override fun info(message: String) {
         if (isVerbose) {
             report("INFO", message, infoWriter)
@@ -24,10 +26,12 @@ class WriterBackedKaptLogger(
     }
 
     override fun error(message: String) {
+        hasErrors = true
         report("ERROR", message, errorWriter)
     }
 
     override fun exception(e: Throwable) {
+        hasErrors = true
         errorWriter.println("An error occurred:")
         e.printStackTrace(errorWriter)
         errorWriter.flush()

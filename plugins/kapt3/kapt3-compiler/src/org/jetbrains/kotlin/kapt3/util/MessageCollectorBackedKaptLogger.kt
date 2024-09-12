@@ -29,6 +29,9 @@ class MessageCollectorBackedKaptLogger(
         fun defaultMessageCollector(isVerbose: Boolean) = PrintingMessageCollector(System.err, PLAIN_FULL_PATHS, isVerbose)
     }
 
+    override val hasErrors: Boolean
+        get() = messageCollector.hasErrors()
+
     override val errorWriter = makeWriter(ERROR)
     override val warnWriter = makeWriter(STRONG_WARNING)
     override val infoWriter = makeWriter(if (isInfoAsWarnings) WARNING else INFO)

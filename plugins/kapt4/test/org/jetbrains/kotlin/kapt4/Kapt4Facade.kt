@@ -75,6 +75,8 @@ private fun run(
     )
 
     val logger = object : KaptLogger {
+        override val hasErrors: Boolean
+            get() = shouldNotBeCalled()
         override val errorWriter: PrintWriter
             get() = shouldNotBeCalled()
         override val infoWriter: PrintWriter

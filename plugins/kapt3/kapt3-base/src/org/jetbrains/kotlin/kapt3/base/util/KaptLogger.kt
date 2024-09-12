@@ -8,6 +8,8 @@ package org.jetbrains.kotlin.kapt3.base.util
 import java.io.PrintWriter
 
 interface KaptLogger {
+    val hasErrors: Boolean
+
     val isVerbose: Boolean
 
     val infoWriter: PrintWriter

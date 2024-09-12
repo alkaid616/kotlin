@@ -62,6 +62,11 @@ open class FirKaptAnalysisHandlerExtension(
     }
 
     override fun doAnalysis(project: Project, configuration: CompilerConfiguration): Boolean {
+        runK2Kapt(project, configuration)
+        return !logger.hasErrors
+    }
+
+    private fun runK2Kapt(project: Project, configuration: CompilerConfiguration) {
         val optionsBuilder = configuration[KAPT_OPTIONS]!!
         logger = kaptLogger
             ?: MessageCollectorBackedKaptLogger(
@@ -73,7 +78,7 @@ open class FirKaptAnalysisHandlerExtension(
 
         if (optionsBuilder.mode == AptMode.WITH_COMPILATION) {
             logger.error("KAPT \"compile\" mode is not supported in Kotlin 2.x. Run kapt with -Kapt-mode=stubsAndApt and use kotlinc for the final compilation step.")
-            return false
+            return
         }
 
         optionsBuilder.apply {
@@ -84,7 +89,7 @@ open class FirKaptAnalysisHandlerExtension(
             classesOutputDir = classesOutputDir ?: configuration.get(JVMConfigurationKeys.OUTPUT_DIRECTORY)
         }
 
-        if (!optionsBuilder.checkOptions(logger, configuration)) return false
+        if (!optionsBuilder.checkOptions(logger, configuration)) return
         options = optionsBuilder.build()
         if (options[KaptFlag.VERBOSE]) {
             logger.info(options.logString())
@@ -96,9 +101,7 @@ open class FirKaptAnalysisHandlerExtension(
         }
 
         val groupedSources: GroupedKtSources = collectSources(updatedConfiguration, project, messageCollector)
-        if (messageCollector.hasErrors()) {
-            return false
-        }
+        if (messageCollector.hasErrors()) return
 
         val sourceFiles = groupedSources.commonSources + groupedSources.platformSources
         logger.info { "Kotlin files to compile: ${sourceFiles.map { it.name }}" }
@@ -107,9 +110,7 @@ open class FirKaptAnalysisHandlerExtension(
         try {
             val projectEnvironment =
                 createProjectEnvironment(updatedConfiguration, disposable, EnvironmentConfigFiles.JVM_CONFIG_FILES, messageCollector)
-            if (messageCollector.hasErrors()) {
-                return false
-            }
+            if (messageCollector.hasErrors()) return
 
             if (options.mode.generateStubs) {
                 contextForStubGeneration(disposable, projectEnvironment, updatedConfiguration).use { context ->
@@ -120,21 +121,17 @@ open class FirKaptAnalysisHandlerExtension(
             Disposer.dispose(disposable)
         }
 
-        if (!options.mode.runAnnotationProcessing) return true
+        if (!options.mode.runAnnotationProcessing) return
 
         val processors = loadProcessors()
-        if (processors.processors.isEmpty()) return true
+        if (processors.processors.isEmpty()) return
 
         val kaptContext = KaptContext(options, false, logger)
 
-        fun handleKaptError(error: KaptError): Boolean {
-            val cause = error.cause
-
-            if (cause != null) {
-                kaptContext.logger.exception(cause)
+        fun handleKaptError(error: KaptError) {
+            error.cause?.let {
+                kaptContext.logger.exception(it)
             }
-
-            return false
         }
 
         try {
@@ -151,12 +148,9 @@ open class FirKaptAnalysisHandlerExtension(
             return handleKaptError(error)
         } catch (thr: Throwable) {
             kaptContext.logger.exception(thr)
-            return false
         } finally {
             kaptContext.close()
         }
-
-        return true
     }
 
     private fun runAnnotationProcessing(kaptContext: KaptContext, processors: LoadedProcessors) {
