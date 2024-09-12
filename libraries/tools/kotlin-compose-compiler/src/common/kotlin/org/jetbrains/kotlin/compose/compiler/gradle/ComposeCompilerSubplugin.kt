@@ -13,7 +13,7 @@ import org.jetbrains.kotlin.compose.compiler.gradle.model.builder.ComposeCompile
 import org.jetbrains.kotlin.gradle.plugin.*
 import javax.inject.Inject
 
-class ComposeCompilerGradleSubplugin
+internal class ComposeCompilerGradleSubplugin
 @Inject internal constructor(
     private val registry: ToolingModelBuilderRegistry,
 ) : KotlinCompilerPluginSupportPlugin {
