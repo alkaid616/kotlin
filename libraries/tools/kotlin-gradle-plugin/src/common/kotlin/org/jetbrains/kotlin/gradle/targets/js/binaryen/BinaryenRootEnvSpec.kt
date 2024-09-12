@@ -20,7 +20,7 @@ import org.jetbrains.kotlin.gradle.utils.getFile
 abstract class BinaryenRootEnvSpec : EnvSpec<BinaryenEnv>() {
 
     /**
-     * Specify a platform information with name and architecture
+     * Specify Binaryen platform information, with name and architecture.
      */
     internal abstract val platform: Property<BinaryenPlatform>
 
