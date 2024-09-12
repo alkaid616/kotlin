@@ -1,4 +1,5 @@
 // ISSUE: KT-52469
+// LANGUAGE: -ProhibitIntersectionReifiedTypeParameter
 
 interface InterfaceA
 interface InterfaceB

@@ -21270,9 +21270,15 @@ public class LLFirPreresolvedReversedDiagnosticCompilerFE10TestDataTestGenerated
         }
 
         @Test
-        @TestMetadata("ReifiedIntersection.kt")
-        public void testReifiedIntersection() {
-          runTest("compiler/testData/diagnostics/tests/inference/reified/ReifiedIntersection.kt");
+        @TestMetadata("ReifiedIntersectionError.kt")
+        public void testReifiedIntersectionError() {
+          runTest("compiler/testData/diagnostics/tests/inference/reified/ReifiedIntersectionError.kt");
+        }
+
+        @Test
+        @TestMetadata("ReifiedIntersectionWarning.kt")
+        public void testReifiedIntersectionWarning() {
+          runTest("compiler/testData/diagnostics/tests/inference/reified/ReifiedIntersectionWarning.kt");
         }
       }
 
