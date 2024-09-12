@@ -28,7 +28,7 @@ open class D8Plugin : Plugin<Project> {
 
         val spec = project.extensions.createD8EnvSpec(settings)
 
-        settings.d8EnvSpec = { spec }
+        settings.d8EnvSpec = spec
 
         project.registerTask<D8SetupTask>(D8SetupTask.NAME, listOf(spec)) {
             it.group = TASKS_GROUP_NAME

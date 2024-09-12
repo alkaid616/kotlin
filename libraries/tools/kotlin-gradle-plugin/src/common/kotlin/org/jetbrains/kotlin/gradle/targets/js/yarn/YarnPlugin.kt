@@ -49,7 +49,7 @@ open class YarnPlugin : Plugin<Project> {
 
         val yarnSpec = project.extensions.createYarnEnvSpec(objects, yarnRootExtension)
 
-        yarnRootExtension.yarnSpec = { yarnSpec }
+        yarnRootExtension.yarnSpec = yarnSpec
 
         val setupTask = registerTask<YarnSetupTask>(YarnSetupTask.NAME, listOf(yarnSpec)) {
             with(nodeJs) {

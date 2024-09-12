@@ -29,7 +29,7 @@ open class YarnRootExtension(
         check(project == project.rootProject)
     }
 
-    internal lateinit var yarnSpec: () -> YarnRootEnvSpec
+    internal lateinit var yarnSpec: YarnRootEnvSpec
 
     private val gradleHome = project.gradle.gradleUserHomeDir.also {
         project.logger.kotlinInfo("Storing cached files in $it")
@@ -103,7 +103,7 @@ open class YarnRootExtension(
     internal val nodeJsEnvironment: org.gradle.api.provider.Property<NodeJsEnv> = project.objects.property(NodeJsEnv::class.java)
 
     override fun finalizeConfiguration(): YarnEnv {
-        return yarnSpec().produceEnv(project.providers).get()
+        return yarnSpec.produceEnv(project.providers).get()
     }
 
     val restoreYarnLockTaskProvider: TaskProvider<YarnLockCopyTask>

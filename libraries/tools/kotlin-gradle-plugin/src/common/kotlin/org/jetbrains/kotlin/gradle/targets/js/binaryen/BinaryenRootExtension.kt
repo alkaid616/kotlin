@@ -21,7 +21,7 @@ open class BinaryenRootExtension(
         check(rootProject.rootProject == rootProject)
     }
 
-    internal lateinit var binaryenSpec: () -> BinaryenRootEnvSpec
+    internal lateinit var binaryenSpec: BinaryenRootEnvSpec
 
     private val gradleHome = rootProject.gradle.gradleUserHomeDir.also {
         rootProject.logger.kotlinInfo("Storing cached files in $it")
@@ -49,7 +49,7 @@ open class BinaryenRootExtension(
     internal val platform: org.gradle.api.provider.Property<BinaryenPlatform> = rootProject.objects.property<BinaryenPlatform>()
 
     override fun finalizeConfiguration(): BinaryenEnv {
-        return binaryenSpec().produceEnv(rootProject.providers).get()
+        return binaryenSpec.produceEnv(rootProject.providers).get()
     }
 
     companion object {

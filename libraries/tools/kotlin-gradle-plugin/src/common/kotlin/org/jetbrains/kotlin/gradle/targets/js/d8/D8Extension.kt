@@ -22,7 +22,7 @@ open class D8Extension(
         project.logger.kotlinInfo("Storing cached files in $it")
     }
 
-    internal lateinit var d8EnvSpec: () -> D8EnvSpec
+    internal lateinit var d8EnvSpec: D8EnvSpec
 
     override val downloadProperty: org.gradle.api.provider.Property<Boolean> = project.objects.property<Boolean>()
         .convention(true)
@@ -55,7 +55,7 @@ open class D8Extension(
         get() = project.tasks.withType(D8SetupTask::class.java).named(D8SetupTask.NAME)
 
     override fun finalizeConfiguration(): D8Env {
-        return d8EnvSpec().produceEnv(project.providers).get()
+        return d8EnvSpec.produceEnv(project.providers).get()
     }
 
     companion object {

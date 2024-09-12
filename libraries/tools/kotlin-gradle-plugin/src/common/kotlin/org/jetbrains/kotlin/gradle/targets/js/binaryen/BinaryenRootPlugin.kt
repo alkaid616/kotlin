@@ -34,7 +34,7 @@ open class BinaryenRootPlugin : Plugin<Project> {
 
         val spec = project.extensions.createBinaryenRootEnvSpec(settings)
 
-        settings.binaryenSpec = { spec }
+        settings.binaryenSpec = spec
 
         addPlatform(project, settings)
 
