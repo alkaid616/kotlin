@@ -10,9 +10,10 @@ import org.jetbrains.kotlin.generators.tree.*
 import org.jetbrains.kotlin.generators.tree.printer.ImportCollectingPrinter
 import org.jetbrains.kotlin.generators.tree.printer.printBlock
 import org.jetbrains.kotlin.ir.generator.elementVisitorVoidType
+import org.jetbrains.kotlin.ir.generator.irSimpleTypeType
+import org.jetbrains.kotlin.ir.generator.irTypeProjectionType
 import org.jetbrains.kotlin.ir.generator.model.Element
 import org.jetbrains.kotlin.ir.generator.typeVisitorType
-import org.jetbrains.kotlin.utils.withIndent
 
 internal class TypeVisitorVoidPrinter(
     printer: ImportCollectingPrinter,
@@ -34,10 +35,31 @@ internal class TypeVisitorVoidPrinter(
     override fun visitMethodReturnType(element: Element): TypeRef = StandardTypes.unit
 
     override fun ImportCollectingPrinter.printAdditionalMethods() {
-        printVisitTypeMethod(hasDataParameter = false, modality = Modality.ABSTRACT, override = false)
+        printVisitTypeMethod(name = "visitTypeRecursively", hasDataParameter = false, modality = Modality.OPEN, override = false)
+        printBlock {}
         println()
+        printVisitTypeMethod(name = "visitTypeRecursively", hasDataParameter = true, modality = Modality.FINAL, override = true)
+        printBlock {
+            println("visitTypeRecursively(container, type)")
+        }
         println()
-        printVisitTypeMethod(hasDataParameter = true, modality = Modality.FINAL, override = true)
+        printVisitTypeMethod(name = "visitType", hasDataParameter = false, modality = Modality.OPEN, override = false)
+        printBlock {
+            printlnMultiLine(
+                """
+                visitTypeRecursively(container, type)
+                if (type is ${irSimpleTypeType.render()}) {
+                    type.arguments.forEach {
+                        if (it is ${irTypeProjectionType.render()}) {
+                            visitType(container, it.type)
+                        }
+                    }
+                }
+                """
+            )
+        }
+        println()
+        printVisitTypeMethod(name = "visitType", hasDataParameter = true, modality = Modality.FINAL, override = true)
         printBlock {
             println("visitType(container, type)")
         }

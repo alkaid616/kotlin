@@ -13,6 +13,8 @@ import org.jetbrains.kotlin.generators.tree.printer.printBlock
 import org.jetbrains.kotlin.generators.tree.printer.printFunctionDeclaration
 import org.jetbrains.kotlin.ir.generator.IrTree
 import org.jetbrains.kotlin.ir.generator.elementVisitorType
+import org.jetbrains.kotlin.ir.generator.irSimpleTypeType
+import org.jetbrains.kotlin.ir.generator.irTypeProjectionType
 import org.jetbrains.kotlin.ir.generator.irTypeType
 import org.jetbrains.kotlin.ir.generator.model.Element
 import org.jetbrains.kotlin.ir.generator.model.Field
@@ -58,9 +60,14 @@ internal open class TypeVisitorPrinter(
         return irTypeFields + parentsFields
     }
 
-    protected fun ImportCollectingPrinter.printVisitTypeMethod(hasDataParameter: Boolean, modality: Modality?, override: Boolean) {
+    protected fun ImportCollectingPrinter.printVisitTypeMethod(
+        name: String,
+        hasDataParameter: Boolean,
+        modality: Modality?,
+        override: Boolean,
+    ) {
         printFunctionDeclaration(
-            name = "visitType",
+            name = name,
             parameters = listOfNotNull(
                 FunctionParameter("container", rootElement),
                 FunctionParameter("type", irTypeType),
@@ -73,8 +80,24 @@ internal open class TypeVisitorPrinter(
     }
 
     override fun ImportCollectingPrinter.printAdditionalMethods() {
-        printVisitTypeMethod(hasDataParameter = true, modality = Modality.ABSTRACT, override = false)
+        printVisitTypeMethod(name = "visitTypeRecursively", hasDataParameter = true, modality = Modality.OPEN, override = false)
+        printBlock {}
         println()
+        printVisitTypeMethod(name = "visitType", hasDataParameter = true, modality = Modality.OPEN, override = false)
+        printBlock {
+            printlnMultiLine(
+                """
+                visitTypeRecursively(container, type, data)
+                if (type is ${irSimpleTypeType.render()}) {
+                    type.arguments.forEach {
+                        if (it is ${irTypeProjectionType.render()}) {
+                            visitType(container, it.type, data)
+                        }
+                    }
+                }
+                """
+            )
+        }
     }
 
     protected fun ImportCollectingPrinter.printTypeRemappings(
