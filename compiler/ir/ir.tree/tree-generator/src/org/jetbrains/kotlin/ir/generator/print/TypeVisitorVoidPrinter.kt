@@ -60,8 +60,6 @@ internal class TypeVisitorVoidPrinter(
                     element,
                     irTypeFields,
                     hasDataParameter = false,
-                    replaceTypes = false,
-                    visitTypeMethodName = "visitType"
                 )
                 println("super<", elementVisitorVoidType.render(), ">.", element.visitFunctionName, "(", element.visitorParameterName, ")")
             }
