@@ -151,6 +151,7 @@ internal class FunctionReferenceLowering(val generationState: NativeGenerationSt
                         val reference = invokable.statements.last() as IrFunctionReference
                         reference.transformChildren(this, data)
                         invokable.statements[invokable.statements.lastIndex] = transformFunctionReference(reference, data, expression.typeOperand)
+                        invokable.type = expression.type
                         return invokable
                     }
                 }
