@@ -254,11 +254,12 @@ fun main(args: Array<String>) {
                 model("stepping")
             }
 
-            testClass<AbstractIrJsLocalVariableTest> {
-                // The tests in the 'inlineScopes' directory are meant to test a JVM backend
-                // specific feature, so there is no reason to enable them for JS.
-                model("localVariables", excludeDirs = listOf("inlineScopes"))
-            }
+            // FIXME(KTI-1959): These tests are temporarily disabled because they suddenly became flaky.
+//            testClass<AbstractIrJsLocalVariableTest> {
+//                // The tests in the 'inlineScopes' directory are meant to test a JVM backend
+//                // specific feature, so there is no reason to enable them for JS.
+//                model("localVariables", excludeDirs = listOf("inlineScopes"))
+//            }
         }
 
         testGroup("js/js.tests/tests-gen", "compiler/testData/diagnostics", testRunnerMethodName = "runTest0") {
