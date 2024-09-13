@@ -29,7 +29,7 @@ import org.jetbrains.kotlin.powerassert.earliestStartOffset
 import java.io.File
 
 data class SourceFile(
-    private val irFile: IrFile,
+    val irFile: IrFile,
 ) {
     companion object {
         private val KOTLIN_POWER_ASSERT_ADD_SRC_ROOTS = System.getProperty("KOTLIN_POWER_ASSERT_ADD_SRC_ROOTS") ?: ""
