@@ -228,6 +228,10 @@ private fun bridgeType(type: SirType): Bridge {
                     error("Found Optional wrapping for OpaqueObject. That is impossible")
                 }
             }
+            is Bridge.AsIs
+                -> Bridge.AsOptionalWrapper(
+                Bridge.AsObjCBridged(bridge.swiftType, bridge.kotlinType, CType.NSNumber)
+            )
             else -> error("Found Optional wrapping for $bridge. That is currently unsupported. See KT-66875")
         }
 
@@ -282,6 +286,8 @@ private enum class CType(val repr: String) {
     Object("uintptr_t"),
 
     NSString("NSString *"),
+
+    NSNumber("NSNumber *"),
 }
 
 private enum class KotlinType(val repr: kotlin.String) {
@@ -436,7 +442,14 @@ private sealed class Bridge(
         override val inSwiftSources: InSwiftSourcesConversion = object : InSwiftSourcesConversion {
             override fun swiftToKotlin(typeNamer: SirTypeNamer, valueExpression: String): String {
                 return when (wrappedObject) {
-                    is AsObjCBridged -> wrappedObject.inSwiftSources.swiftToKotlin(typeNamer, valueExpression)
+                    is AsObjCBridged -> {
+                        when (wrappedObject.cType) {
+                            CType.NSString -> wrappedObject.inSwiftSources.swiftToKotlin(typeNamer, valueExpression)
+                            CType.NSNumber -> wrappedObject.inSwiftSources.swiftToKotlin(typeNamer, valueExpression) +
+                                    ".flatMap { it in NSNumber(value: it) }"
+                            else -> error("AsObjCBridged should have known NS* types cType, but got ${wrappedObject.cType}")
+                        }
+                    }
                     is AsObject -> wrappedObject.inSwiftSources.swiftToKotlin(
                         typeNamer = typeNamer,
                         valueExpression = "$valueExpression?"
@@ -450,7 +463,14 @@ private sealed class Bridge(
 
             override fun kotlinToSwift(typeNamer: SirTypeNamer, valueExpression: String): String {
                 return when (wrappedObject) {
-                    is AsObjCBridged -> wrappedObject.inSwiftSources.swiftToKotlin(typeNamer, valueExpression)
+                    is AsObjCBridged -> {
+                        when (wrappedObject.cType) {
+                            CType.NSString -> wrappedObject.inSwiftSources.swiftToKotlin(typeNamer, valueExpression)
+                            CType.NSNumber -> wrappedObject.inSwiftSources.swiftToKotlin(typeNamer, valueExpression) +
+                                    "?.${wrappedObject.swiftType.fromNSNumberValue}"
+                            else -> error("AsObjCBridged should have known NS* typeas cType, but got ${wrappedObject.cType}")
+                        }
+                    }
                     is AsObject -> "switch $valueExpression { case ${wrappedObject.inSwiftSources.renderNil()}: .none; case let res: ${
                         wrappedObject.inSwiftSources.kotlinToSwift(typeNamer, "res")
                     }; }"
@@ -479,3 +499,24 @@ private sealed class Bridge(
     interface InSwiftSourcesConversion : ValueConversion, NilRepresentable
 }
 
+private val SirType.fromNSNumberValue: String
+    get() {
+        require(this is SirNominalType)
+        return when (typeDeclaration) {
+            SirSwiftModule.bool -> "boolValue"
+            SirSwiftModule.int8 -> "int8Value"
+            SirSwiftModule.int16 -> "int16Value"
+            SirSwiftModule.int32 -> "int32Value"
+            SirSwiftModule.int64 -> "int64Value"
+            SirSwiftModule.uint8 -> "uint8Value"
+            SirSwiftModule.uint16 -> "uint16Value"
+            SirSwiftModule.uint32 -> "uint32Value"
+            SirSwiftModule.uint64 -> "uint64Value"
+            SirSwiftModule.double -> "doubleValue"
+            SirSwiftModule.float -> "floatValue"
+
+            SirSwiftModule.utf16CodeUnit -> TODO("Optional Char is unsupported. KT-71453")
+
+            else -> error("Attempt to get $typeDeclaration from NSNumber")
+        }
+    }
