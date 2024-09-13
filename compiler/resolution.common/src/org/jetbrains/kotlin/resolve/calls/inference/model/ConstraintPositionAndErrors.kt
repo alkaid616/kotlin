@@ -129,6 +129,25 @@ class NewConstraintWarning(
     override val position: IncorporationConstraintPosition,
 ) : ConstraintSystemError(RESOLVED), NewConstraintMismatch
 
+class NoInferConstraint(
+    val lowerType: KotlinTypeMarker,
+    val lowerTypeHasNoInfer: Boolean,
+    val upperType: KotlinTypeMarker,
+    val upperTypeHasNoInfer: Boolean,
+)
+
+class ConeNoInferSubtyping(
+    val constraint: NoInferConstraint,
+    override val position: IncorporationConstraintPosition,
+) : ConstraintSystemError(RESOLVED), NewConstraintMismatch {
+    override val lowerType: KotlinTypeMarker
+        get() = constraint.lowerType
+
+    override val upperType: KotlinTypeMarker
+        get() = constraint.upperType
+}
+
+
 class CapturedTypeFromSubtyping(
     val typeVariable: TypeVariableMarker,
     val constraintType: KotlinTypeMarker,

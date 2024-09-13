@@ -8,6 +8,7 @@ package org.jetbrains.kotlin.resolve.calls.inference.components
 import org.jetbrains.kotlin.config.LanguageFeature.InferenceCompatibility
 import org.jetbrains.kotlin.config.LanguageFeature.InferenceEnhancementsIn21
 import org.jetbrains.kotlin.config.LanguageVersionSettings
+import org.jetbrains.kotlin.resolve.calls.inference.model.NoInferConstraint
 import org.jetbrains.kotlin.types.*
 import org.jetbrains.kotlin.types.model.*
 
@@ -24,6 +25,8 @@ abstract class TypeCheckerStateForConstraintSystem(
     kotlinTypeRefiner
 ) {
     abstract val languageVersionSettings: LanguageVersionSettings
+
+    val constraintsWithNoInfer = mutableListOf<NoInferConstraint>()
 
     abstract fun isMyTypeVariable(type: RigidTypeMarker): Boolean
 
@@ -66,8 +69,14 @@ abstract class TypeCheckerStateForConstraintSystem(
         superType: KotlinTypeMarker,
         isFromNullabilityConstraint: Boolean
     ): Boolean? {
-        val hasNoInfer = subType.isTypeVariableWithNoInfer() || superType.isTypeVariableWithNoInfer()
-        if (hasNoInfer) return true
+        val subTypeHasNoInfer = subType.isTypeVariableWithNoInfer()
+        val superTypeHasNoInfer = superType.isTypeVariableWithNoInfer()
+        if (subTypeHasNoInfer || superTypeHasNoInfer) {
+            if (extensionTypeContext.isK2) {
+                constraintsWithNoInfer += NoInferConstraint(subType, subTypeHasNoInfer, superType, superTypeHasNoInfer)
+            }
+            return true
+        }
 
         val hasExact = subType.isTypeVariableWithExact() || superType.isTypeVariableWithExact()
 

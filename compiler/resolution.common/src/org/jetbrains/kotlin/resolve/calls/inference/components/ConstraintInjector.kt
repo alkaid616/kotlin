@@ -437,6 +437,10 @@ class ConstraintInjector(
                 } else {
                     c.addError(NewConstraintError(lowerType, upperType, position))
                 }
+            } else {
+                for (constraintWithNoInfer in constraintsWithNoInfer) {
+                    c.addError(ConeNoInferSubtyping(constraintWithNoInfer, position))
+                }
             }
         }
 
