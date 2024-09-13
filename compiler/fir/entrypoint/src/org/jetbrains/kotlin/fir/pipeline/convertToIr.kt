@@ -9,12 +9,15 @@ import org.jetbrains.kotlin.backend.common.CodegenUtil
 import org.jetbrains.kotlin.backend.common.IrSpecialAnnotationsProvider
 import org.jetbrains.kotlin.backend.common.IrValidatorConfig
 import org.jetbrains.kotlin.backend.common.actualizer.*
+import org.jetbrains.kotlin.backend.common.checkers.IrInlineDeclarationChecker
 import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.validateIr
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.config.AnalysisFlags
 import org.jetbrains.kotlin.config.IrVerificationMode
+import org.jetbrains.kotlin.config.LanguageVersionSettings
+import org.jetbrains.kotlin.diagnostics.DiagnosticReporter
 import org.jetbrains.kotlin.diagnostics.impl.BaseDiagnosticsCollector
 import org.jetbrains.kotlin.fir.FirModuleData
 import org.jetbrains.kotlin.fir.FirSession
@@ -27,6 +30,7 @@ import org.jetbrains.kotlin.fir.lazy.Fir2IrLazyClass
 import org.jetbrains.kotlin.fir.moduleData
 import org.jetbrains.kotlin.fir.resolve.ScopeSession
 import org.jetbrains.kotlin.ir.IrBuiltIns
+import org.jetbrains.kotlin.ir.IrDiagnosticReporter
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.KtDiagnosticReporterWithImplicitIrBasedContext
 import org.jetbrains.kotlin.ir.declarations.*
@@ -39,6 +43,7 @@ import org.jetbrains.kotlin.ir.types.IrTypeSystemContext
 import org.jetbrains.kotlin.ir.types.getClass
 import org.jetbrains.kotlin.ir.util.KotlinMangler
 import org.jetbrains.kotlin.ir.util.SymbolTable
+import org.jetbrains.kotlin.ir.visitors.IrElementVisitor
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitorVoid
 import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
 import org.jetbrains.kotlin.ir.visitors.acceptVoid
@@ -238,6 +243,13 @@ private class Fir2IrPipeline(
         removeGeneratedBuiltinsDeclarationsIfNeeded()
 
         pluginContext.applyIrGenerationExtensions(fir2IrConfiguration, mainIrFragment, irGeneratorExtensions)
+
+        // TODO(KT-71415): Move this after the first phase of inlining.
+        mainIrFragment.runIrLevelCheckers(
+            fir2IrConfiguration.languageVersionSettings,
+            fir2IrConfiguration.diagnosticReporter,
+            ::IrInlineDeclarationChecker,
+        )
 
         return Fir2IrActualizedResult(mainIrFragment, componentsStorage, pluginContext, actualizationResult, irBuiltIns, symbolTable)
     }
@@ -467,5 +479,16 @@ fun IrPluginContext.applyIrGenerationExtensions(
     for (extension in irGenerationExtensions) {
         extension.generate(irModuleFragment, this)
         runMandatoryIrValidation(extension, irModuleFragment, fir2IrConfiguration)
+    }
+}
+
+private fun IrModuleFragment.runIrLevelCheckers(
+    languageVersionSettings: LanguageVersionSettings,
+    diagnosticReporter: DiagnosticReporter,
+    vararg checkers: (IrDiagnosticReporter) -> IrElementVisitor<*, Nothing?>,
+) {
+    val reporter = KtDiagnosticReporterWithImplicitIrBasedContext(diagnosticReporter, languageVersionSettings)
+    for (checker in checkers) {
+        accept(checker(reporter), null)
     }
 }
