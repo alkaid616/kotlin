@@ -397,7 +397,8 @@ fun validateNoLibrariesWerePassedViaCliByUniqueName(givenNames: List<String>, re
             // The name of the library file or the library directory does not match the unique name,
             // and at the same time this unique name was specified at CLI argument.
             // Need to log a warning.
-            logger.strongWarning(
+            @Suppress("DEPRECATION")
+            logger.fatal(
                 "KLIB resolver: Library '${library.libraryFile}' was found by its unique name '$uniqueName'. " +
                         "This could happen if the library unique name was passed instead of the library path as one of compiler's CLI arguments. " +
                         "Note, that using unique name is deprecated and will become unavailable in one of the future Kotlin releases. " +
