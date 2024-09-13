@@ -53,7 +53,6 @@ internal class IrFieldValidator(
 
         if (declaration.visibility != DescriptorVisibilities.PRIVATE && !declaration.isExemptFromValidation) {
             reportError(file, declaration, "Kotlin fields are expected to always be private", parentChain)
-            return
         }
     }
 
