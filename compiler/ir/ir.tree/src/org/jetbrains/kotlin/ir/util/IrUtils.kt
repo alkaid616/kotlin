@@ -1643,3 +1643,10 @@ fun IrDeclaration.isPublishedApi(): Boolean =
                 ?.hasAnnotation(StandardClassIds.Annotations.PublishedApi) ?: false
 
 const val SKIP_BODIES_ERROR_DESCRIPTION = "skipBodies"
+
+/**
+ * Checks if the given function should be treated by 1st phase of inlining (inlining of private functions):
+ * - Either the function is private.
+ * - Or the function is declared inside a local class.
+ */
+fun IrFunction.isConsideredAsPrivateForInlining(): Boolean = DescriptorVisibilities.isPrivate(visibility) || isLocal

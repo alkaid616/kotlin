@@ -18,7 +18,6 @@ import org.jetbrains.kotlin.backend.common.lower.LoweredStatementOrigins.INLINED
 import org.jetbrains.kotlin.backend.common.lower.at
 import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
 import org.jetbrains.kotlin.contracts.parsing.ContractsDslNames
-import org.jetbrains.kotlin.descriptors.DescriptorVisibilities.isPrivate
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.UNDEFINED_OFFSET
@@ -790,9 +789,3 @@ open class FunctionInlining(
     }
 }
 
-/**
- * Checks if the given function should be treated by 1st phase of inlining (inlining of private functions):
- * - Either the function is private.
- * - Or the function is declared inside a local class.
- */
-fun IrFunction.isConsideredAsPrivateForInlining(): Boolean = isPrivate(visibility) || isLocal
