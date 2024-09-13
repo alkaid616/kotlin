@@ -39,6 +39,8 @@ open class IrValidationBeforeLoweringPhase<Context : CommonBackendContext>(conte
             checkValueScopes = true,
             checkTypeParameterScopes = false, // TODO: Re-enable checking out-of-scope type parameter usages (KT-69305)
             checkCrossFileFieldUsage = context.configuration.getBoolean(CommonConfigurationKeys.ENABLE_IR_VISIBILITY_CHECKS),
+            // FIXME(KT-71243): This should be true, but currently the ExplicitBackingFields feature de-facto allows specifying
+            //  non-private visibilities for fields.
             checkAllKotlinFieldsArePrivate = context.configuration.getBoolean(CommonConfigurationKeys.ENABLE_IR_VISIBILITY_CHECKS) &&
                     !context.configuration.languageVersionSettings.supportsFeature(LanguageFeature.ExplicitBackingFields),
             checkVisibilities = context.configuration.getBoolean(CommonConfigurationKeys.ENABLE_IR_VISIBILITY_CHECKS),
