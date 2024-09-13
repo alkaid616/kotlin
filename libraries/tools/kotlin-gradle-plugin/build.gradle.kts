@@ -2,6 +2,7 @@ import gradle.GradlePluginVariant
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.build.androidsdkprovisioner.ProvisioningType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
     id("gradle-plugin-common-configuration")
@@ -446,6 +447,10 @@ if (!kotlinBuildProperties.isInJpsBuildIdeaSync) {
     }
     functionalTestCompilation.associateWith(kotlin.target.compilations.getByName(gradlePluginVariantForFunctionalTests.sourceSetName))
     functionalTestCompilation.associateWith(kotlin.target.compilations.getByName("common"))
+    functionalTestCompilation.compileTaskProvider.configure {
+        // Needed to access Compose Plugin internal symbols
+        (this as KotlinJvmCompile).friendPaths.from(functionalTestSourceSet.compileClasspath)
+    }
 
     tasks.register<Test>("functionalTest")
 
